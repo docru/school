@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Methodologist;
 
-use App\Models\Lesson;
+use App\Http\Controllers\Controller;
+use App\Models\Course;
 use Illuminate\Http\Request;
 
-class LessonController extends Controller
+class CourseController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -34,7 +35,7 @@ class LessonController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Lesson $lesson)
+    public function show(Course $course)
     {
         //
     }
@@ -42,7 +43,7 @@ class LessonController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Lesson $lesson)
+    public function edit(Course $course)
     {
         //
     }
@@ -50,7 +51,7 @@ class LessonController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Lesson $lesson)
+    public function update(Request $request, Course $course)
     {
         //
     }
@@ -58,7 +59,7 @@ class LessonController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Lesson $lesson)
+    public function destroy(Course $course)
     {
         //
     }

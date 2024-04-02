@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Teacher;
 
-use App\Models\Answer;
+use App\Http\Controllers\Controller;
+use App\Models\Lesson;
 use Illuminate\Http\Request;
 
-class AnswerController extends Controller
+class LessonController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -34,7 +35,7 @@ class AnswerController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Answer $answer)
+    public function show(Lesson $lesson)
     {
         //
     }
@@ -42,7 +43,7 @@ class AnswerController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Answer $answer)
+    public function edit(Lesson $lesson)
     {
         //
     }
@@ -50,7 +51,7 @@ class AnswerController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Answer $answer)
+    public function update(Request $request, Lesson $lesson)
     {
         //
     }
@@ -58,7 +59,7 @@ class AnswerController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Answer $answer)
+    public function destroy(Lesson $lesson)
     {
         //
     }
