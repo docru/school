@@ -2,49 +2,68 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// авторизация по коду
+Route::get('/login/{entryCode}', 'UserController@login');
 
+// Суперадмин
+Route::group(['middleware' => ['role:superadmin']], function () {
+    Route::post('/users/create', 'UserController@create');
+    Route::post('/users/auth-link', 'UserController@authLink');
 
-Route::get('/profile', 'ProfileController@userProfile');
+    Route::prefix('superadmin')->group(function () {
 
-// ученик
-Route::prefix('disciple')->group(function () {
-
-});
-
-// учитель
-Route::prefix('teacher')->group(function () {
-
-});
-
-// администратор
-Route::prefix('administrator')->group(function () {
-
+    });
 });
 
 // методист
-Route::prefix('methodologist')->group(function () {
-    Route::resources([
-        'lessons' => \App\Http\Controllers\Methodologist\LessonController::class,
-        'courses' => \App\Http\Controllers\Methodologist\CourseController::class,
-        'control' => \App\Http\Controllers\Methodologist\ControlController::class,
-        'tasks' => \App\Http\Controllers\Methodologist\TaskController::class,
-    ]);
+Route::group(['middleware' => ['role:methodologist']], function () {
+    Route::prefix('methodologist')->group(function () {
+        Route::resources([
+            'lessons' => \App\Http\Controllers\Methodologist\LessonController::class,
+            'courses' => \App\Http\Controllers\Methodologist\CourseController::class,
+            'control' => \App\Http\Controllers\Methodologist\ControlController::class,
+            'tasks' => \App\Http\Controllers\Methodologist\TaskController::class,
+        ]);
+    });
 });
 
+// администратор
+Route::group(['middleware' => ['role:administrator']], function () {
+    Route::post('/users/create', 'UserController@create');
+    Route::post('/users/auth-link/{uid}', 'UserController@authLink');
 
+    Route::prefix('administrator')->group(function () {
 
+    });
+});
 
+// учитель
+Route::group(['middleware' => ['role:teacher']], function () {
+    Route::prefix('teacher')->group(function () {
 
-//    Route::resources([
-//        'groups' => \App\Http\Controllers\GroupController::class,
-//        'lessons' => \App\Http\Controllers\LessonController::class,
-//        'courses' => \App\Http\Controllers\CourseController::class,
-//        'control' => \App\Http\Controllers\ControlController::class,
-//        'tasks' => \App\Http\Controllers\TaskController::class,
-//        'answers' => \App\Http\Controllers\AnswerController::class,
-//        'school_days' => \App\Http\Controllers\SchoolDayController::class,
-//        'comments' => \App\Http\Controllers\CommentController::class,
-//    ]);
+    });
+});
+
+// ученик
+Route::group(['middleware' => ['role:disciple']], function () {
+    Route::prefix('disciple')->group(function () {
+
+    });
+});
+
+Route::group(['middleware' => ['auth']], function () {
+    // профиль пользователя
+    Route::get('/users/profile/{uid?}', 'UserController@profile');
+    Route::post('/users/profileSave', 'UserController@profileSave');
+    Route::get('/users/disciples/{groupId}', 'UserController@disciples');
+
+    // страница подключения vue
+    Route::get('/{any?}', fn() => view('layout'))->where('any', '.*');
+});
+
+// страница для неавторизованных пользователей
+Route::get('/', function () {
+    return view('welcome');
+});
+// Редирект не авторизованного пользователя на главную страницу
+Route::redirect('/{any?}', '/');
