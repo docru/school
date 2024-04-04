@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('name')->nullable()->comment('Имя');
             $table->string('nickname')->nullable()->comment('Псевдоним');
             $table->text('nickname_description')->nullable()->comment('Описание псевдонима');
-            $table->text('about_me')->nullable()->comment('О себе');
+//            $table->text('about_me')->nullable()->comment('О себе');
             $table->string('entry_code', 12)->nullable()->comment('Код входа');
             $table->timestamp('entry_code_generated_at')->nullable()->comment('Время генерации кода');
             $table->timestamps();

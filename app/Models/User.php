@@ -10,14 +10,13 @@ use Laratrust\Contracts\LaratrustUser;
 use Laratrust\Traits\HasRolesAndPermissions;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property string $phone Телефон
  * @property string|null $name Имя
  * @property string|null $nickname Псевдоним
  * @property string|null $nickname_description Описание псевдонима
- * @property string|null $about_me О себе
  * @property string|null $entry_code Код входа
  * @property string|null $entry_code_generated_at Время генерации кода
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -34,7 +33,6 @@ use Laratrust\Traits\HasRolesAndPermissions;
  * @method static \Illuminate\Database\Eloquent\Builder|User orWhereHasPermission(\BackedEnum|array|string $permission = '', ?mixed $team = null)
  * @method static \Illuminate\Database\Eloquent\Builder|User orWhereHasRole(\BackedEnum|array|string $role = '', ?mixed $team = null)
  * @method static \Illuminate\Database\Eloquent\Builder|User query()
- * @method static \Illuminate\Database\Eloquent\Builder|User whereAboutMe($value)
  * @method static \Illuminate\Database\Eloquent\Builder|User whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|User whereDoesntHavePermissions()
  * @method static \Illuminate\Database\Eloquent\Builder|User whereDoesntHaveRoles()
@@ -64,15 +62,14 @@ class User extends Authenticatable implements LaratrustUser
         'phone',
     ];
 
-//    /**
-//     * The attributes that should be hidden for serialization.
-//     *
-//     * @var array<int, string>
-//     */
-//    protected $hidden = [
-//        'password',
-//        'remember_token',
-//    ];
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array<int, string>
+     */
+    protected $hidden = [
+        'entry_code',
+    ];
 
 //    /**
 //     * Get the attributes that should be cast.
