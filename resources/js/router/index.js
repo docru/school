@@ -13,9 +13,9 @@ const routes = [
         }
     },
     {
-        path: '/admin',
-        name: 'Admin',
-        component: () => import('../pages/Admin.vue'),
+        path: '/schedule',
+        name: 'Schedule',
+        component: () => import('../pages/Schedule.vue'),
         meta:{
             title: 'Обзор платформы',
             breadcrumbs:[
