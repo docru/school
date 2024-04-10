@@ -9,7 +9,7 @@ Route::namespace('App\Http\Controllers')->group(function () {
 
     // профиль пользователя
     Route::group(['middleware' => ['auth']], function () {
-//        Route::get('/users/profile', 'UserController@profile'); @TODO получть профиль авторизованного пользователя с ролью какойнить
+        Route::get('/users/profile', 'UserController@profile');
         Route::get('/users/profile/{uid?}', 'UserController@profile');
         Route::post('/users/profileSave', 'UserController@profileSave');
         Route::get('/users/disciples/{groupId}', 'UserController@disciples');
@@ -18,9 +18,10 @@ Route::namespace('App\Http\Controllers')->group(function () {
     // Суперадмин
     Route::group(['middleware' => ['role:superadmin']], function () {
 
-//        Route::get('/users', 'UserController@users'); @TODO получить всех юзеров? редакировать/удалять  ...
-        Route::post('/users/create', 'UserController@create');
-        Route::post('/users/auth-link', 'UserController@authLink');
+        Route::get('/users', 'UserController@list'); // список всех пользователей
+        Route::get('/users/roles', 'UserController@roles'); // список всех ролей с описанием
+        Route::post('/users/create', 'UserController@create'); // создать пользователя ($phone, $roles)
+        Route::post('/users/auth-link', 'UserController@authLink'); // получить ссылку для пользователя ($uid)
 
         Route::prefix('superadmin')->group(function () {
 
@@ -31,8 +32,8 @@ Route::namespace('App\Http\Controllers')->group(function () {
     Route::group(['middleware' => ['role:methodologist']], function () {
         Route::prefix('methodologist')->group(function () {
             Route::resources([
-                'lessons' => \App\Http\Controllers\Methodologist\LessonController::class,
                 'courses' => \App\Http\Controllers\Methodologist\CourseController::class,
+                'lessons' => \App\Http\Controllers\Methodologist\LessonController::class,
                 'control' => \App\Http\Controllers\Methodologist\ControlController::class,
                 'tasks' => \App\Http\Controllers\Methodologist\TaskController::class,
             ]);
@@ -66,4 +67,10 @@ Route::namespace('App\Http\Controllers')->group(function () {
 
     // страница подключения vue
     Route::fallback('UserController@index');
+
+
+    if (class_exists(\App\Http\Controllers\AAController::class)){
+        Route::get('/dev/', 'AAController@test');
+    }
+
 });

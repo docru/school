@@ -83,4 +83,27 @@ class User extends Authenticatable implements LaratrustUser
 //            'password' => 'hashed',
 //        ];
 //    }
+
+
+    /**
+     * @param string $phone
+     * @return array|false|string|string[]|null
+     */
+    public static function phoneNormalize(string $phone)
+    {
+        $phone = preg_replace('/[^0-9]/', '', $phone);
+        if (strlen($phone) == 10) {
+            $phone = '7' . $phone;
+        }
+
+        if (substr($phone, 0, 1) == '8') {
+            $phone = '7' . substr($phone, 1);
+        }
+
+        if (strlen($phone) != 11 || substr($phone, 0, 1) != '7') {
+            return false;
+        }
+
+        return $phone;
+    }
 }

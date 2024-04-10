@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Lesson;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -50,7 +51,26 @@ class UserController extends Controller
      */
     public function create()
     {
-        //
+        $phone = User::phoneNormalize(request()->post('phone'));
+        if(!$phone){
+            return $this->ResponseError('Не верный формат телефона');
+        }
+        $user = User::wherePhone($phone)->first();
+        if (!empty($user)) {
+            return $this->ResponseError('Пользователь с таким телефоном уже зарегистрирован');
+        }
+        $user = User::create(['phone' => $phone]);
+
+        $roles = request()->post('roles');
+
+        $existsRoles = Role::all()->map(function (Role $role) {
+            return $role->name;
+        })->toArray();
+
+        $roles = array_intersect($roles, $existsRoles);
+        $user->addRoles($roles);
+
+        return $this->ResponseOk(['user_id' => $user->id]);
     }
 
     /**
@@ -79,7 +99,28 @@ class UserController extends Controller
      */
     public function list()
     {
-        //
+        $users = User::all()->map(function (User $user) {
+            return [
+                'id' => $user->id,
+                'phone' => $user->phone,
+                'name' => $user->name,
+                'nickname' => $user->nickname,
+            ];
+        });
+
+        return $this->ResponseOk(['users' => $users]);
+    }
+
+    public function roles()
+    {
+        return $this->ResponseOk(['roles' => Role::all()->map(function (Role $role) {
+            return [
+                'id' => $role->id,
+                'name' => $role->name,
+                'display_name' => $role->display_name,
+                'description' => $role->description,
+            ];
+        })]);
     }
 
     /**
@@ -97,7 +138,23 @@ class UserController extends Controller
      */
     public function profile($uid = false)
     {
-        return $uid;
+        if ($uid) {
+            $user = User::whereId($uid)->first();
+        } else {
+            $user = auth()->user();
+        }
+        $roles = $user->roles->map(function ($item) {
+            return $item->name;
+        })->toArray();
+
+        return $this->ResponseOk([
+            'id' => $user->id,
+            'phone' => $user->phone,
+            'name' => $user->name,
+            'nickname' => $user->nickname,
+            'nickname_description' => $user->nickname_description,
+            'roles' => $roles,
+        ]);
     }
 
     /**
