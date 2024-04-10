@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
+
     <meta charset="utf-8">
     <title>@yield('pageTitle', 'Кабинет') - Школа ЦХМ</title>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge">
@@ -14,13 +15,9 @@
     <link rel="apple-touch-startup-image" href="/build/img/favicon/adfinity-logo-152.png">
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
-
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body{!! config('app.env') == 'production' ? '' : ' class="env_' . config('app.env') . '"' !!}>
-
+<body>
 <div id="appVue"></div>
-
-{!! Vite::useManifestFilename('../bundle/manifest.json')->useBuildDirectory('bundle')->withEntryPoints(['resources/css/app.css', 'resources/css/app.scss', 'resources/js/media/app.js'])->toHtml() !!}
-
 </body>
 </html>

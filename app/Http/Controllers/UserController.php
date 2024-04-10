@@ -97,7 +97,7 @@ class UserController extends Controller
      */
     public function profile($uid = false)
     {
-        //
+        return $uid;
     }
 
     /**
