@@ -9,7 +9,7 @@ Route::namespace('App\Http\Controllers')->group(function () {
 
     // профиль пользователя
     Route::group(['middleware' => ['auth']], function () {
-//        Route::get('/users/profile', 'UserController@profile'); @TODO получть профиль авторизованного пользователя с ролью
+//        Route::get('/users/profile', 'UserController@profile'); @TODO получть профиль авторизованного пользователя с ролью какойнить
         Route::get('/users/profile/{uid?}', 'UserController@profile');
         Route::post('/users/profileSave', 'UserController@profileSave');
         Route::get('/users/disciples/{groupId}', 'UserController@disciples');
