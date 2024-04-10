@@ -16,6 +16,8 @@ Route::namespace('App\Http\Controllers')->group(function () {
 
     // Суперадмин
     Route::group(['middleware' => ['role:superadmin']], function () {
+
+//        Route::get('/users', 'UserController@users'); @TODO получить всех юзеров? редакировать/удалять  ...
         Route::post('/users/create', 'UserController@create');
         Route::post('/users/auth-link', 'UserController@authLink');
 

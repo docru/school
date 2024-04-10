@@ -23,6 +23,11 @@ const routes = [
             ]
         }
     },
+    {
+        path: '/users/create',
+        name: 'userCreate',
+        component: () => import('../pages/UserCreated.vue'),
+    },
     // {
     //     path: '/sites',
     //     name: 'Sites',
