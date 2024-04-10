@@ -20,7 +20,7 @@
     </v-navigation-drawer>
     <v-app-bar
         app
-        color="red"
+        color="primary"
     >
       <v-app-bar-nav-icon @click="drawer = !drawer">
       </v-app-bar-nav-icon>
