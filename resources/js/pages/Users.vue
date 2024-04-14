@@ -6,14 +6,14 @@
     <v-card-text>
       <div style="display: flex;  align-items:start;gap: 15px;  margin-bottom: 25px">
         <div class="w-30">
-          <v-text-field v-model="phone"></v-text-field>
+          <v-text-field type="number" v-model="phone"></v-text-field>
           <div style="display: flex; gap: 10px">
             <v-checkbox hide-details density="compact" v-model="role.value" v-for="role in getRoles" top :label="role.name"/>
           </div>
 
         </div>
 
-        <v-btn v-if="getRoles" color="primary" :disabled="!getRoles.filter((el)=>el.value).length || !phone">Создать пользователя</v-btn>
+        <v-btn v-if="getRoles" color="primary" :disabled="!getRoles.filter((el)=>el.value).length || !phone" @click="create">Создать пользователя</v-btn>
       </div>
       <div v-if="getUsers">
         <v-data-table
@@ -36,6 +36,7 @@
 <script>
 import {mapActions, mapGetters} from "vuex";
 import Code from "../components/Code.vue";
+import {th} from "vuetify/locale";
 
 export default {
   name: "Users",
@@ -55,7 +56,13 @@ export default {
     }
   },
   methods: {
-    ...mapActions('users', ['ACT_GET_User','ACT_GET_UserRoles'])
+    create(){
+      this.ACT_GET_UserCreate({
+        phone:this.phone,
+        roles:this.getRoles.filter((el)=>el.value).map((elem)=>{return elem.name})
+      })
+    },
+    ...mapActions('users', ['ACT_GET_User','ACT_GET_UserRoles','ACT_GET_UserCreate'])
   },
   computed: {
     ...mapGetters('users', ['getUsers','getRoles'])
