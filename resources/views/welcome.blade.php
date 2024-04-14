@@ -11,7 +11,7 @@
 
 <div style="height: 100vh;background-image: url('https://cms-imgp.jw-cdn.org/img/p/1102016050/univ/art/1102016050_univ_lsr_md.jpg');
             background-repeat: no-repeat;
-            background-size: cover;"></div>
+            background-size: cover;background-position: center center;"></div>
 </body>
 
 </html>

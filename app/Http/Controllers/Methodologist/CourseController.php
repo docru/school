@@ -13,15 +13,7 @@ class CourseController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        return $this->ResponseOk(Course::all(['id', 'name'])->toArray());
     }
 
     /**
@@ -29,7 +21,17 @@ class CourseController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $nameCourse = $request->input('nameCourse');
+        if(empty($nameCourse)){
+            return $this->ResponseError('Не задано название курса');
+        }
+        if(!empty(Course::whereName($nameCourse)->first())){
+            return $this->ResponseError('С таким названием курс уже есть');
+        }
+
+        $course = new Course(['name'=>$nameCourse]);
+        $course->save();
+        return $this->ResponseOk(Course::all(['id', 'name'])->toArray());
     }
 
     /**
@@ -37,15 +39,7 @@ class CourseController extends Controller
      */
     public function show(Course $course)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Course $course)
-    {
-        //
+        return $this->ResponseOk($course->toArray());
     }
 
     /**

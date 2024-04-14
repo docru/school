@@ -47,78 +47,124 @@ class UserController extends RestController
 		return redirect()->to('/');
 	}
 
-	/**
-	 * Создать пользователя
-	 * @return void
-	 */
-	public function create()
-	{
-		//
-	}
+    /**
+     * Создать пользователя
+     * @return void
+     */
+    public function create()
+    {
+        $phone = User::phoneNormalize(request()->post('phone'));
+        if(!$phone){
+            return $this->ResponseError('Не верный формат телефона');
+        }
+        $user = User::wherePhone($phone)->first();
+        if (!empty($user)) {
+            return $this->ResponseError('Пользователь с таким телефоном уже зарегистрирован');
+        }
+        $user = User::create(['phone' => $phone]);
 
-	/**
-	 * Сгенерировать ссылку для авторизации
-	 * @return string
-	 */
-	public function authLink($uid)
-	{
-		// Проверитиь права на генерацию ссылки
-		if (empty(auth()->user()) || !auth()->user()->hasRole(['owner', 'admin'])) {
-			return '';
-		}
-		$user = User::whereId($uid)->first();
-		if (empty($user)) {
-			return 'Не такого пользователя';
-		}
+        $roles = request()->post('roles');
 
-		$user->entry_code = \Str::random();
-		$user->entry_code_generated_at = date('Y-m-d H:i:s');
-		$user->save();
-		return env('APP_URL') . '/login/' . $user->entry_code;
-	}
+        $existsRoles = Role::all()->map(function (Role $role) {
+            return $role->name;
+        })->toArray();
 
-	/**
-	 * Список пользователей.
-	 */
-	public function users()
-	{
-		$userList = User::all()->toArray(); //TODO добавить массив ролей
-		return $this->ResponseOk($userList);
-	}
-	/**
-	 * Список ролей.
-	 */
-	public function roles()
-	{
-		$rolesList = Role::all()->toArray();
-		return $this->ResponseOk($rolesList);
-	}
+        $roles = array_intersect($roles, $existsRoles);
+        $user->addRoles($roles);
 
-	/**
-	 * Список пользователей группы
-	 * @param $groupId
-	 * @return void
-	 */
-	public function disciples($groupId)
-	{
-		//
-	}
+        return $this->ResponseOk(['user_id' => $user->id]);
+    }
 
-	/**
-	 * Профиль пользователя
-	 */
-	public function profile($uid = false)
-	{
-		return $uid;
-	}
+    /**
+     * Сгенерировать ссылку для авторизации
+     * @return string
+     */
+    public function authLink($uid)
+    {
+        // Проверитиь права на генерацию ссылки
+        if (empty(auth()->user()) || !auth()->user()->hasRole(['owner', 'admin'])) {
+            return '';
+        }
+        $user = User::whereId($uid)->first();
+        if (empty($user)) {
+            return 'Не такого пользователя';
+        }
 
-	/**
-	 * Display the specified resource.
-	 */
-	public function profileSave(Request $request)
-	{
-		//
-	}
+        $user->entry_code = \Str::random();
+        $user->entry_code_generated_at = date('Y-m-d H:i:s');
+        $user->save();
+        return env('APP_URL') . '/login/' . $user->entry_code;
+    }
 
+    /**
+     * Список пользователей.
+     */
+    public function list()
+    {
+        $users = User::all()->map(function (User $user) {
+            return [
+                'id' => $user->id,
+                'phone' => $user->phone,
+                'name' => $user->name,
+                'nickname' => $user->nickname,
+            ];
+        });
+
+        return $this->ResponseOk(['users' => $users]);
+    }
+
+    public function roles()
+    {
+        return $this->ResponseOk(['roles' => Role::all()->map(function (Role $role) {
+            return [
+                'id' => $role->id,
+                'name' => $role->name,
+                'display_name' => $role->display_name,
+                'description' => $role->description,
+            ];
+        })]);
+    }
+
+    /**
+     * Список пользователей группы
+     * @param $groupId
+     * @return void
+     */
+    public function disciples($groupId)
+    {
+        //
+    }
+
+    /**
+     * Профиль пользователя
+     */
+    public function profile($uid = false)
+    {
+        if ($uid) {
+            $user = User::whereId($uid)->first();
+        } else {
+            $user = auth()->user();
+        }
+        $roles = $user->roles->map(function ($item) {
+            return $item->name;
+        })->toArray();
+
+        return $this->ResponseOk([
+            'id' => $user->id,
+            'phone' => $user->phone,
+            'name' => $user->name,
+            'nickname' => $user->nickname,
+            'nickname_description' => $user->nickname_description,
+            'roles' => $roles,
+        ]);
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function profileSave(Request $request)
+    {
+        //
+    }
 
 }
