@@ -17,8 +17,8 @@ export const vuexRequest = async (method, url, params = {}, state, commit, mutat
     let result = true;
     try {
         state.load = true;
-        params = (method == 'get') ? {params: params} : params; // такой прикол у axios
-        const {data} = await axios[method](url, params);
+        params = (method === 'get') ? {params: params} : params; // такой прикол у axios
+        const {data} = await axios[method]('/api' + url, params);
         if (data.result === 'error' && !config.hideLog) {
             throw `${data.message}`
         }

@@ -59,7 +59,7 @@ export default {
       {
         id: 2,
         name: 'Курсы',
-        url: '#'
+        url: '/courses'
       },
       {
         id: 3,

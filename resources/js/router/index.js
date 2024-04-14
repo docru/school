@@ -28,6 +28,11 @@ const routes = [
         name: 'userCreate',
         component: () => import('../pages/UserCreated.vue'),
     },
+    {
+        path: '/courses',
+        name: 'userCreate',
+        component: () => import('../pages/Courses/CoursesList.vue'),
+    },
     // {
     //     path: '/sites',
     //     name: 'Sites',

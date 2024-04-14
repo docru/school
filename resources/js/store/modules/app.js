@@ -6,13 +6,29 @@ const state = {
             title: 'Обзор платформы',
             routerName: 'Home'
         },
-    ]
+    ],
+    snackBarDefault: {
+        timeout: 2000,
+        text: '',
+        color: 'blue-grey',
+        open: false
+    },
+    arraySnackBars: [],
 }
 const getters = {
     // isEndDate: (state) => state.endDate,
 }
 const mutations = {
-
+    setSnackBar(state, payload) {
+        alert(payload.text);
+        return;
+        const obj = {
+            text: payload.text || state.snackBarDefault.text,
+            color: payload.color || state.snackBarDefault.color,
+            open: true
+        }
+        state.arraySnackBars.push(obj)
+    },
 }
 
 
