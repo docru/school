@@ -8,7 +8,7 @@ const getters = {
     getRoles: (state) => state.roles,
 }
 const mutations = {
-    addUser:(state,payload)=>{ },
+
     setUsers:(state,payload)=>{ state.users = payload.users},
     setRoles:(state,payload)=>{
         state.roles = payload.roles
@@ -25,7 +25,7 @@ const actions = {
         return await vuexGet('/users/roles', {}, state, commit, 'setRoles', {showMsg: false});
     },
     async ACT_GET_UserCreate({state, commit},params){
-        return await vuexPost('/users/create', params, state, commit, 'addUser', {showMsg: false});
+        return await vuexPost('/users/create', params, state, commit, 'setUsers', {showMsg: false});
     },
 
 }
