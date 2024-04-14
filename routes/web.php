@@ -43,8 +43,6 @@ Route::namespace('App\Http\Controllers')->group(function () {
 
     // администратор
     Route::group(['middleware' => ['role:administrator']], function () {
-        Route::get('/api/users', 'UserController@users');
-        Route::get('/api/roles', 'UserController@roles');
         Route::post('/users/create', 'UserController@create');
         Route::post('/users/auth-link/{uid}', 'UserController@authLink');
 

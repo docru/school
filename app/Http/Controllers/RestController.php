@@ -15,7 +15,7 @@ class RestController extends Controller
      * @param array $data
      * @return \Illuminate\Http\JsonResponse
      */
-    public static function ResponseOk(array $data = [])
+    public  function ResponseOk(array $data = [])
     {
         return response()->json(['result' => 'ok', 'data' => $data], 200);
     }

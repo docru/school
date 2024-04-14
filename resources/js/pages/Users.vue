@@ -13,7 +13,7 @@
 
         </div>
 
-        <v-btn color="primary" :disabled="!getRoles.filter((el)=>el.value).length || !phone">Создать пользователя</v-btn>
+        <v-btn v-if="getRoles" color="primary" :disabled="!getRoles.filter((el)=>el.value).length || !phone">Создать пользователя</v-btn>
       </div>
       <div v-if="getUsers">
         <v-data-table
@@ -46,11 +46,11 @@ export default {
       usersHeaders: [
         {title: 'id', key: 'id'},
         {title: 'Имя', key: 'name'},
-        {title: 'Nic', key: 'nic'},
+        {title: 'Nic', key: 'nicname'},
         {title: 'Телефон', key: 'phone'},
-        {title: 'Обновлен', key: 'updated_at'},
-        {title: 'Обновлен', key: 'updated_at'},
-        {title: 'link', key: 'link'},
+        // {title: 'Обновлен', key: 'updated_at'},
+        // {title: 'Обновлен', key: 'updated_at'},
+        // {title: 'link', key: 'link'},
       ]
     }
   },
