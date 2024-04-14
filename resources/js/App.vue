@@ -6,16 +6,27 @@
         absolute
         temporary
         v-model="drawer"
+        class="pa-3"
     >
-      <v-list-item-group>
 
-        <v-list-item v-for="item in menu_items" :key="item.id">
-          <v-list-item-title>
-            <router-link :to="item.url">{{ item.name }}</router-link>
-          </v-list-item-title>
-        </v-list-item>
+      <v-list-subheader>Учебный процесс</v-list-subheader>
+      <v-list-item
+          v-for="item in menu_items"
+          :key="item"
+          :to="{name:item.routName}"
+          link
+          :title="item.name"
+      />
+      <v-divider></v-divider>
+      <v-list-subheader>Администрирование</v-list-subheader>
+      <v-list-item
+          v-for="item in menu_items_admin"
+          :key="item"
+          :to="{name:item.routName}"
+          link
+          :title="item.name"
+      />
 
-      </v-list-item-group>
 
     </v-navigation-drawer>
     <v-app-bar
@@ -47,26 +58,21 @@ export default {
     drawer: false,
     menu_items: [
       {
-        id: 0,
         name: 'Главная ',
-        url: '/'
+        routName: 'Home'
       },
       {
-        id: 1,
-        name: 'Расписание',
-        url: '/schedule'
+        name: 'Расписание ',
+        routName: 'Schedule'
       },
+
+    ],
+    menu_items_admin: [
       {
-        id: 2,
-        name: 'Курсы',
-        url: '#'
-      },
-      {
-        id: 3,
-        name: 'Домашка',
-        url: '#'
+        name: 'Пользователи ',
+        routName: 'Users'
       }
-    ]
+    ],
   })
 }
 </script>

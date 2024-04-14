@@ -68,7 +68,7 @@ class User extends Authenticatable implements LaratrustUser
      * @var array<int, string>
      */
     protected $hidden = [
-        'entry_code',
+//        'entry_code',
     ];
 
 //    /**

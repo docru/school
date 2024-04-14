@@ -1,5 +1,4 @@
-
-import { createApp } from 'vue/dist/vue.esm-bundler';
+import {createApp} from 'vue/dist/vue.esm-bundler';
 import App from "@/App.vue";
 import router from "@/router/index.js";
 import {store} from "@/store/store.js";
@@ -7,7 +6,7 @@ import {store} from "@/store/store.js";
 import '@mdi/font/css/materialdesignicons.css'
 import 'vuetify/styles'
 
-import { createVuetify } from 'vuetify'
+import {createVuetify} from 'vuetify'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 
@@ -26,8 +25,24 @@ const adfDark = {
         surface: '#252830',
     },
 }
+// <v-text-field density="compact" variant="outlined" hide-details v-model="phone"></v-text-field>
+
+const defParams = {
+    density:'compact',
+    hideDetails:true,
+    variant:'outlined'
+}
 
 const vuetify = createVuetify({
+    defaults: {
+        VTextField:defParams,
+        VBtn:{
+            variant:'flat',
+            ripple:true
+
+        }
+
+    },
     components,
     directives,
     display: {
