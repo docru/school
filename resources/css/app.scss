@@ -1,0 +1,124 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+@import url("table.scss");
+@import url("text-field.scss");
+
+-webkit-scrollbar {
+  width: 1px;
+}
+
+/* Works on Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color:  #d2dcf1 white;
+
+}
+
+/* Works on Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+  width: 3px;
+}
+
+*::-webkit-scrollbar-track {
+  background: #d2dcf1;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #d2dcf1;
+  border-radius: 8px;
+  border: 3px dashed white;
+}
+
+body{
+  min-width: 320px;
+  font-family: "Roboto", sans-serif;
+
+}
+
+
+h1{
+  @apply dark:tw-text-white tw-text-black tw-text-lg tw-font-bold tw-m-2;
+}
+h2{
+  @apply tw-text-lg tw-font-bold tw-my-3 dark:tw-text-white tw-ml-3;
+}
+
+.ad-card{
+  @apply tw-bg-main dark:tw-bg-dark-main tw-mx-2 tw-px-1 ;
+}
+
+.br-h{
+  border:1px solid red;
+}
+.br-red{
+  border:1px solid red !important;
+}
+
+.br-green{
+  border:1px solid green;
+}
+
+.br-blue{
+  border:1px solid blue;
+}
+
+
+.adf-heading{
+  @apply tw-text-black dark:tw-text-white tw-font-medium tw-text-2xl tw-mb-5 tw-transition;
+}
+
+.skeleton{
+  @apply tw-transition-all tw-bg-slate-500 tw-animate-pulse tw-cursor-progress tw-select-none tw-pointer-events-none;
+  color: transparent !important;
+
+  & > *{
+    @apply tw-opacity-0 tw-select-none tw-pointer-events-none tw-transition-all;
+  }
+
+  h1, h2, h3, h4, h5, h6, p, span, li{
+    color: transparent !important;
+  }
+}
+
+.v-tabs-sm{
+  .v-tab.v-tab{
+    min-width: 20px;
+  }
+}
+
+
+.v-label{
+opacity: 1;
+}
+
+.blockAction{
+@apply tw-block tw-w-9 tw-h-9 tw-rounded-md tw-p-2.5
+tw-bg-gray-blue-light
+tw-cursor-pointer hover:tw-shadow-md tw-mr-3;
+}
+.iconBlockAction {
+@apply
+tw-flex
+dark:tw-bg-dark-area
+tw-w-9 tw-h-9 tw-rounded-md tw-p-2.5 tw-bg-gray-blue-light tw-cursor-pointer hover:tw-shadow-md;
+&:hover {
+@apply tw-bg-[#DDEEFF];
+}
+
+&--red {
+@apply tw-bg-[#EE4D4D];
+}
+
+&--green {
+@apply tw-bg-[#DBFFE9];
+}
+}
+
+.field-section {
+  @apply
+  tw-bg-white
+  dark:tw-bg-dark-area
+  tw-rounded-md
+  tw-py-3
+  tw-px-2
+  tw-mb-5 tw-w-full tw-inline-block;
+}

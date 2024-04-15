@@ -1,22 +1,23 @@
 <template>
-  <v-card>
+  <v-card v-if="getUsers && getRoles">
     <v-card-title>
       Пользователи
     </v-card-title>
     <v-card-text>
       <div style="display: flex;  align-items:start;gap: 15px;  margin-bottom: 25px">
-        <div class="w-30">
+        <div class="tw-w-1/3">
           <v-text-field type="number" v-model="phone"></v-text-field>
-          <div style="display: flex; gap: 10px">
+          <div style="display: flex; gap: 5px">
             <v-checkbox hide-details density="compact" v-model="role.value" v-for="role in getRoles" top :label="role.name"/>
           </div>
-
         </div>
 
         <v-btn v-if="getRoles" color="primary" :disabled="!getRoles.filter((el)=>el.value).length || !phone" @click="create">Создать пользователя</v-btn>
       </div>
       <div v-if="getUsers">
         <v-data-table
+            @click:row="dialog=!dialog"
+            class="adf-table "
             :headers="usersHeaders"
             :items="getUsers"
         >
@@ -29,6 +30,7 @@
       </div>
     </v-card-text>
   </v-card>
+  <Loading v-else />
 
 
 </template>
@@ -37,12 +39,14 @@
 import {mapActions, mapGetters} from "vuex";
 import Code from "../components/Code.vue";
 import {th} from "vuetify/locale";
+import Loading from "../components/Loading.vue";
 
 export default {
   name: "Users",
-  components: {Code},
+  components: {Loading, Code},
   data() {
     return {
+      dialog:false,
       phone: '',
       usersHeaders: [
         {title: 'id', key: 'id'},

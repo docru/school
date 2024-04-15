@@ -42,7 +42,7 @@
       </v-app-bar-title>
     </v-app-bar>
     <v-main>
-      <v-card class="ma-2 pa-2">
+      <v-card variant="text" class="ma-2 pa-2" style="min-height: 100%">
         <router-view></router-view>
       </v-card>
 

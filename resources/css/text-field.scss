@@ -1,0 +1,25 @@
+
+
+
+.v-field--focused{
+  color:#60A5FA!important;
+}
+
+.v-input--density-default .v-field--variant-outlined{
+  --v-field-padding-bottom: 5px!important;
+}
+
+.ad-text-field  {
+  margin: 0 5px;
+  color:#9197A3;
+  --v-input-control-height: 25px!important;
+  --v-input-padding-top: 10px!important;
+  --v-field-padding-bottom: 0px!important;
+  :hover{
+    color:#60A5FA!important;
+  }
+  :focus{
+    color:black!important;
+    @apply dark:tw-text-white #{!important};
+  }
+}

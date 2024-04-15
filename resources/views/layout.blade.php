@@ -15,7 +15,7 @@
     <link rel="apple-touch-startup-image" href="/build/img/favicon/adfinity-logo-152.png">
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css','resources/css/app.scss', 'resources/js/app.js'])
 </head>
 <body>
 <div id="appVue"></div>

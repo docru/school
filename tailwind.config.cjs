@@ -39,6 +39,7 @@ module.exports = {
         'blue-hover': '#EEF6FE',
         'dark-gray-white': '#252830',
         'table-gray': '#F8FAFF',
+        'table-header': '#EEF6FE',
         'dark-table-gray': '#393D49',
         'gradient-from': '#773BF6',
         'gradient-to': '#3BBEF6',
