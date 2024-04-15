@@ -2,10 +2,12 @@ import {vuexGet, vuexPost} from "../../helpers/vuexHelper.js";
 const state = {
     users: null,
     roles: null,
+    load:false
 }
 const getters = {
     getUsers: (state) => state.users,
     getRoles: (state) => state.roles,
+    getLoad:(state)=>state.load
 }
 const mutations = {
 

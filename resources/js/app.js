@@ -40,8 +40,11 @@ const vuetify = createVuetify({
             variant:'flat',
             ripple:true
 
+        },
+        VDataTable:{
+            density: "comfortable",
+            class:"adf-table"
         }
-
     },
     components,
     directives,
