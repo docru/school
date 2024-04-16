@@ -13,7 +13,7 @@ class CourseController extends Controller
      */
     public function index()
     {
-        return $this->ResponseOk(Course::all(['id', 'name'])->toArray());
+        return $this->ResponseOk(Course::all(['id', 'name','description'])->toArray());
     }
 
     /**
