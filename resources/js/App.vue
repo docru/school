@@ -38,8 +38,8 @@
       <v-app-bar-nav-icon @click="drawer = !drawer">
       </v-app-bar-nav-icon>
       <v-app-bar-title>
-        <h3 class="text-h4 white--text">
-          ЦХМ школа
+        <h3 class=" white--text">
+          {{$vuetify.display.name === 'sm' ? 'Школа':'ЦХМ школа'}}
         </h3>
       </v-app-bar-title>
       <v-spacer></v-spacer>

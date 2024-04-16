@@ -4,10 +4,12 @@
       Пользователи
     </v-card-title>
     <v-card-text>
-      <div style="display: flex;  align-items:start;gap: 15px;  margin-bottom: 25px">
-        <div class="tw-w-1/3">
+      <div
+          class="tw-flex tw-flex-col md:tw-flex-row tw-items-start tw-gap-[15px] tw-mb-5"
+         >
+        <div class="tw-w-full">
           <v-text-field type="number" v-model="phone"></v-text-field>
-          <div style="display: flex; gap: 5px">
+          <div class="tw-flex tw-flex-col md:tw-flex-row ">
             <v-checkbox hide-details density="compact" v-model="role.value" v-for="role in getRoles" top
                         :label="role.name"/>
           </div>
@@ -18,8 +20,8 @@
         </v-btn>
       </div>
       <div v-if="getUsers">
-        <div class="tw-flex tw-justify-between">
-          <div class="tw-w-1/3">
+        <div class="tw-flex tw-flex-col md:tw-flex-row tw-justify-between">
+          <div class="tw-w-full md:tw-w-1/3">
             <v-text-field
                 type="number"
                 label="Поиск по номеру телефона"
@@ -27,7 +29,7 @@
             ></v-text-field>
           </div>
 
-          <div style="display: flex; gap: 5px">
+          <div class="tw-flex tw-gap-3 tw-flex-col md:tw-flex-row">
             <v-checkbox hide-details density="compact" v-model="role.value" v-for="role in getRoles" top
                         :label="role.name"/>
           </div>
@@ -71,7 +73,11 @@
             <v-skeleton-loader type="table-row@10"></v-skeleton-loader>
           </template>
           <template v-slot:item.link="{item}">
-            <Code :code="`http://localhost/login/${item.entry_code}`"/>
+            <Code
+                v-if="item.entry_code"
+                :code="item.entry_code"
+            />
+            <div v-else> сгенерить ключ</div>
           </template>
           <template v-slot:item.entrance="{item}">
             <v-chip :color="item.phone%2 ? 'green': 'grey'">{{ item.phone % 2 ? '12.03.2024' : 'не заходил' }}</v-chip>
