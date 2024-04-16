@@ -38,12 +38,22 @@ const vuetify = createVuetify({
         VTextField:defParams,
         VBtn:{
             variant:'flat',
-            ripple:true
+            ripple:true,
 
         },
         VDataTable:{
             density: "comfortable",
             class:"adf-table"
+        },
+        VTextarea:{
+            variant:'outlined',
+            hideDetails:true,
+        },
+        VCard:{
+            VBtn: {
+                variant:'flat',
+                color:'primary'
+            },
         }
     },
     components,

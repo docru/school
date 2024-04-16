@@ -24,6 +24,16 @@ const routes = [
         }
     },
     {
+        path: '/formnicname',
+        name: 'FormNicName',
+        component: () => import('../pages/FormNicName.vue'),
+    },
+    {
+        path: '/profile',
+        name: 'Profile',
+        component: () => import('../pages/Profile.vue'),
+    },
+    {
         path: '/users',
         name: 'Users',
         component: () => import('../pages/Users.vue'),
