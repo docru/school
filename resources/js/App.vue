@@ -63,7 +63,7 @@ export default {
       },
       {
         name: 'Расписание ',
-        routName: 'Schedule'
+        routName: 'CoursesList'
       },
 
     ],

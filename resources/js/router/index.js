@@ -30,7 +30,7 @@ const routes = [
     },
     {
         path: '/courses',
-        name: 'userCreate',
+        name: 'CoursesList',
         component: () => import('../pages/Courses/CoursesList.vue'),
     },
     // {
