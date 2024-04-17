@@ -21,7 +21,7 @@ export default {
   props: {
     loadind:{
       type: Boolean,
-      default: 74
+      default: false
     },
     size: {
       type: Number,

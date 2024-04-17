@@ -1,32 +1,37 @@
 import {vuexGet, vuexPost} from "../../helpers/vuexHelper.js";
+
 const state = {
     users: null,
     roles: null,
-    load:false
+    load: false
 }
 const getters = {
     getUsers: (state) => state.users,
     getRoles: (state) => state.roles,
-    getLoad:(state)=>state.load
+    getLoad: (state) => !!state.load
 }
 const mutations = {
 
-    setUsers:(state,payload)=>{ state.users = payload.users},
-    setRoles:(state,payload)=>{
+    setUsers: (state, payload) => {
+        state.users = payload.users
+    },
+    setRoles: (state, payload) => {
         state.roles = payload.roles
-            .map((el)=>{return {...el, value:false}})
+            .map((el) => {
+                return {...el, value: false}
+            })
     }
 }
 
 
 const actions = {
-    async ACT_GET_User({state, commit}){
+    async ACT_GET_User({state, commit}) {
         return await vuexGet('/users', {}, state, commit, 'setUsers', {showMsg: false});
     },
-    async ACT_GET_UserRoles({state, commit}){
+    async ACT_GET_UserRoles({state, commit}) {
         return await vuexGet('/users/roles', {}, state, commit, 'setRoles', {showMsg: false});
     },
-    async ACT_GET_UserCreate({state, commit},params){
+    async ACT_GET_UserCreate({state, commit}, params) {
         return await vuexPost('/users/create', params, state, commit, 'setUsers', {showMsg: false});
     },
 

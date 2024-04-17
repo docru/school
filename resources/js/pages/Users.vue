@@ -80,7 +80,7 @@
             <div v-else> сгенерить ключ</div>
           </template>
           <template v-slot:item.entrance="{item}">
-            <v-chip :color="item.phone%2 ? 'green': 'grey'">{{ item.phone % 2 ? '12.03.2024' : 'не заходил' }}</v-chip>
+            <v-chip :color="item.authorized_at ? 'green': 'grey'">{{ item.authorized_at ? item.authorized_at : 'не заходил' }}</v-chip>
           </template>
 
         </v-data-table>
@@ -113,7 +113,7 @@ export default {
         {title: 'id', key: 'id'},
         {title: 'Вход', key: 'entrance'},
         {title: 'Имя', key: 'name'},
-        {title: 'Nic', key: 'nicname'},
+        {title: 'Псевдоним', key: 'nicname'},
         {title: 'Роли', key: 'nicname'},
         {title: 'Телефон', key: 'phone'},
 
