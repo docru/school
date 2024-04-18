@@ -41,7 +41,20 @@
                <div class="tw-flex">
                Модуль {{ c }}
                <v-spacer/>
-                 <v-btn  variant="text" size="small" >создать урок</v-btn>
+                 <v-menu>
+                   <template v-slot:activator="{ props }">
+                     <v-btn  v-bind="props" variant="text" icon="mdi-plus" size="small" ></v-btn>
+                   </template>
+                   <v-list>
+                     <v-list-item>
+                       <v-list-item-title>создать урок</v-list-item-title>
+                     </v-list-item>
+                     <v-list-item>
+                       <v-list-item-title>импортировать урок</v-list-item-title>
+                     </v-list-item>
+                   </v-list>
+                 </v-menu>
+
 
                </div>
              </v-card-title>
