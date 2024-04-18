@@ -1,10 +1,12 @@
 import {vuexGet, vuexPost} from "../../helpers/vuexHelper.js";
 
 const state = {
-    courses: {},
-    course: {},
+    load:false,
+    courses: null,
+    course: null,
 }
 const getters = {
+    getLoad: (state) => state.load,
     getCourses: (state) => state.courses,
     getCourse: (state) => state.course,
 }

@@ -22,6 +22,7 @@ class CourseController extends Controller
     public function store(Request $request)
     {
         $nameCourse = $request->input('nameCourse');
+        $descriptionCourse = $request->input('description');
         if(empty($nameCourse)){
             return $this->ResponseError('Не задано название курса');
         }
@@ -29,9 +30,9 @@ class CourseController extends Controller
             return $this->ResponseError('С таким названием курс уже есть');
         }
 
-        $course = new Course(['name'=>$nameCourse]);
+        $course = new Course(['name'=>$nameCourse,'description'=>$descriptionCourse]);
         $course->save();
-        return $this->ResponseOk(Course::all(['id', 'name'])->toArray());
+        return $this->ResponseOk(Course::all(['id', 'name','description'])->toArray());
     }
 
     /**

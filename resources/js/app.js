@@ -27,27 +27,46 @@ const adfDark = {
 }
 // <v-text-field density="compact" variant="outlined" hide-details v-model="phone"></v-text-field>
 
-const defParams = {
-    density:'compact',
-    hideDetails:true,
-    variant:'outlined'
-}
+
 
 const vuetify = createVuetify({
     defaults: {
-        VTextField:defParams,
+        VTextField:{
+            density:'compact',
+            hideDetails:true,
+            variant:'outlined',
+            class:'tw-my-2'
+        },
         VBtn:{
             variant:'flat',
             ripple:true,
 
         },
+        VTabs:{
+            background:'red',
+            color:'grey',
+            VBtn:{
+                color:'white'
+            }
+        },
         VDataTable:{
             density: "comfortable",
-            class:"adf-table"
+            class:"adf-table tw-p-2",
+            noDataText:'нет данных',
+            itemsPerPageOptions:[
+                { title: "10", value: 10 },
+                { title: "50", value: 50 },
+                { title: "100", value: 100 },
+                { title: "Все", value: -1 }
+            ],
+            itemsPerPageText:"Кол-во на странице: ",
+            loadingText:"Подождите. Идет загрузка данных.",
+            pageText:"{0} из {1}"
         },
         VTextarea:{
             variant:'outlined',
             hideDetails:true,
+            class:'tw-my-2'
         },
         VCard:{
             VBtn: {
