@@ -29,8 +29,7 @@
        <v-spacer></v-spacer>
        <div class="tw-flex tw-gap-3">
          <v-btn>Создать модуль</v-btn>
-         <v-btn>Создать Урок</v-btn>
-         <v-btn>Создать Задание</v-btn>
+
        </div>
      </div>
      </v-card-title>
@@ -38,7 +37,14 @@
        <div class="tw-flex tw-gap-3">
          <div class="tw-w-1/3">
            <v-card hover elevation="2"    style="padding: 5px 10px; margin: 15px 0 "  v-for="c in [1,2,3]">
-             <v-card-title>Модуль {{ c }}</v-card-title>
+             <v-card-title >
+               <div class="tw-flex">
+               Модуль {{ c }}
+               <v-spacer/>
+                 <v-btn  variant="text" size="small" >создать урок</v-btn>
+
+               </div>
+             </v-card-title>
              <div v-for="lesson in [1,2,3,4,5,6]"
                   class="less tw-flex">
                <div>
@@ -102,7 +108,15 @@
                  </v-window-item>
 
                  <v-window-item value="two">
-                   Задания
+                   <v-card>
+                     <v-card-title>Задание на уроке</v-card-title>
+                     <div  style="margin: 15px; background-color: darkseagreen; border-radius: 4px; padding: 15px">
+                       <h3>Задание №1</h3>
+                       <p class="tw-p-3 tw-bg-white  ">
+                         Разбейтесь по парам и расскажите друг другу ...
+                       </p>
+                     </div>
+                   </v-card>
                  </v-window-item>
 
                  <v-window-item value="three">
