@@ -35,8 +35,8 @@
      </v-card-title>
      <v-card-text>
        <div class="tw-flex tw-gap-3">
-         <div class="tw-w-1/3">
-           <v-card hover elevation="2"    style="padding: 5px 10px; margin: 15px 0 "  v-for="c in [1,2,3]">
+         <div class="tw-w-1/3" style="height: calc(100vh - 300px); overflow: auto">
+           <v-card hover elevation="0"    style="padding: 5px 10px; margin: 15px 0 "  v-for="c in [1,2,3]">
              <v-card-title >
                <div class="tw-flex">
                Модуль {{ c }}
@@ -48,9 +48,6 @@
                    <v-list>
                      <v-list-item>
                        <v-list-item-title>создать урок</v-list-item-title>
-                     </v-list-item>
-                     <v-list-item>
-                       <v-list-item-title>импортировать урок</v-list-item-title>
                      </v-list-item>
                    </v-list>
                  </v-menu>
@@ -69,6 +66,7 @@
                  <div @click="dialog=true"><v-icon size="small" color="grey" >mdi-pencil</v-icon></div>
                </div>
              </div>
+             <v-divider/>
            </v-card>
          </div>
          <div class="tw-w-2/3">

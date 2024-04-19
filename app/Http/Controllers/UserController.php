@@ -9,6 +9,7 @@ use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use mysql_xdevapi\Exception;
 
 
@@ -88,7 +89,7 @@ class UserController extends RestController
     public function authLink($uid)
     {
         // Проверитиь права на генерацию ссылки
-        if (empty(auth()->user()) || !auth()->user()->hasRole(['owner', 'admin'])) {
+        if (empty(auth()->user()) || !auth()->user()->hasRole(['superadmin', 'administrator'])) {
             return '';
         }
         $user = User::whereId($uid)->first();
@@ -96,10 +97,14 @@ class UserController extends RestController
             return 'Не такого пользователя';
         }
 
-        $user->entry_code = \Str::random();
+        $user->entry_code = Str::random(12);
         $user->entry_code_generated_at = date('Y-m-d H:i:s');
         $user->save();
-        return env('APP_URL') . '/login/' . $user->entry_code;
+
+        return $this->ResponseOk([
+			'key'=>env('APP_URL') . '/login/' . $user->entry_code,
+			'id'=>$user->id
+		]);
     }
 
     /**
@@ -114,6 +119,7 @@ class UserController extends RestController
                 'authorized_at' => $user->authorized_at,
                 'name' => $user->name,
                 'nickname' => $user->nickname,
+                'entry_code' =>$user->entry_code ? env('APP_URL') . '/login/' . $user->entry_code : '',
                 'roles' => $user->roles->map(function (Role $role) {
                     return ['name' => $role->name, 'display_name' => $role->display_name];
                 }),

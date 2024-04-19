@@ -5,24 +5,27 @@
     </v-card-title>
     <v-card-text>
       <div
-          class="tw-flex tw-flex-col md:tw-flex-row tw-items-start tw-gap-[15px] tw-mb-5"
-         >
+          class="tw-flex tw-flex-col md:tw-flex-row  tw-gap-[15px] tw-mb-5 tw-justify-center"
+      >
         <div class="tw-w-full">
-          <v-text-field type="number" v-model="phone"></v-text-field>
+          <v-text-field label="Введите телефон" type="number" v-model="phone"></v-text-field>
           <div class="tw-flex tw-flex-col md:tw-flex-row ">
             <v-checkbox hide-details density="compact" v-model="role.value" v-for="role in getRoles" top
-                        :label="role.name"/>
+                        :label="role.display_name"/>
           </div>
         </div>
 
-        <v-btn v-if="getRoles" color="primary" :disabled="!getRoles.filter((el)=>el.value).length || !phone"
+        <v-btn class="tw-mt-2" v-if="getRoles" color="primary"
+               :disabled="!getRoles.filter((el)=>el.value).length || !phone"
                @click="create">Создать пользователя
         </v-btn>
       </div>
+      <v-divider class="tw-my-3" color="blue"/>
       <div v-if="getUsers">
         <div class="tw-flex tw-flex-col md:tw-flex-row tw-justify-between">
           <div class="tw-w-full md:tw-w-1/3">
             <v-text-field
+                clearable
                 type="number"
                 label="Поиск по номеру телефона"
                 v-model="search"
@@ -30,8 +33,14 @@
           </div>
 
           <div class="tw-flex tw-gap-3 tw-flex-col md:tw-flex-row">
-            <v-checkbox hide-details density="compact" v-model="role.value" v-for="role in getRoles" top
-                        :label="role.name"/>
+            <v-checkbox
+                hide-details
+                density="compact"
+                v-model="role.value"
+                v-for="role in getRolesSelect"
+                top
+                :label="role.display_name"
+            />
           </div>
         </div>
 
@@ -72,15 +81,23 @@
           <template v-slot:loading>
             <v-skeleton-loader type="table-row@10"></v-skeleton-loader>
           </template>
+          <template v-slot:item.roles="{item}">
+            <div v-html="item.roles.map((el)=>el.display_name).join(', ')" style="font-size: 12px; "/>
+            <!--            {{ item.roles.map((el)=>el.display_name).join('<br>') }}-->
+          </template>
           <template v-slot:item.link="{item}">
             <Code
                 v-if="item.entry_code"
                 :code="item.entry_code"
             />
-            <div v-else> сгенерить ключ</div>
+            <div v-else @click="ACT_POST_UserCreateLink({
+              uid:item.id
+            })"> сгенерить ключ</div>
           </template>
           <template v-slot:item.entrance="{item}">
-            <v-chip :color="item.authorized_at ? 'green': 'grey'">{{ item.authorized_at ? item.authorized_at : 'не заходил' }}</v-chip>
+            <v-chip :color="item.authorized_at ? 'green': 'grey'">
+              {{ item.authorized_at ? item.authorized_at : 'не заходил' }}
+            </v-chip>
           </template>
 
         </v-data-table>
@@ -114,7 +131,7 @@ export default {
         {title: 'Вход', key: 'entrance'},
         {title: 'Имя', key: 'name'},
         {title: 'Псевдоним', key: 'nicname'},
-        {title: 'Роли', key: 'nicname'},
+        {title: 'Роли', key: 'roles'},
         {title: 'Телефон', key: 'phone'},
 
         // {
@@ -140,19 +157,36 @@ export default {
         })
       })
     },
-    ...mapActions('users', ['ACT_GET_User', 'ACT_GET_UserRoles', 'ACT_GET_UserCreate'])
+    ...mapActions('users', ['ACT_GET_User', 'ACT_GET_UserRoles', 'ACT_GET_UserCreate','ACT_POST_UserCreateLink'])
   },
   computed: {
     searchItems() {
-      if (!this.search) return this.getUsers
+      let result = this.getUsers;
+      let isSelectCount = this.getRolesSelect.filter(el => el.value).length
+      // let helpSelectArr = this.getRolesSelect.map(select=>select.name)
+      let helpSelectArrSelected = this.getRolesSelect.filter(select => select.value)?.map(el => el.name)
 
-      return this.getUsers.filter((el) => {
+
+      console.log('helpSelectArrSelected', helpSelectArrSelected)
+
+
+      if (!this.search && !isSelectCount) return this.getUsers
+
+      if (this.search) result = this.getUsers.filter((el) => {
         return el.phone.includes(this.search)
       })
 
+      if (isSelectCount) {
+        result = result.filter(elem => {
+          let arrRoles = elem.roles.map(el => el.name)
+          return arrRoles.filter(ar => helpSelectArrSelected.includes(ar)).length
+
+        })
+      }
+      return result;
 
     },
-    ...mapGetters('users', ['getUsers', 'getRoles', 'getLoad'])
+    ...mapGetters('users', ['getUsers', 'getRoles', 'getLoad', 'getRolesSelect'])
   },
   created() {
     this.ACT_GET_User()

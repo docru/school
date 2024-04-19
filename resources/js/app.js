@@ -42,6 +42,10 @@ const vuetify = createVuetify({
             ripple:true,
 
         },
+        VDivider:{
+            class:'tw-my-2',
+            color:'blue'
+        },
         VTabs:{
             background:'red',
             color:'grey',
