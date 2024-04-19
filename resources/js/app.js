@@ -30,6 +30,7 @@ const adfDark = {
 
 
 const vuetify = createVuetify({
+    components,
     defaults: {
         VTextField:{
             density:'compact',
@@ -79,7 +80,6 @@ const vuetify = createVuetify({
             },
         }
     },
-    components,
     directives,
     display: {
         mobileBreakpoint: 'sm',

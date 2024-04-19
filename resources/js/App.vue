@@ -18,6 +18,7 @@
           link
           :title="item.name"
       />
+
       <v-divider></v-divider>
       <v-list-subheader>Администрирование</v-list-subheader>
       <v-list-item
@@ -28,6 +29,25 @@
           :title="item.name"
       />
 
+      <v-divider></v-divider>
+      <v-list-subheader>Методология</v-list-subheader>
+      <v-list-item
+          v-for="item in menu_items_metod"
+          :key="item"
+          :to="{name:item.routName}"
+          link
+          :title="item.name"
+      />
+
+      <v-divider></v-divider>
+      <v-list-subheader>СуперАдминистрирование</v-list-subheader>
+      <v-list-item
+          v-for="item in  menu_items_superadmin"
+          :key="item"
+          :to="{name:item.routName}"
+          link
+          :title="item.name"
+      />
 
     </v-navigation-drawer>
     <v-app-bar
@@ -75,13 +95,35 @@ export default {
     ],
     menu_items_admin: [
       {
-        name: 'Пользователи ',
+        name: 'Пользователи',
+        routName: 'Users'
+      },
+      {
+        name: 'Группы',
+        routName: 'GroupsList'
+      },
+      {
+        name: 'Учебный план',
+        routName: 'Plan'
+      },
+
+    ],
+    menu_items_metod: [
+      {
+        name: 'Уроки ',
         routName: 'Users'
       },
       {
         name: 'Курсы ',
         routName: 'CoursesList'
       },
+    ],
+    menu_items_superadmin: [
+      {
+        name: 'Пользователи ',
+        routName: 'Users'
+      },
+
     ],
   }),
   methods:{
