@@ -13,7 +13,7 @@ class CourseController extends Controller
      */
     public function index()
     {
-        return $this->ResponseOk(Course::all(['id', 'name','description'])->toArray());
+        return $this->ResponseOk(Course::all(['id', 'name', 'description'])->toArray());
     }
 
     /**
@@ -23,16 +23,16 @@ class CourseController extends Controller
     {
         $nameCourse = $request->input('nameCourse');
         $descriptionCourse = $request->input('description');
-        if(empty($nameCourse)){
+        if (empty($nameCourse)) {
             return $this->ResponseError('Не задано название курса');
         }
-        if(!empty(Course::whereName($nameCourse)->first())){
+        if (!empty(Course::whereName($nameCourse)->first())) {
             return $this->ResponseError('С таким названием курс уже есть');
         }
 
-        $course = new Course(['name'=>$nameCourse,'description'=>$descriptionCourse]);
+        $course = new Course(['name' => $nameCourse, 'description' => $descriptionCourse]);
         $course->save();
-        return $this->ResponseOk(Course::all(['id', 'name','description'])->toArray());
+        return $this->ResponseOk(Course::all(['id', 'name', 'description'])->toArray());
     }
 
     /**
@@ -40,7 +40,7 @@ class CourseController extends Controller
      */
     public function show(Course $course)
     {
-        return $this->ResponseOk($course->toArray());
+        return $this->ResponseOk(['course' => $course->toArray(), 'studyProgram' => $course->studyProgram()]);
     }
 
     /**
@@ -48,7 +48,15 @@ class CourseController extends Controller
      */
     public function update(Request $request, Course $course)
     {
-        //
+        if (empty($course)) {
+            return $this->ResponseError('Нет курса');
+        }
+
+        $course->update($request->input('course'));
+
+        $course->saveStudyProgram($request->input('studyProgram'));
+
+        return $this->ResponseOk($course->studyProgram());
     }
 
     /**

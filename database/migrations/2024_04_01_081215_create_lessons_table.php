@@ -15,11 +15,15 @@ return new class extends Migration {
             $table->id();
             $table->timestamps();
             $table->bigInteger('course_id')->unsigned()->comment('Курс');
-            $table->text('methodical_description')->comment('Методическое описание');
-            $table->text('abstract')->comment('Конспект');
+            $table->unsignedBigInteger('module_id')->nullable()->comment('Модуль');
+            $table->string('name', 255)->default('Урок')->comment('Название урока');
+            $table->float('hours')->nullable()->default(1)->comment('Количество учебных часов');
+            $table->integer('order')->default(0)->comment('Порядок');
+            $table->text('methodical_description')->nullable()->comment('Методическое описание');
+            $table->text('abstract')->nullable()->comment('Конспект');
 
-            $table->foreign('course_id')->references('id')->on('courses')
-                ->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreign('course_id')->references('id')->on('courses')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreign('module_id')->references('id')->on('modules')->cascadeOnUpdate()->cascadeOnDelete();
         });
     }
 

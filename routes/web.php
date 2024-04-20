@@ -1,6 +1,11 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Methodologist\CourseController;
+use App\Http\Controllers\Methodologist\ModuleController;
+use App\Http\Controllers\Methodologist\LessonController;
+use App\Http\Controllers\Methodologist\ControlController;
+use App\Http\Controllers\Methodologist\TaskController;
 
 Route::namespace('App\Http\Controllers')->group(function () {
 
@@ -31,12 +36,13 @@ Route::namespace('App\Http\Controllers')->group(function () {
 
         // методист
         Route::group(['middleware' => ['role:methodologist']], function () {
-            Route::prefix('methodologist')->group(function () {
+            Route::prefix('methodologist')->namespace('Methodologist')->group(function () {
                 Route::apiResources([
-                    'courses' => \App\Http\Controllers\Methodologist\CourseController::class,
-                    'lessons' => \App\Http\Controllers\Methodologist\LessonController::class,
-                    'control' => \App\Http\Controllers\Methodologist\ControlController::class,
-                    'tasks' => \App\Http\Controllers\Methodologist\TaskController::class,
+                    'courses' => CourseController::class,
+                    'modules' => ModuleController::class,
+                    'lessons' => LessonController::class,
+                    'control' => ControlController::class,
+                    'tasks' => TaskController::class,
                 ]);
             });
         });
