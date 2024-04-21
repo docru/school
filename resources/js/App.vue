@@ -1,5 +1,6 @@
 <template>
   <v-app>
+    <snack-bar/>
     <v-navigation-drawer
         v-if="validProfile"
         app
@@ -80,9 +81,11 @@
 
 <script>
 import {mapActions, mapGetters} from "vuex";
+import SnackBar from "./components/Snackbar.vue";
 
 export default {
   name: 'App',
+  components: {SnackBar},
   data: () => ({
     drawer: false,
     menu_items: [
@@ -90,7 +93,14 @@ export default {
         name: 'Главная ',
         routName: 'Home'
       },
-
+      {
+        name: 'Мои курсы ',
+        routName: 'Home'
+      },
+      {
+        name: 'Мои задания ',
+        routName: 'Home'
+      },
 
     ],
     menu_items_admin: [
