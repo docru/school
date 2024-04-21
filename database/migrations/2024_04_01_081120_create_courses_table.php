@@ -17,7 +17,6 @@ return new class extends Migration
             $table->timestamps();
             $table->string('name')->comment('Название курса');
             $table->text('description')->nullable()->comment('Описание курса');
-            $table->json('calendar_plan')->default('{}')->comment('Календарный план');
         });
     }
 

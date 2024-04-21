@@ -62,3 +62,22 @@ export const vuexPost = async (url, params, state, commit, mutatorName = false, 
     Object.assign(config, configCustom);
     return await vuexRequest('post', url, params, state, commit, mutatorName, config);
 }
+export const vuexDelete = async (url, params, state, commit, mutatorName = false, configCustom = {}) => {
+    let config = {
+        showMsg: true,
+        msgOk: 'Удалено',
+        msgErr: 'Что-то пошло не так',
+    };
+    Object.assign(config, configCustom);
+    return await vuexRequest('delete', url, params, state, commit, mutatorName, config);
+}
+
+export const vuexPut = async (url, params, state, commit, mutatorName = false, configCustom = {}) => {
+    let config = {
+        showMsg: true,
+        msgOk: 'Сохранено',
+        msgErr: 'Что-то пошло не так',
+    };
+    Object.assign(config, configCustom);
+    return await vuexRequest('put', url, params, state, commit, mutatorName, config);
+}

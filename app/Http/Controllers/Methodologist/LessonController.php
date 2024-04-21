@@ -1,9 +1,11 @@
 <?php
 
-namespace App\Http\Controllers\Methodologist;;
+namespace App\Http\Controllers\Methodologist;
 
 use App\Http\Controllers\Controller;
+use App\Models\Course;
 use App\Models\Lesson;
+use App\Models\Module;
 use Illuminate\Http\Request;
 
 class LessonController extends Controller
@@ -17,19 +19,37 @@ class LessonController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-        //
+        $courseId = $request->input('courseId');
+        $moduleId = $request->input('moduleId');
+        $lessonName = $request->input('lessonName');
+        if (empty($lessonName)) {
+            return $this->ResponseError('Не задано название Урока');
+        }
+        if (empty(Course::whereId($courseId)->first())) {
+            return $this->ResponseError('Нет курса');
+        }
+        if (!!$moduleId) {
+            $module = Module::whereCourseId($courseId)->whereId($moduleId)->first();
+            if (empty($module)) {
+                return $this->ResponseError('Нет модуля');
+            }
+        }
+
+
+        $lesson = new Lesson();
+        $lesson->course_id = $courseId;
+        $lesson->name = $lessonName;
+        if (!empty($moduleId)) {
+            $lesson->module_id = $moduleId;
+
+        }
+        $lesson->save();
+
+        return $this->ResponseOk(Course::whereId($courseId)->first()->studyProgram());
     }
 
     /**
@@ -61,6 +81,14 @@ class LessonController extends Controller
      */
     public function destroy(Lesson $lesson)
     {
-        //
+        if (empty($lesson)) {
+            return $this->ResponseError('Нет урока');
+        }
+
+        $course = $lesson->course;
+
+        $lesson->delete();
+
+        return $this->ResponseOk($course->studyProgram());
     }
 }

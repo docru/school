@@ -9,7 +9,7 @@ use Laratrust\Contracts\LaratrustUser;
 use Laratrust\Traits\HasRolesAndPermissions;
 
 /**
- *
+ * 
  *
  * @property int $id
  * @property string $phone Телефон

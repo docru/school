@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('entry_code', 12)->nullable()->comment('Код входа');
             $table->timestamp('entry_code_generated_at')->nullable()->comment('Время генерации кода');
             $table->timestamps();
+            $table->timestamp('authorized_at')->nullable()->comment('Время последней авторизации');
         });
 
         Schema::create('sessions', function (Blueprint $table) {
