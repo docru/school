@@ -16,12 +16,14 @@ const state = {
     arraySnackBars: [],
 }
 const getters = {
+    isSnackBarDefault: (state) => state.snackBarDefault,
+    isArraySnackBars: (state) => state.arraySnackBars,
     // isEndDate: (state) => state.endDate,
 }
 const mutations = {
     setSnackBar(state, payload) {
-        alert(payload.text);
-        return;
+        // alert(payload.text);
+        // return;
         const obj = {
             text: payload.text || state.snackBarDefault.text,
             color: payload.color || state.snackBarDefault.color,
