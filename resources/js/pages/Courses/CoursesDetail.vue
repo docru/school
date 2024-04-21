@@ -31,7 +31,7 @@
                         <StudyProgram/>
                     </v-window-item>
                     <v-window-item value="courseSchedule">
-                        Расписание
+                        <CourseSchedule/>
                     </v-window-item>
                 </v-window>
 
@@ -42,10 +42,11 @@
 <script>
 import {mapActions, mapGetters} from "vuex";
 import StudyProgram from './StudyProgram.vue';
+import CourseSchedule from './CourseSchedule.vue';
 
 export default {
     name: 'CoursesDetail',
-    components: {StudyProgram},
+    components: {StudyProgram, CourseSchedule},
     data() {
         return {
             tab: 'studyProgram',
