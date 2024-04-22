@@ -50,76 +50,150 @@ export default {
 </script>
 
 <template>
-
-
-  <div v-for="module in getStudyProgram " :key="module.module.id" class="courseList">
-    <div class="course-header">
-      <h2>Модуль {{ module.module.name }}</h2>
-      <v-spacer/>
-      <v-menu>
-        <template v-slot:activator="{ props }">
-          <v-btn v-bind="props" variant="text" icon="mdi-dots-vertical" size="small"/>
-        </template>
-        <v-list>
-          <v-list-item>
-            <v-list-item-title>
-              <v-btn
-                  @click="$emit('openDialogCreateLesson',module.module.id)"
-                  text="создать урок"
-                  density="compact"
-                  variant="text"
-              />
-            </v-list-item-title>
-            <v-divider v-if="!!module.module.id"/>
-            <v-list-item-title v-if="!!module.module.id">
-              <v-btn
-                  @click=""
-                  text="редактировать модуль"
-                  density="compact"
-                  variant="text"
-              />
-            </v-list-item-title>
-            <v-list-item-title v-if="!!module.module.id">
-              <v-btn
-                  @click="$emit('deleteModule',module.module)"
-                  text="удалить модуль"
-                  density="compact"
-                  variant="text"
-                  color="red"
-              />
-            </v-list-item-title>
-          </v-list-item>
-        </v-list>
-      </v-menu>
-    </div>
-    <div>
-      <draggable
-          :group="{
-        name: module.module.name,
+<div >
+  <draggable
+      :group="{ pull: false,put: false }"
+      :list="getStudyProgram"
+  >
+    <template #item="{element}">
+      <div class="courseList">
+        <div class="course-header">
+          <h2>Модуль {{ element.module.name }} / {{ element.module.order }}</h2>
+          <v-spacer/>
+          <v-menu>
+            <template v-slot:activator="{ props }">
+              <v-btn v-bind="props" variant="text" icon="mdi-dots-vertical" size="small"/>
+            </template>
+            <v-list>
+              <v-list-item>
+                <v-list-item-title>
+                  <v-btn
+                      @click="$emit('openDialogCreateLesson',element.module.id)"
+                      text="создать урок"
+                      density="compact"
+                      variant="text"
+                  />
+                </v-list-item-title>
+                <v-divider v-if="!!element.module.id"/>
+                <v-list-item-title v-if="!!element.module.id">
+                  <v-btn
+                      @click=""
+                      text="редактировать модуль"
+                      density="compact"
+                      variant="text"
+                  />
+                </v-list-item-title>
+                <v-list-item-title v-if="!!element.module.id">
+                  <v-btn
+                      @click="$emit('deleteModule',element.module)"
+                      text="удалить модуль"
+                      density="compact"
+                      variant="text"
+                      color="red"
+                  />
+                </v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-menu>
+        </div>
+        <div>
+          <draggable
+              :group="{
+        name: element.module.name,
         pull: pullFunction  ,
         put: true }"
-          :list="module.lessons"
+              :list="element.lessons"
 
-      >
-        <template #item="{element}">
-          <div @click="$emit('chooseLesson',element)"
-               class="lesson">
-            <div class="tw-flex tw-justify-between">
-              <div>урок: {{ element.name }} / order: {{element.order}}</div>
-              <div>
-                <div @click="$emit('deleteLesson',element)">
-                  <v-icon size="small" color="grey">mdi-trash-can-outline</v-icon>
+          >
+            <template #item="{element}">
+              <div @click="$emit('chooseLesson',element)"
+                   class="lesson">
+                <div class="tw-flex tw-justify-between">
+                  <div>урок: {{ element.name }} / order: {{element.order}}</div>
+                  <div>
+                    <div @click="$emit('deleteLesson',element)">
+                      <v-icon size="small" color="grey">mdi-trash-can-outline</v-icon>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
-        </template>
-      </draggable>
-    </div>
-  </div>
-<!--  <pre>-->
-<!--                {{ getStudyProgram }}-->
-<!--                </pre>-->
+            </template>
+          </draggable>
+        </div>
+      </div>
+    </template>
+  </draggable>
+</div>
+
+
+<!--  <div v-for="module in getStudyProgram " :key="module.module.id" class="courseList">-->
+<!--    <div class="course-header">-->
+<!--      <h2>Модуль {{ module.module.name }}</h2>-->
+<!--      <v-spacer/>-->
+<!--      <v-menu>-->
+<!--        <template v-slot:activator="{ props }">-->
+<!--          <v-btn v-bind="props" variant="text" icon="mdi-dots-vertical" size="small"/>-->
+<!--        </template>-->
+<!--        <v-list>-->
+<!--          <v-list-item>-->
+<!--            <v-list-item-title>-->
+<!--              <v-btn-->
+<!--                  @click="$emit('openDialogCreateLesson',module.module.id)"-->
+<!--                  text="создать урок"-->
+<!--                  density="compact"-->
+<!--                  variant="text"-->
+<!--              />-->
+<!--            </v-list-item-title>-->
+<!--            <v-divider v-if="!!module.module.id"/>-->
+<!--            <v-list-item-title v-if="!!module.module.id">-->
+<!--              <v-btn-->
+<!--                  @click=""-->
+<!--                  text="редактировать модуль"-->
+<!--                  density="compact"-->
+<!--                  variant="text"-->
+<!--              />-->
+<!--            </v-list-item-title>-->
+<!--            <v-list-item-title v-if="!!module.module.id">-->
+<!--              <v-btn-->
+<!--                  @click="$emit('deleteModule',module.module)"-->
+<!--                  text="удалить модуль"-->
+<!--                  density="compact"-->
+<!--                  variant="text"-->
+<!--                  color="red"-->
+<!--              />-->
+<!--            </v-list-item-title>-->
+<!--          </v-list-item>-->
+<!--        </v-list>-->
+<!--      </v-menu>-->
+<!--    </div>-->
+<!--    <div>-->
+<!--      <draggable-->
+<!--          :group="{-->
+<!--        name: module.module.name,-->
+<!--        pull: pullFunction  ,-->
+<!--        put: true }"-->
+<!--          :list="module.lessons"-->
+
+<!--      >-->
+<!--        <template #item="{element}">-->
+<!--          <div @click="$emit('chooseLesson',element)"-->
+<!--               class="lesson">-->
+<!--            <div class="tw-flex tw-justify-between">-->
+<!--              <div>урок: {{ element.name }} / order: {{element.order}}</div>-->
+<!--              <div>-->
+<!--                <div @click="$emit('deleteLesson',element)">-->
+<!--                  <v-icon size="small" color="grey">mdi-trash-can-outline</v-icon>-->
+<!--                </div>-->
+<!--              </div>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--        </template>-->
+<!--      </draggable>-->
+<!--    </div>-->
+<!--  </div>-->
+  <pre>
+                {{ getStudyProgram }}
+                </pre>
 
 
 </template>
