@@ -47,7 +47,8 @@ const actions = {
     async actSaveCourse({state, commit}, params) {
         params = {
             course: state.course,
-            studyProgram: state.studyProgram.map((el)=>{
+            studyProgram: state.studyProgram.map((el,ind)=>{
+                el.module.order = ind
               el.lessons = el.lessons.map((lesson,index)=>{
                 console.log({...lesson,order:index})
                 return {...lesson,order:index}

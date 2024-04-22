@@ -58,7 +58,7 @@ export default {
     <template #item="{element}">
       <div class="courseList">
         <div class="course-header">
-          <h2>Модуль {{ element.module.name }} / {{ element.module.order }}</h2>
+          <h2>Модуль {{ element.module.name }} / order: {{ element.module.order }}</h2>
           <v-spacer/>
           <v-menu>
             <template v-slot:activator="{ props }">
@@ -191,9 +191,9 @@ export default {
 <!--      </draggable>-->
 <!--    </div>-->
 <!--  </div>-->
-  <pre>
-                {{ getStudyProgram }}
-                </pre>
+<!--  <pre>-->
+<!--                {{ getStudyProgram }}-->
+<!--                </pre>-->
 
 
 </template>
