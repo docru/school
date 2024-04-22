@@ -9,6 +9,18 @@ export default {
   name: "ModuleList",
   data() {
     return {
+      calendar:[
+        {
+          name: 1,
+          event: []
+        },{
+          name: 2,
+          event: []
+        },{
+          name: 3,
+          event: []
+        },
+      ],
       drag: false,
       controlOnStart: true,
       myArray: [
@@ -50,79 +62,103 @@ export default {
 </script>
 
 <template>
-<div >
-  <draggable
-      :group="{ pull: false,put: false }"
-      :list="getStudyProgram"
-  >
-    <template #item="{element}">
-      <div class="courseList">
-        <div class="course-header">
-          <h2>Модуль {{ element.module.name }} / order: {{ element.module.order }}</h2>
-          <v-spacer/>
-          <v-menu>
-            <template v-slot:activator="{ props }">
-              <v-btn v-bind="props" variant="text" icon="mdi-dots-vertical" size="small"/>
-            </template>
-            <v-list>
-              <v-list-item>
-                <v-list-item-title>
-                  <v-btn
-                      @click="$emit('openDialogCreateLesson',element.module.id)"
-                      text="создать урок"
-                      density="compact"
-                      variant="text"
-                  />
-                </v-list-item-title>
-                <v-divider v-if="!!element.module.id"/>
-                <v-list-item-title v-if="!!element.module.id">
-                  <v-btn
-                      @click=""
-                      text="редактировать модуль"
-                      density="compact"
-                      variant="text"
-                  />
-                </v-list-item-title>
-                <v-list-item-title v-if="!!element.module.id">
-                  <v-btn
-                      @click="$emit('deleteModule',element.module)"
-                      text="удалить модуль"
-                      density="compact"
-                      variant="text"
-                      color="red"
-                  />
-                </v-list-item-title>
-              </v-list-item>
-            </v-list>
-          </v-menu>
-        </div>
-        <div>
-          <draggable
-              :group="{
+<div class="tw-flex">
+  <div>
+    <draggable
+        :group="{ pull: false,put: false }"
+        :list="getStudyProgram"
+    >
+      <template #item="{element}">
+        <div class="courseList">
+          <div class="course-header">
+            <h2>Модуль {{ element.module.name }} / order: {{ element.module.order }}</h2>
+            <v-spacer/>
+            <v-menu>
+              <template v-slot:activator="{ props }">
+                <v-btn v-bind="props" variant="text" icon="mdi-dots-vertical" size="small"/>
+              </template>
+              <v-list>
+                <v-list-item>
+                  <v-list-item-title>
+                    <v-btn
+                        @click="$emit('openDialogCreateLesson',element.module.id)"
+                        text="создать урок"
+                        density="compact"
+                        variant="text"
+                    />
+                  </v-list-item-title>
+                  <v-divider v-if="!!element.module.id"/>
+                  <v-list-item-title v-if="!!element.module.id">
+                    <v-btn
+                        @click=""
+                        text="редактировать модуль"
+                        density="compact"
+                        variant="text"
+                    />
+                  </v-list-item-title>
+                  <v-list-item-title v-if="!!element.module.id">
+                    <v-btn
+                        @click="$emit('deleteModule',element.module)"
+                        text="удалить модуль"
+                        density="compact"
+                        variant="text"
+                        color="red"
+                    />
+                  </v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-menu>
+          </div>
+          <div>
+            <draggable
+                :group="{
         name: element.module.name,
         pull: pullFunction  ,
         put: true }"
-              :list="element.lessons"
+                :list="element.lessons"
 
-          >
-            <template #item="{element}">
-              <div @click="$emit('chooseLesson',element)"
-                   class="lesson">
-                <div class="tw-flex tw-justify-between">
-                  <div>урок: {{ element.name }} / order: {{element.order}}</div>
-                  <div>
-                    <div @click="$emit('deleteLesson',element)">
-                      <v-icon size="small" color="grey">mdi-trash-can-outline</v-icon>
+            >
+              <template #item="{element}">
+                <div @click="$emit('chooseLesson',element)"
+                     class="lesson">
+                  <div class="tw-flex tw-justify-between">
+                    <div>урок: {{ element.name }} / order: {{element.order}}</div>
+                    <div>
+                      <div @click="$emit('deleteLesson',element)">
+                        <v-icon size="small" color="grey">mdi-trash-can-outline</v-icon>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </template>
-          </draggable>
+              </template>
+            </draggable>
+          </div>
         </div>
-      </div>
-    </template>
-  </draggable>
+      </template>
+    </draggable>
+  </div>
+  <div>
+
+
+    <div class="br-red tw-w-[100px] tw-min-h-[100px]" v-for="day in calendar">
+      <draggable
+        :group="{ pull: true,put: true }"
+        :list="day.event"
+    >
+      <template #item="{element}">
+        <div class="courseList">
+          {{element.name}}
+          <v-icon>mdi-close</v-icon>
+        </div>
+      </template>
+    </draggable>
+
+    </div>
+    <pre>
+{{calendar}}
+    </pre>
+  </div>
+
 </div>
 
 
