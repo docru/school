@@ -11,12 +11,6 @@ export default {
     return {
       drag: false,
       controlOnStart: true,
-      myArray: [
-        {id: 1, name: 'nnnn1'},
-        {id: 2, name: 'nnnn2'},
-        {id: 3, name: 'nnnn3'},
-        {id: 4, name: 'nnnn4'},
-      ]
     }
   },
   watch: {
@@ -58,7 +52,7 @@ export default {
     <template #item="{element}">
       <div class="courseList">
         <div class="course-header">
-          <h2>Модуль {{ element.module.name }} / order: {{ element.module.order }}</h2>
+          <h2>Модуль {{ element.module.name }} </h2>
           <v-spacer/>
           <v-menu>
             <template v-slot:activator="{ props }">
@@ -109,7 +103,7 @@ export default {
               <div @click="$emit('chooseLesson',element)"
                    class="lesson">
                 <div class="tw-flex tw-justify-between">
-                  <div>урок: {{ element.name }} / order: {{element.order}}</div>
+                  <div>урок: {{ element.name }} </div>
                   <div>
                     <div @click="$emit('deleteLesson',element)">
                       <v-icon size="small" color="grey">mdi-trash-can-outline</v-icon>
