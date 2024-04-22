@@ -62,7 +62,7 @@ export default {
 </script>
 
 <template>
-<div class="tw-flex">
+
   <div>
     <draggable
         :group="{ pull: false,put: false }"
@@ -137,29 +137,8 @@ export default {
       </template>
     </draggable>
   </div>
-  <div>
 
 
-    <div class="br-red tw-w-[100px] tw-min-h-[100px]" v-for="day in calendar">
-      <draggable
-        :group="{ pull: true,put: true }"
-        :list="day.event"
-    >
-      <template #item="{element}">
-        <div class="courseList">
-          {{element.name}}
-          <v-icon>mdi-close</v-icon>
-        </div>
-      </template>
-    </draggable>
-
-    </div>
-    <pre>
-{{calendar}}
-    </pre>
-  </div>
-
-</div>
 
 
 <!--  <div v-for="module in getStudyProgram " :key="module.module.id" class="courseList">-->
