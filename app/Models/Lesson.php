@@ -44,6 +44,7 @@ class Lesson extends Model
         'hours',
         'methodical_description',
         'abstract',
+		'order'
     ];
 
     public function course()

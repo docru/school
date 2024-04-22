@@ -1,5 +1,6 @@
 <script>
 import draggable from 'vuedraggable'
+
 let idGlobal = 8;
 export default {
   components: {
@@ -18,9 +19,19 @@ export default {
       ]
     }
   },
-  methods:{
-    clone({ name }) {
-      return { name, id: idGlobal++ };
+  watch: {
+    getStudyProgram:{
+      handler(val) {
+      if(val){
+        this.$emit('setStudyProgram', val)
+      }
+
+      }, deep: true
+    }
+  },
+  methods: {
+    clone({name}) {
+      return {name, id: idGlobal++};
     },
     pullFunction(val) {
       console.log(val)
@@ -41,27 +52,36 @@ export default {
 <template>
 
 
-  <div v-for="module in getStudyProgram " :key="module.module.id" class=" br-red tw-my-1">
-    <div class="tw-flex tw-my-2">
-      Модуль {{ module.module.name }}
+  <div v-for="module in getStudyProgram " :key="module.module.id" class="courseList">
+    <div class="course-header">
+      <h2>Модуль {{ module.module.name }}</h2>
       <v-spacer/>
       <v-menu>
         <template v-slot:activator="{ props }">
-          <v-btn v-bind="props" variant="text" icon="mdi-plus" size="small"/>
+          <v-btn v-bind="props" variant="text" icon="mdi-dots-vertical" size="small"/>
         </template>
         <v-list>
           <v-list-item>
             <v-list-item-title>
               <v-btn
-                  @click="openDialogCreateLesson(moduleItem.module.id)"
+                  @click="$emit('openDialogCreateLesson',module.module.id)"
                   text="создать урок"
                   density="compact"
                   variant="text"
               />
             </v-list-item-title>
-            <v-list-item-title v-if="!!moduleItem.module.id">
+            <v-divider v-if="!!module.module.id"/>
+            <v-list-item-title v-if="!!module.module.id">
               <v-btn
-                  @click="deleteModule(moduleItem.module)"
+                  @click=""
+                  text="редактировать модуль"
+                  density="compact"
+                  variant="text"
+              />
+            </v-list-item-title>
+            <v-list-item-title v-if="!!module.module.id">
+              <v-btn
+                  @click="$emit('deleteModule',module.module)"
                   text="удалить модуль"
                   density="compact"
                   variant="text"
@@ -82,77 +102,51 @@ export default {
 
       >
         <template #item="{element}">
-          <div class="tw-w-2/3 tw-h-[45px]  tw-m-2 tw-p-2" style="border: 1px solid grey">
-            урок: {{ element.name }}
+          <div @click="$emit('chooseLesson',element)"
+               class="lesson">
+            <div class="tw-flex tw-justify-between">
+              <div>урок: {{ element.name }} / order: {{element.order}}</div>
+              <div>
+                <div @click="$emit('deleteLesson',element)">
+                  <v-icon size="small" color="grey">mdi-trash-can-outline</v-icon>
+                </div>
+              </div>
+            </div>
           </div>
         </template>
       </draggable>
     </div>
   </div>
-  <pre>
-                {{ getStudyProgram }}
-                </pre>
+<!--  <pre>-->
+<!--                {{ getStudyProgram }}-->
+<!--                </pre>-->
 
-  <!--  <v-card hover elevation="0"-->
-  <!--          style="padding: 5px 10px; margin: 15px 0 "-->
-  <!--          v-for="moduleItem in getStudyProgram"-->
-  <!--          :key="moduleItem.id">-->
-  <!--    <v-card-title>-->
-  <!--      <div class="tw-flex">-->
-  <!--        Модуль {{ moduleItem.module.name }}-->
-  <!--        <v-spacer/>-->
-  <!--        <v-menu>-->
-  <!--          <template v-slot:activator="{ props }">-->
-  <!--            <v-btn v-bind="props" variant="text" icon="mdi-plus" size="small"/>-->
-  <!--          </template>-->
-  <!--          <v-list>-->
-  <!--            <v-list-item>-->
-  <!--              <v-list-item-title>-->
-  <!--                <v-btn-->
-  <!--                    @click="openDialogCreateLesson(moduleItem.module.id)"-->
-  <!--                    text="создать урок"-->
-  <!--                    density="compact"-->
-  <!--                    variant="text"-->
-  <!--                />-->
-  <!--              </v-list-item-title>-->
-  <!--              <v-list-item-title v-if="!!moduleItem.module.id">-->
-  <!--                <v-btn-->
-  <!--                    @click="deleteModule(moduleItem.module)"-->
-  <!--                    text="удалить модуль"-->
-  <!--                    density="compact"-->
-  <!--                    variant="text"-->
-  <!--                    color="red"-->
-  <!--                />-->
-  <!--              </v-list-item-title>-->
-  <!--            </v-list-item>-->
-  <!--          </v-list>-->
-  <!--        </v-menu>-->
-  <!--      </div>-->
-  <!--    </v-card-title>-->
-  <!--    <div-->
-  <!--        v-for="lesson in moduleItem.lessons"-->
-  <!--        :key="lesson.id"-->
-  <!--        class="less tw-flex"-->
-  <!--        :class="(curLesson.id == lesson.id) ? 'active-lesson' : ''"-->
-  <!--        @click="chooseLesson(lesson)"-->
-  <!--    >-->
-  <!--      <div>урок <strong>"{{ lesson.name }}"</strong></div>-->
-  <!--      <v-spacer></v-spacer>-->
-  <!--      <div class="tw-flex tw-gap-5">-->
-  <!--        <div>{{ lesson.hours }}ч.</div>-->
-  <!--        <div @click="deleteLesson(lesson)">-->
-  <!--          <v-icon size="small" color="grey">mdi-trash-can-outline</v-icon>-->
-  <!--        </div>-->
-  <!--      </div>-->
-  <!--    </div>-->
-  <!--    <v-divider/>-->
-  <!--  </v-card>-->
-  <!--    <pre>-->
-  <!--      {{ getStudyProgram }}-->
-  <!--    </pre>-->
+
 </template>
 
 <style scoped lang="scss">
+.courseList{
+  border:1px solid rgba(128, 128, 128, 0.27);
+  border-radius: 4px;
+  padding: 5px;
+  margin-bottom: 5px;
+  &:hover{
+    background-color: rgba(187, 189, 193, 0.05);
+  }
+
+}
+.lesson{
+  @apply tw-w-[98%]   tw-m-2 tw-p-2;
+  border: 1px solid rgba(128, 128, 128, 0.42);
+  border-radius: 4px;
+  &:hover{
+    background-color: rgba(187, 189, 193, 0.2);
+  }
+
+}
+.course-header{
+  @apply tw-flex tw-justify-between tw-items-center
+}
 .active-lesson {
   background-color: #d0d0d0;
 }

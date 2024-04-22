@@ -52,7 +52,7 @@ class Course extends Model
     public function studyProgram()
     {
         $moduleKeys = ['id', 'name'];
-        $lessonsKeys = ['id', 'name', 'hours', 'methodical_description', 'abstract'];
+        $lessonsKeys = ['id', 'name', 'hours', 'methodical_description', 'abstract','order'];
 
         $withoutModule = [
             'module' => ['id' => false, 'name' => '[без модуля]'],

@@ -47,7 +47,13 @@ const actions = {
     async actSaveCourse({state, commit}, params) {
         params = {
             course: state.course,
-            studyProgram: state.studyProgram,
+            studyProgram: state.studyProgram.map((el)=>{
+              el.lessons = el.lessons.map((lesson,index)=>{
+                console.log({...lesson,order:index})
+                return {...lesson,order:index}
+              })
+              return el
+            })
         };
         return await vuexPut('/methodologist/courses/' + state.course.id, params, state, commit, 'setStudyProgram', {msgOk: 'Курс сохранен'});
     },

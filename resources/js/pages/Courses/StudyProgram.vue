@@ -24,6 +24,9 @@ export default {
         },
     },
     methods: {
+      setStudyProgram(val){
+        this.getStudyProgram = val
+      },
         ...mapActions('courses', [
             'actReqwestCourse',
             'actCreateModule',
@@ -108,7 +111,15 @@ export default {
         <v-card-text>
             <div class="tw-flex tw-gap-3 ">
                 <div class="tw-w-1/3" style="height: calc(100vh - 300px); overflow: auto">
-<module-list :getStudyProgram="getStudyProgram" :curLesson="curLesson"/>
+<module-list
+    :getStudyProgram="getStudyProgram"
+    :curLesson="curLesson"
+    @openDialogCreateLesson = openDialogCreateLesson
+    @deleteModule = deleteModule
+    @chooseLesson="chooseLesson"
+    @deleteLesson = "deleteLesson"
+    @setStudyProgram = "setStudyProgram"
+/>
 <!--                    <v-card hover elevation="0"-->
 <!--                            style="padding: 5px 10px; margin: 15px 0 "-->
 <!--                            v-for="moduleItem in getStudyProgram"-->
