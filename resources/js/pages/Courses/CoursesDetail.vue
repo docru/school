@@ -13,6 +13,12 @@
                         <div>Количество уроков: {{ cntLessons }}</div>
                         <div>Количество часов: {{ cntHours }}</div>
                     </div>
+                    <v-icon
+                        @click="save()"
+                        style="margin-left: 10px;"
+                        icon="mdi-content-save-outline"
+                        :color="isSaved ? 'success' : 'error'"
+                    />
                 </div>
                 <v-tabs
                     v-model="tab"
@@ -50,10 +56,11 @@ export default {
     data() {
         return {
             tab: 'studyProgram',
+            timerSaveId: null,
         }
     },
     computed: {
-        ...mapGetters('courses', ['getCourse', 'getStudyProgram']),
+        ...mapGetters('courses', ['getCourse', 'getStudyProgram', 'isSaved']),
         courseId() {
             return this.$route.params.idCourse;
         },
@@ -76,11 +83,36 @@ export default {
         },
     },
     methods: {
-        ...mapActions('courses', ['actReqwestCourse']),
+        ...mapActions('courses', ['actReqwestCourse', 'actSaveCourse']),
+        async save() {
+            await this.actSaveCourse();
+        },
+        autoSaveStart() {
+            this.timerSaveId = setInterval(() => {
+                if (!this.isSaved) {
+                    this.save();
+                }
+            }, 1000);
+        },
+        autoSaveStop() {
+            if (this.timerSaveId) {
+                clearInterval(this.timerSaveId);
+            }
+        },
     },
     async mounted() {
+        // остановить автоматическое сохранение
+        this.autoSaveStop();
+
         await this.actReqwestCourse({id: this.courseId});
-    }
+
+        // Автоматическое сохранение. Проверка изменений 1 раз в секунду
+        this.autoSaveStart();
+    },
+    unmounted() {
+        // остановить автоматическое сохранение
+        this.autoSaveStop();
+    },
 }
 </script>
 

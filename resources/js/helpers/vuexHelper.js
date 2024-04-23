@@ -46,7 +46,7 @@ export const vuexRequest = async (method, url, params = {}, state, commit, mutat
 
 export const vuexGet = async (url, params, state, commit, mutatorName = false, configCustom = {}) => {
     let config = {
-        showMsg: true,
+        showMsg: false,
         msgOk: 'Загружено',
         msgErr: 'Что-то пошло не так',
     };

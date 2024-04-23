@@ -3,23 +3,15 @@
 namespace App\Http\Controllers\Administrator;
 
 use App\Http\Controllers\Controller;
-use App\Models\SchoolDay;
+use App\Models\GroupSchoolDay;
 use Illuminate\Http\Request;
 
-class SchoolDayController extends Controller
+class GroupSchoolDayController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
-    {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
     {
         //
     }
@@ -35,15 +27,7 @@ class SchoolDayController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(SchoolDay $schoolDay)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(SchoolDay $schoolDay)
+    public function show(GroupSchoolDay $groupSchoolDay)
     {
         //
     }
@@ -51,7 +35,7 @@ class SchoolDayController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, SchoolDay $schoolDay)
+    public function update(Request $request, GroupSchoolDay $groupSchoolDay)
     {
         //
     }
@@ -59,7 +43,7 @@ class SchoolDayController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(SchoolDay $schoolDay)
+    public function destroy(GroupSchoolDay $groupSchoolDay)
     {
         //
     }

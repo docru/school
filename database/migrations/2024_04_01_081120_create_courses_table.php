@@ -15,6 +15,7 @@ return new class extends Migration
             $table->comment('Курсы');
             $table->id();
             $table->timestamps();
+            $table->softDeletes();
             $table->string('name')->comment('Название курса');
             $table->text('description')->nullable()->comment('Описание курса');
         });

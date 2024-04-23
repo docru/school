@@ -9,7 +9,7 @@ use Laratrust\Contracts\LaratrustUser;
 use Laratrust\Traits\HasRolesAndPermissions;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property string $phone Телефон
@@ -47,6 +47,8 @@ use Laratrust\Traits\HasRolesAndPermissions;
  * @method static \Illuminate\Database\Eloquent\Builder|User whereNicknameDescription($value)
  * @method static \Illuminate\Database\Eloquent\Builder|User wherePhone($value)
  * @method static \Illuminate\Database\Eloquent\Builder|User whereUpdatedAt($value)
+ * @property string|null $deleted_at
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereDeletedAt($value)
  * @mixin \Eloquent
  */
 class User extends Authenticatable implements LaratrustUser

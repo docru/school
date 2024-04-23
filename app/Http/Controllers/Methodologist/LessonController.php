@@ -49,21 +49,13 @@ class LessonController extends Controller
         }
         $lesson->save();
 
-        return $this->ResponseOk(Course::whereId($courseId)->first()->studyProgram());
+        return $this->ResponseOk(Course::whereId($courseId)->first()->dump());
     }
 
     /**
      * Display the specified resource.
      */
     public function show(Lesson $lesson)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Lesson $lesson)
     {
         //
     }
@@ -89,6 +81,6 @@ class LessonController extends Controller
 
         $lesson->delete();
 
-        return $this->ResponseOk($course->studyProgram());
+        return $this->ResponseOk($course->dump());
     }
 }

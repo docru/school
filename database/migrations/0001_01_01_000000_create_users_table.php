@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -21,6 +20,7 @@ return new class extends Migration
             $table->string('entry_code', 12)->nullable()->comment('Код входа');
             $table->timestamp('entry_code_generated_at')->nullable()->comment('Время генерации кода');
             $table->timestamps();
+            $table->softDeletes();
             $table->timestamp('authorized_at')->nullable()->comment('Время последней авторизации');
         });
 
@@ -40,7 +40,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('users');
-        Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
     }
 };

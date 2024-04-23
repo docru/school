@@ -11,13 +11,17 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property string $name Название урока
- * @property float|null $hours Количество учебных часов
  * @property int $course_id Курс
  * @property int|null $module_id Модуль
+ * @property string $name Название урока
+ * @property float|null $hours Количество учебных часов
  * @property int $order Порядок
- * @property string $methodical_description Методическое описание
- * @property string $abstract Конспект
+ * @property string|null $methodical_description Методическое описание
+ * @property string|null $abstract Конспект
+ * @property int|null $school_day Учебный день
+ * @property int|null $school_day_order Сортировка в учебном дне
+ * @property-read \App\Models\Course $course
+ * @property-read \App\Models\Module|null $module
  * @method static \Illuminate\Database\Eloquent\Builder|Lesson newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Lesson newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Lesson query()
@@ -30,9 +34,9 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|Lesson whereModuleId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Lesson whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Lesson whereOrder($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Lesson whereSchoolDay($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Lesson whereSchoolDayOrder($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Lesson whereUpdatedAt($value)
- * @property-read \App\Models\Course $course
- * @property-read \App\Models\Module|null $module
  * @mixin \Eloquent
  */
 class Lesson extends Model
@@ -40,11 +44,14 @@ class Lesson extends Model
     use HasFactory;
 
     public $fillable = [
+        'module_id',
         'name',
         'hours',
         'methodical_description',
         'abstract',
-		'order'
+		'order',
+        'school_day',
+        'school_day_order',
     ];
 
     public function course()

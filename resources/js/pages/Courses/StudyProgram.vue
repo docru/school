@@ -1,11 +1,11 @@
 <script>
-import {mapActions, mapGetters} from "vuex";
+import {mapActions, mapGetters, mapMutations} from "vuex";
 import ModulList from "./ModuleList.vue";
 import ModuleList from "./ModuleList.vue";
 
 export default {
     name: 'StudyProgram',
-  components: {ModuleList, ModulList},
+    components: {ModuleList, ModulList},
     data() {
         return {
             tab: null,
@@ -24,16 +24,13 @@ export default {
         },
     },
     methods: {
-      setStudyProgram(val){
-        this.getStudyProgram = val
-      },
+        ...mapMutations('courses', ['setStudyProgram']),
         ...mapActions('courses', [
             'actReqwestCourse',
             'actCreateModule',
             'actDeleteModule',
             'actCreateLesson',
             'actDeleteLesson',
-            'actSaveCourse',
         ]),
         async createModule() {
             await this.actCreateModule({courseId: this.courseId, moduleName: this.newModuleName});
@@ -82,7 +79,6 @@ export default {
                 <v-spacer></v-spacer>
                 <div class="tw-flex tw-gap-3">
                     <v-btn @click="dialogCreateModule=true">Создать модуль</v-btn>
-                    <v-icon @click="actSaveCourse()">mdi-content-save-outline</v-icon>
                     <v-dialog v-model="dialogCreateModule" fullscreen>
                         <v-card>
                             <v-card-title>
@@ -111,69 +107,69 @@ export default {
         <v-card-text>
             <div class="tw-flex tw-gap-3 ">
                 <div class="tw-w-1/3" style="height: calc(100vh - 300px); overflow: auto">
-<module-list
-    :getStudyProgram="getStudyProgram"
-    :curLesson="curLesson"
-    @openDialogCreateLesson = openDialogCreateLesson
-    @deleteModule = deleteModule
-    @chooseLesson="chooseLesson"
-    @deleteLesson = "deleteLesson"
-    @setStudyProgram = "setStudyProgram"
-/>
-<!--                    <v-card hover elevation="0"-->
-<!--                            style="padding: 5px 10px; margin: 15px 0 "-->
-<!--                            v-for="moduleItem in getStudyProgram"-->
-<!--                            :key="moduleItem.id">-->
-<!--                        <v-card-title>-->
-<!--                            <div class="tw-flex">-->
-<!--                                Модуль {{ moduleItem.module.name }}-->
-<!--                                <v-spacer/>-->
-<!--                                <v-menu>-->
-<!--                                    <template v-slot:activator="{ props }">-->
-<!--                                        <v-btn v-bind="props" variant="text" icon="mdi-plus" size="small"/>-->
-<!--                                    </template>-->
-<!--                                    <v-list>-->
-<!--                                        <v-list-item>-->
-<!--                                            <v-list-item-title>-->
-<!--                                                <v-btn-->
-<!--                                                    @click="openDialogCreateLesson(moduleItem.module.id)"-->
-<!--                                                    text="создать урок"-->
-<!--                                                    density="compact"-->
-<!--                                                    variant="text"-->
-<!--                                                />-->
-<!--                                            </v-list-item-title>-->
-<!--                                            <v-list-item-title v-if="!!moduleItem.module.id">-->
-<!--                                                <v-btn-->
-<!--                                                    @click="deleteModule(moduleItem.module)"-->
-<!--                                                    text="удалить модуль"-->
-<!--                                                    density="compact"-->
-<!--                                                    variant="text"-->
-<!--                                                    color="red"-->
-<!--                                                />-->
-<!--                                            </v-list-item-title>-->
-<!--                                        </v-list-item>-->
-<!--                                    </v-list>-->
-<!--                                </v-menu>-->
-<!--                            </div>-->
-<!--                        </v-card-title>-->
-<!--                        <div-->
-<!--                            v-for="lesson in moduleItem.lessons"-->
-<!--                            :key="lesson.id"-->
-<!--                            class="less tw-flex"-->
-<!--                            :class="(curLesson.id == lesson.id) ? 'active-lesson' : ''"-->
-<!--                            @click="chooseLesson(lesson)"-->
-<!--                        >-->
-<!--                            <div>урок <strong>"{{ lesson.name }}"</strong></div>-->
-<!--                            <v-spacer></v-spacer>-->
-<!--                            <div class="tw-flex tw-gap-5">-->
-<!--                                <div>{{ lesson.hours }}ч.</div>-->
-<!--                                <div @click="deleteLesson(lesson)">-->
-<!--                                    <v-icon size="small" color="grey">mdi-trash-can-outline</v-icon>-->
-<!--                                </div>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                        <v-divider/>-->
-<!--                    </v-card>-->
+                    <module-list
+                        :getStudyProgram="getStudyProgram"
+                        :curLesson="curLesson"
+                        @openDialogCreateLesson=openDialogCreateLesson
+                        @deleteModule=deleteModule
+                        @chooseLesson="chooseLesson"
+                        @deleteLesson="deleteLesson"
+                        @setStudyProgram="setStudyProgram"
+                    />
+                    <!--                    <v-card hover elevation="0"-->
+                    <!--                            style="padding: 5px 10px; margin: 15px 0 "-->
+                    <!--                            v-for="moduleItem in getStudyProgram"-->
+                    <!--                            :key="moduleItem.id">-->
+                    <!--                        <v-card-title>-->
+                    <!--                            <div class="tw-flex">-->
+                    <!--                                Модуль {{ moduleItem.module.name }}-->
+                    <!--                                <v-spacer/>-->
+                    <!--                                <v-menu>-->
+                    <!--                                    <template v-slot:activator="{ props }">-->
+                    <!--                                        <v-btn v-bind="props" variant="text" icon="mdi-plus" size="small"/>-->
+                    <!--                                    </template>-->
+                    <!--                                    <v-list>-->
+                    <!--                                        <v-list-item>-->
+                    <!--                                            <v-list-item-title>-->
+                    <!--                                                <v-btn-->
+                    <!--                                                    @click="openDialogCreateLesson(moduleItem.module.id)"-->
+                    <!--                                                    text="создать урок"-->
+                    <!--                                                    density="compact"-->
+                    <!--                                                    variant="text"-->
+                    <!--                                                />-->
+                    <!--                                            </v-list-item-title>-->
+                    <!--                                            <v-list-item-title v-if="!!moduleItem.module.id">-->
+                    <!--                                                <v-btn-->
+                    <!--                                                    @click="deleteModule(moduleItem.module)"-->
+                    <!--                                                    text="удалить модуль"-->
+                    <!--                                                    density="compact"-->
+                    <!--                                                    variant="text"-->
+                    <!--                                                    color="red"-->
+                    <!--                                                />-->
+                    <!--                                            </v-list-item-title>-->
+                    <!--                                        </v-list-item>-->
+                    <!--                                    </v-list>-->
+                    <!--                                </v-menu>-->
+                    <!--                            </div>-->
+                    <!--                        </v-card-title>-->
+                    <!--                        <div-->
+                    <!--                            v-for="lesson in moduleItem.lessons"-->
+                    <!--                            :key="lesson.id"-->
+                    <!--                            class="less tw-flex"-->
+                    <!--                            :class="(curLesson.id == lesson.id) ? 'active-lesson' : ''"-->
+                    <!--                            @click="chooseLesson(lesson)"-->
+                    <!--                        >-->
+                    <!--                            <div>урок <strong>"{{ lesson.name }}"</strong></div>-->
+                    <!--                            <v-spacer></v-spacer>-->
+                    <!--                            <div class="tw-flex tw-gap-5">-->
+                    <!--                                <div>{{ lesson.hours }}ч.</div>-->
+                    <!--                                <div @click="deleteLesson(lesson)">-->
+                    <!--                                    <v-icon size="small" color="grey">mdi-trash-can-outline</v-icon>-->
+                    <!--                                </div>-->
+                    <!--                            </div>-->
+                    <!--                        </div>-->
+                    <!--                        <v-divider/>-->
+                    <!--                    </v-card>-->
                     <v-dialog v-model="dialogCreateLesson" fullscreen>
                         <v-card>
                             <v-card-title>
@@ -202,7 +198,7 @@ export default {
                             :disabled="!curLesson">
                         <v-card-title>
                             <div class="tw-flex">
-                                <div>Название урока</div>
+                                <div>{{ curLesson.name }}</div>
                             </div>
                         </v-card-title>
                         <v-tabs

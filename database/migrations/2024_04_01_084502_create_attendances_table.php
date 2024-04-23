@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('attendances', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->bigInteger('school_day_id')->unsigned()->comment('Учебный день группы');
+            $table->bigInteger('group_school_day_id')->unsigned()->comment('Учебный день группы');
 
-            $table->foreign('school_day_id')->references('id')->on('school_days')
+            $table->foreign('group_school_day_id')->references('id')->on('group_school_days')
                 ->cascadeOnUpdate()->cascadeOnDelete();
         });
     }

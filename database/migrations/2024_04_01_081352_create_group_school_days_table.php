@@ -11,16 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('user_group', function (Blueprint $table) {
-            $table->comment('Участие пользователя в группе');
+        Schema::create('group_school_days', function (Blueprint $table) {
+            $table->comment('Учебный день группы');
             $table->id();
             $table->timestamps();
-            $table->softDeletes();
-            $table->bigInteger('user_id')->unsigned()->comment('Пользователь');
+            $table->unsignedBigInteger('course_school_day_id')->comment('Учебный день');
             $table->bigInteger('group_id')->unsigned()->comment('Группа');
-            $table->text('role')->comment('Роль в группе');
+            $table->date('date')->index()->comment('Дата');
 
-            $table->foreign('user_id')->references('id')->on('users')
+
+            $table->foreign('course_school_day_id')->references('id')->on('course_school_days')
                 ->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreign('group_id')->references('id')->on('groups')
                 ->cascadeOnUpdate()->cascadeOnDelete();
@@ -32,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('user_group');
+        Schema::dropIfExists('group_school_days');
     }
 };

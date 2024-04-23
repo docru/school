@@ -44,29 +44,32 @@ Route::namespace('App\Http\Controllers')->group(function () {
                     'control' => ControlController::class,
                     'tasks' => TaskController::class,
                 ]);
+
+                Route::post('course_school_day', [CourseController::class, 'createCourseSchoolDay']);
+                Route::delete('course_school_day/{courseSchoolDay}', [CourseController::class, 'destroyCourseSchoolDay']);
             });
         });
 
-    // администратор
-    Route::group(['middleware' => ['role:administrator']], function () {
-        Route::post('/users/create', 'UserController@create');
-        Route::post('/users/auth-link/{uid}', 'UserController@authLink');
+        // администратор
+        Route::group(['middleware' => ['role:administrator']], function () {
+            Route::post('/users/create', 'UserController@create');
+            Route::post('/users/auth-link/{uid}', 'UserController@authLink');
 
-            Route::prefix('administrator')->group(function () {
+            Route::prefix('administrator')->namespace('Administrator')->group(function () {
 
             });
         });
 
         // учитель
         Route::group(['middleware' => ['role:teacher']], function () {
-            Route::prefix('teacher')->group(function () {
+            Route::prefix('teacher')->namespace('Teacher')->group(function () {
 
             });
         });
 
         // ученик
         Route::group(['middleware' => ['role:disciple']], function () {
-            Route::prefix('disciple')->group(function () {
+            Route::prefix('disciple')->namespace('Disciple')->group(function () {
 
             });
         });
@@ -77,7 +80,7 @@ Route::namespace('App\Http\Controllers')->group(function () {
     Route::fallback('UserController@index');
 
 
-    if (class_exists(\App\Http\Controllers\AAController::class)){
+    if (class_exists(\App\Http\Controllers\AAController::class)) {
         Route::get('/dev/', 'AAController@test');
     }
 

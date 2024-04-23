@@ -21,6 +21,8 @@ return new class extends Migration {
             $table->integer('order')->default(0)->comment('Порядок');
             $table->text('methodical_description')->nullable()->comment('Методическое описание');
             $table->text('abstract')->nullable()->comment('Конспект');
+            $table->integer('school_day')->nullable()->comment('Учебный день');
+            $table->integer('school_day_order')->nullable()->comment('Сортировка в учебном дне');
 
             $table->foreign('course_id')->references('id')->on('courses')->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreign('module_id')->references('id')->on('modules')->cascadeOnUpdate()->cascadeOnDelete();

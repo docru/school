@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -19,6 +19,8 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|Attendance whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Attendance whereSchoolDayId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Attendance whereUpdatedAt($value)
+ * @property int $group_school_day_id Учебный день группы
+ * @method static \Illuminate\Database\Eloquent\Builder|Attendance whereGroupSchoolDayId($value)
  * @mixin \Eloquent
  */
 class Attendance extends Model

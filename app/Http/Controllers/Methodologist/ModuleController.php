@@ -27,15 +27,7 @@ class ModuleController extends Controller
         $module = new Module(['name' => $moduleName, 'course_id' => $courseId]);
         $module->save();
 
-        return $this->ResponseOk(Course::whereId($courseId)->first()->studyProgram());
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Module $module)
-    {
-        //
+        return $this->ResponseOk(Course::whereId($courseId)->first()->dump());
     }
 
     /**
@@ -62,6 +54,6 @@ class ModuleController extends Controller
 
         $module->delete();
 
-        return $this->ResponseOk($course->studyProgram());
+        return $this->ResponseOk($course->dump());
     }
 }

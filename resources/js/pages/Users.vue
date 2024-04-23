@@ -163,12 +163,7 @@ export default {
     searchItems() {
       let result = this.getUsers;
       let isSelectCount = this.getRolesSelect.filter(el => el.value).length
-      // let helpSelectArr = this.getRolesSelect.map(select=>select.name)
       let helpSelectArrSelected = this.getRolesSelect.filter(select => select.value)?.map(el => el.name)
-
-
-      console.log('helpSelectArrSelected', helpSelectArrSelected)
-
 
       if (!this.search && !isSelectCount) return this.getUsers
 

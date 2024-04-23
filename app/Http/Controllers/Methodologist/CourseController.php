@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Methodologist;
 
 use App\Http\Controllers\Controller;
 use App\Models\Course;
+use App\Models\CourseSchoolDay;
 use Illuminate\Http\Request;
 
 class CourseController extends Controller
@@ -40,7 +41,7 @@ class CourseController extends Controller
      */
     public function show(Course $course)
     {
-        return $this->ResponseOk(['course' => $course->toArray(), 'studyProgram' => $course->studyProgram()]);
+        return $this->ResponseOk($course->dump());
     }
 
     /**
@@ -48,15 +49,11 @@ class CourseController extends Controller
      */
     public function update(Request $request, Course $course)
     {
-        if (empty($course)) {
-            return $this->ResponseError('Нет курса');
-        }
-
         $course->update($request->input('course'));
 
         $course->saveStudyProgram($request->input('studyProgram'));
 
-        return $this->ResponseOk($course->studyProgram());
+        return $this->ResponseOk($course->dump());
     }
 
     /**
@@ -65,5 +62,34 @@ class CourseController extends Controller
     public function destroy(Course $course)
     {
         //
+    }
+
+    public function createCourseSchoolDay(Request $request)
+    {
+        $course = Course::whereId($request->input('course_id'))->first();
+        if (empty($course)) {
+            return $this->ResponseError('Нет курса');
+        }
+
+        $course_school_day = new CourseSchoolDay();
+        $course_school_day->course_id = $course->id;
+        $course_school_day->order = $course->course_school_days->count() + 1;
+        $course_school_day->save();
+
+        return $this->ResponseOk($course->dump());
+    }
+
+    public function destroyCourseSchoolDay(CourseSchoolDay $courseSchoolDay)
+    {
+        $course = $courseSchoolDay->course;
+        $courseSchoolDay->delete();
+
+        $courseSchoolDays = $course->course_school_days()->orderBy('order')->get();
+        foreach ($courseSchoolDays as $k => $courseSchoolDay) {
+            $courseSchoolDay->order = $k + 1;
+            $courseSchoolDay->save();
+        }
+
+        return $this->ResponseOk($course->dump());
     }
 }

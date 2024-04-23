@@ -11,15 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('school_days', function (Blueprint $table) {
-            $table->comment('Учебный день группы');
+        Schema::create('course_school_days', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->bigInteger('group_id')->unsigned()->comment('Группа');
-            $table->date('date')->index()->comment('Дата');
+            $table->unsignedBigInteger('course_id')->comment('Курс');
+            $table->integer('order')->default(0)->comment('Сортировка');
 
-
-            $table->foreign('group_id')->references('id')->on('groups')
+            $table->foreign('course_id')->references('id')->on('courses')
                 ->cascadeOnUpdate()->cascadeOnDelete();
         });
     }
@@ -29,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('school_days');
+        Schema::dropIfExists('course_school_days');
     }
 };

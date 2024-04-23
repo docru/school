@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Collection;
  * @property int $id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $deleted_at
  * @property string $name Название курса
  * @property string $description Описание курса
  * @method static Builder|Course newModelQuery()
@@ -24,10 +25,13 @@ use Illuminate\Database\Eloquent\Collection;
  * @method static Builder|Course whereId($value)
  * @method static Builder|Course whereName($value)
  * @method static Builder|Course whereUpdatedAt($value)
+ * @method static Builder|Course whereDeletedAt($value)
  * @property-read Collection<int, \App\Models\Lesson> $lessons
  * @property-read int|null $lessons_count
  * @property-read Collection<int, \App\Models\Module> $modules
  * @property-read int|null $modules_count
+ * @property-read Collection<int, \App\Models\CourseSchoolDay> $course_school_days
+ * @property-read int|null $course_school_days_count
  * @mixin \Eloquent
  */
 class Course extends Model
@@ -49,21 +53,35 @@ class Course extends Model
         return $this->hasMany(Module::class);
     }
 
+    public function course_school_days()
+    {
+        return $this->hasMany(CourseSchoolDay::class);
+    }
+
+    public function dump()
+    {
+        return [
+            'course' => $this->toArray(),
+            'studyProgram' => $this->studyProgram(),
+            'schedule' => $this->schedule()
+        ];
+    }
+
     public function studyProgram()
     {
-        $moduleKeys = ['id', 'name','order'];
-        $lessonsKeys = ['id', 'name', 'hours', 'methodical_description', 'abstract','order'];
-
-        $withoutModule = [
-            'module' => ['id' => false, 'name' => '[без модуля]'],
-            'lessons' => $this->lessons()
-                ->whereNull('module_id')
-                ->orderBy('order')
-                ->get($lessonsKeys)
-                ->toArray()
+        $moduleKeys = ['id', 'name', 'order'];
+        $lessonsKeys = [
+            'id',
+            'name',
+            'hours',
+            'methodical_description',
+            'abstract',
+            'school_day',
+            'school_day_order',
+            'order',
         ];
 
-        $modules = $this->modules()->orderBy('order')->get()->map(function ($module) use ($moduleKeys, $lessonsKeys) {
+        return $this->modules()->orderBy('order')->get()->map(function ($module) use ($moduleKeys, $lessonsKeys) {
             return [
                 'module' => $module->only($moduleKeys),
                 'lessons' => $module->lessons()
@@ -72,10 +90,6 @@ class Course extends Model
                     ->toArray(),
             ];
         })->toArray();
-
-
-        return array_merge([$withoutModule], $modules);
-
     }
 
     public function saveStudyProgram(array $saveStudyProgram)
@@ -89,11 +103,25 @@ class Course extends Model
 
             $saveLessons = $itemModule['lessons'];
             foreach ($saveLessons as $order => $saveLesson) {
+                $saveLesson['order'] = $order + 1;
+                $saveLesson['module_id'] = $saveModule['id'];
                 $lesson = $this->lessons()->find($saveLesson['id']);
                 if (!empty($lesson)) {
                     $lesson->update($saveLesson);
                 }
             }
         }
+    }
+
+    public function schedule()
+    {
+        return $this->course_school_days()->orderBy('order')->get()
+            ->map(function (CourseSchoolDay $day) {
+                return [
+                    'id' => $day->id,
+                    'order' => $day->order,
+                ];
+            });
+
     }
 }
