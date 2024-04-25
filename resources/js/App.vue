@@ -75,12 +75,13 @@
                 <v-app-bar-nav-icon @click="drawer = !drawer">
                 </v-app-bar-nav-icon>
                 <v-app-bar-title>
-                    <h3 class=" white--text">
+                    <h3 class="white--text">
                         {{ $vuetify.display.name === 'sm' ? 'Школа' : 'ЦХМ школа' }}
                     </h3>
                 </v-app-bar-title>
                 <v-spacer></v-spacer>
-                <router-link class="tw-mx-3" :to="{name:'Profile'}">{{ getProfile?.name }} ({{ getProfile?.nicname }})
+                <router-link class="tw-mx-3" :to="{name:'Profile'}">
+                    {{ getProfile?.name }} ({{ getProfile?.nickname }})
                 </router-link>
             </v-app-bar>
             <v-main>
