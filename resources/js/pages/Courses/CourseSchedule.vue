@@ -115,6 +115,10 @@ export default {
 
             lesson.school_day = dayId;
         },
+        removeLesson(id) {
+            this.getLessons[id].school_day = null;
+            this.getLessons[id].school_day_order = null;
+        },
     },
 }
 </script>
@@ -148,9 +152,14 @@ export default {
                                 :list="moduleItem.lessons"
                                 @end="onEnd"
                                 item-key=""
+                                handle=".item"
                             >
                                 <template #item="{element}">
-                                    <div class="lesson" :data-lesson-id="element.id">
+                                    <div
+                                        class="lesson"
+                                        :class="{'item':!element.school_day}"
+                                        :data-lesson-id="element.id"
+                                    >
                                         <div class="tw-flex tw-justify-between">
                                             <div>урок: {{ element.name }}</div>
                                         </div>
@@ -197,6 +206,12 @@ export default {
                                             <div class="lesson" :data-lesson-id="element.id">
                                                 <div class="tw-flex tw-justify-between">
                                                     <div>урок: {{ element.name }}</div>
+                                                    <v-icon
+                                                        size="small"
+                                                        color="grey"
+                                                        @click="removeLesson(element.id)"
+                                                    >mdi-trash-can-outline
+                                                    </v-icon>
                                                 </div>
                                             </div>
                                         </template>
@@ -224,5 +239,12 @@ export default {
         background-color: rgba(187, 189, 193, 0.2);
     }
 
+}
+.item {
+    background-color: rgba(92, 165, 205, 0.25);
+}
+
+.not-draggable {
+    cursor: no-drop;
 }
 </style>
