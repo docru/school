@@ -31,10 +31,10 @@ const mutations = {
 
 const actions = {
     async ACT_GET_User({state, commit}) {
-        return await vuexGet('/users', {}, state, commit, 'setUsers', {showMsg: false});
+        return await vuexGet('/users', {}, state, commit, 'setUsers');
     },
     async ACT_GET_UserRoles({state, commit}) {
-        return await vuexGet('/users/roles', {}, state, commit, 'setRoles', {showMsg: false});
+        return await vuexGet('/users/roles', {}, state, commit, 'setRoles');
     },
     async ACT_GET_UserCreate({state, commit}, params) {
         return await vuexPost('/users/create', params, state, commit, 'setUsers', {showMsg: false});

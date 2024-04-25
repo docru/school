@@ -17,7 +17,7 @@ Route::namespace('App\Http\Controllers')->group(function () {
         Route::group(['middleware' => ['auth']], function () {
             Route::get('/users/profile', 'UserController@profile');
             Route::get('/users/profile/{uid?}', 'UserController@profile');
-            Route::post('/users/profileSave', 'UserController@profileSave');
+            Route::post('/users/profile', 'UserController@profileSave');
             Route::get('/users/disciples/{groupId}', 'UserController@disciples');
         });
 

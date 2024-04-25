@@ -102,9 +102,9 @@ class UserController extends RestController
         $user->save();
 
         return $this->ResponseOk([
-			'key'=>env('APP_URL') . '/login/' . $user->entry_code,
-			'id'=>$user->id
-		]);
+            'key' => env('APP_URL') . '/login/' . $user->entry_code,
+            'id' => $user->id
+        ]);
     }
 
     /**
@@ -119,7 +119,7 @@ class UserController extends RestController
                 'authorized_at' => $user->authorized_at,
                 'name' => $user->name,
                 'nickname' => $user->nickname,
-                'entry_code' =>$user->entry_code ? env('APP_URL') . '/login/' . $user->entry_code : '',
+                'entry_code' => $user->entry_code ? env('APP_URL') . '/login/' . $user->entry_code : '',
                 'roles' => $user->roles->map(function (Role $role) {
                     return ['name' => $role->name, 'display_name' => $role->display_name];
                 }),
@@ -176,11 +176,17 @@ class UserController extends RestController
     }
 
     /**
-     * Display the specified resource.
+     * Сохранение профиля
      */
     public function profileSave(Request $request)
     {
-        //
+        $user = auth()->user();
+        $user->name = $request->name;
+        $user->nickname = $request->nickname;
+        $user->nickname_description = $request->nickname_description;
+        $user->save();
+
+        return $this->profile();
     }
 
 }

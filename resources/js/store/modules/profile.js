@@ -1,8 +1,8 @@
 import {vuexGet, vuexPost} from "../../helpers/vuexHelper.js";
 
 const state = {
-    profile: null,
-    load:false
+    profile: {},
+    load:true
 }
 const getters = {
     getProfile: (state) => state.profile,
@@ -10,14 +10,18 @@ const getters = {
 
 }
 const mutations = {
-    setProfile: (state, data) => state.profile = data
+    setProfile: (state, data) => state.profile = data,
 }
 
-
 const actions = {
-    async ACT_GET_Profile({state, commit}, params = {}) {
-        await vuexGet('/users/profile', params, state, commit, 'setProfile', {showMsg: false});
-    }
+    async actResetProfile({state, commit}, params = {}) {
+        let res = await vuexGet('/users/profile', params, state, commit, 'setProfile');
+        state.load = false;
+        return res;
+    },
+    async actSaveProfile({state, commit}, params = {}) {
+        return await vuexPost('/users/profile', state.profile, state, commit, 'setProfile', {showMsg: false});
+    },
 }
 
 

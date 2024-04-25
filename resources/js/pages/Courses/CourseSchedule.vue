@@ -135,7 +135,7 @@ export default {
                 <div class="tw-w-1/3" style="height: calc(100vh - 300px); overflow: auto">
                     <v-card hover elevation="0"
                             style="padding: 5px 10px; margin: 15px 0 "
-                            v-for="moduleItem in unselectedLessons"
+                            v-for="moduleItem in getStudyProgram"
                             :key="moduleItem.id">
                         <v-card-title>
                             <div class="tw-flex">
