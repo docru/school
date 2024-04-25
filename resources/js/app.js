@@ -53,6 +53,11 @@ const vuetify = createVuetify({
             ripple:true,
 
         },
+        VAutocomplete:{
+            variant:'outlined',
+            hideDetails:true,
+            class:'tw-my-2'
+        },
         VDivider:{
             class:'tw-my-2',
             color:'blue'
