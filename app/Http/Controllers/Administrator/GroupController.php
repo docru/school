@@ -13,7 +13,7 @@ class GroupController extends Controller
      */
     public function index()
     {
-        //
+        return $this->ResponseOk($this->_groupList());
     }
 
     /**
@@ -21,7 +21,20 @@ class GroupController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        if (empty($request->course_id)) {
+            return $this->ResponseError('Не указана группа');
+        }
+        if (empty($request->name)) {
+            return $this->ResponseError('Не указан название группы');
+        }
+
+        $group = new Group(['name' => $request->name, 'course_id' => $request->course_id]);
+
+        if (empty($group->id)) {
+            return $this->ResponseError('Ошибка при создании группы');
+        }
+
+        return $this->ResponseOk($this->_groupList());
     }
 
     /**
@@ -29,7 +42,7 @@ class GroupController extends Controller
      */
     public function show(Group $group)
     {
-        //
+        return $this->ResponseOk($group->toArray());
     }
 
     /**
@@ -37,7 +50,8 @@ class GroupController extends Controller
      */
     public function update(Request $request, Group $group)
     {
-        //
+        $group->update($request->all());
+        return $this->ResponseOk($group->toArray());
     }
 
     /**
@@ -45,6 +59,12 @@ class GroupController extends Controller
      */
     public function destroy(Group $group)
     {
-        //
+        $group->delete();
+        return $this->ResponseOk($this->_groupList());
+    }
+
+    private function _groupList()
+    {
+        return Group::all();
     }
 }
