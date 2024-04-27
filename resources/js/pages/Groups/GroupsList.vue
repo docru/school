@@ -3,16 +3,24 @@
     <v-card-title>
       <div class="tw-flex tw-justify-between">
         <div>Группы</div>
-        {{items}}
         <v-btn color="primary" @click="dialog = true">Создать группу</v-btn>
       </div>
     </v-card-title>
     <v-data-table
+         v-if="courses.length"
                   :headers="headers"
                   :items="groups || []"
                   :loading="load"
                   @click:row="go"
     >
+      <template v-slot:item.course="{item}">
+        {{courses.filter(el=>el.id===item.course_id)[0].name}}
+      </template>
+      <template v-slot:item.status="{item}">
+        <v-chip :color="item.status === 'new' ? 'green' :'grey'" >
+          {{item.status}}
+        </v-chip>
+      </template>
       <template v-slot:item.actions="{ item }">
         <v-icon
             class="me-2"
@@ -30,7 +38,7 @@
       </template>
       <template v-slot:header.actions>
         <div style="float: right">
-          <svg class="tw-cursor-pointer" @click.stop="actReqwestCourses" width="17" height="16"
+          <svg class="tw-cursor-pointer" @click.stop="ACT_GET_Groups" width="17" height="16"
                viewBox="0 0 17 16"
                fill="none"
                xmlns="http://www.w3.org/2000/svg">
@@ -49,7 +57,7 @@
     <v-card>
       <v-card-title>
         <div class="tw-w-full tw-flex tw-justify-between ">
-          <h6> Создание курса</h6>
+          <h6> Создание группы</h6>
           <v-icon @click="dialog=false">mdi-close</v-icon>
         </div>
         <v-card-text>
@@ -84,6 +92,7 @@ export default {
       course:null,
       headers: [
         {title: 'id', key: 'id'},
+        {title: '', key: 'status'},
         {title: 'Название', key: 'name'},
         {title: 'Курс', key: 'course'},
         {title: '', align: 'end', sortable: false, key: 'actions'},
@@ -105,23 +114,23 @@ export default {
   },
   methods: {
     go(item, row) {
-      // this.$router.push({
-      //   name: 'courseDetail',
-      //   params: {idCourse: row.item.id}
-      // })
+      this.$router.push({
+        name: 'DetailGroup',
+        params: {id:row.item.id}
+      })
     },
     ...mapMutations('app', ['setSnackBar']),
-    ...mapActions('groups', ['ACT_GET_Groups']),
+    ...mapActions('groups', ['ACT_GET_Groups','actCreateGroup']),
     ...mapActions('courses', ['actReqwestCourses']),
     async createGroup() {
-        // if (await this.actCreateCourse({
-        //   nameCourse: this.nameCourse,
-        //   description: this.description
-        // })) {
-        //   this.dialog = false
-        //   this.nameGroup = '';
-        //   this.course = '';
-        // }
+        if (await this.actCreateGroup({
+          name: this.nameGroup,
+          course_id: this.course
+        })) {
+          this.dialog = false
+          this.nameGroup = '';
+          this.course = '';
+        }
     },
   },
   created() {
