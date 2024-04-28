@@ -9,7 +9,7 @@ use Laratrust\Contracts\LaratrustUser;
 use Laratrust\Traits\HasRolesAndPermissions;
 
 /**
- *
+ * 
  *
  * @property int $id
  * @property string $phone Телефон
@@ -49,6 +49,8 @@ use Laratrust\Traits\HasRolesAndPermissions;
  * @method static \Illuminate\Database\Eloquent\Builder|User whereUpdatedAt($value)
  * @property string|null $deleted_at
  * @method static \Illuminate\Database\Eloquent\Builder|User whereDeletedAt($value)
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\GroupUser> $groupUsers
+ * @property-read int|null $group_users_count
  * @mixin \Eloquent
  */
 class User extends Authenticatable implements LaratrustUser
@@ -74,18 +76,11 @@ class User extends Authenticatable implements LaratrustUser
 //        'entry_code',
     ];
 
-//    /**
-//     * Get the attributes that should be cast.
-//     *
-//     * @return array<string, string>
-//     */
-//    protected function casts(): array
-//    {
-//        return [
-//            'email_verified_at' => 'datetime',
-//            'password' => 'hashed',
-//        ];
-//    }
+
+    public function groupUsers()
+    {
+        return $this->hasMany(GroupUser::class);
+    }
 
 
     /**
@@ -108,5 +103,10 @@ class User extends Authenticatable implements LaratrustUser
         }
 
         return $phone;
+    }
+
+    public function PermissionsRoles()
+    {
+        return $this->roles;
     }
 }

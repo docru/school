@@ -7,6 +7,11 @@ use App\Http\Controllers\Methodologist\LessonController;
 use App\Http\Controllers\Methodologist\ControlController;
 use App\Http\Controllers\Methodologist\TaskController;
 
+use App\Http\Controllers\Administrator\AttendanceController;
+use App\Http\Controllers\Administrator\GroupController;
+use App\Http\Controllers\Administrator\GroupSchoolDayController;
+use App\Http\Controllers\Administrator\UserController;
+
 Route::namespace('App\Http\Controllers')->group(function () {
 
     // авторизация по коду
@@ -18,7 +23,6 @@ Route::namespace('App\Http\Controllers')->group(function () {
             Route::get('/users/profile', 'UserController@profile');
             Route::get('/users/profile/{uid?}', 'UserController@profile');
             Route::post('/users/profile', 'UserController@profileSave');
-            Route::get('/users/disciples/{groupId}', 'UserController@disciples');
         });
 
         // Суперадмин
@@ -52,11 +56,15 @@ Route::namespace('App\Http\Controllers')->group(function () {
 
         // администратор
         Route::group(['middleware' => ['role:administrator']], function () {
-            Route::post('/users/create', 'UserController@create');
-            Route::post('/users/auth-link/{uid}', 'UserController@authLink');
-
             Route::prefix('administrator')->namespace('Administrator')->group(function () {
-
+                Route::apiResources([
+                    'users' => UserController::class,
+                    'groups' => GroupController::class,
+                    'groupsSchoolDay' => GroupSchoolDayController::class,
+                    'attendance' => AttendanceController::class,
+                ]);
+                Route::post('/users/auth-link/{uid}', 'UserController@authLink');
+                Route::get('/users/disciples/{groupId}', 'UserController@disciples');
             });
         });
 

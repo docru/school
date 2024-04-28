@@ -8,30 +8,29 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 
 /**
- *
+ * 
  *
  * @property int $id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $deleted_at
  * @property string $name Название курса
- * @property string $description Описание курса
- * @method static Builder|Course newModelQuery()
- * @method static Builder|Course newQuery()
- * @method static Builder|Course query()
- * @method static Builder|Course whereCalendarPlan($value)
- * @method static Builder|Course whereCreatedAt($value)
- * @method static Builder|Course whereDescription($value)
- * @method static Builder|Course whereId($value)
- * @method static Builder|Course whereName($value)
- * @method static Builder|Course whereUpdatedAt($value)
- * @method static Builder|Course whereDeletedAt($value)
+ * @property string|null $description Описание курса
+ * @property-read Collection<int, \App\Models\CourseSchoolDay> $course_school_days
+ * @property-read int|null $course_school_days_count
  * @property-read Collection<int, \App\Models\Lesson> $lessons
  * @property-read int|null $lessons_count
  * @property-read Collection<int, \App\Models\Module> $modules
  * @property-read int|null $modules_count
- * @property-read Collection<int, \App\Models\CourseSchoolDay> $course_school_days
- * @property-read int|null $course_school_days_count
+ * @method static Builder|Course newModelQuery()
+ * @method static Builder|Course newQuery()
+ * @method static Builder|Course query()
+ * @method static Builder|Course whereCreatedAt($value)
+ * @method static Builder|Course whereDeletedAt($value)
+ * @method static Builder|Course whereDescription($value)
+ * @method static Builder|Course whereId($value)
+ * @method static Builder|Course whereName($value)
+ * @method static Builder|Course whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class Course extends Model

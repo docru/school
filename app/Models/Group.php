@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- *
+ * 
  *
  * @property int $id
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -14,6 +14,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $name Имя группы
  * @property int $course_id Курс
  * @property string $status Статус группы
+ * @property-read \App\Models\Course $course
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\GroupUser> $groupUser
+ * @property-read int|null $group_user_count
  * @method static \Illuminate\Database\Eloquent\Builder|Group newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Group newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Group query()
@@ -30,4 +33,14 @@ class Group extends Model
     use HasFactory;
 
     protected $fillable = ['name', 'course_id'];
+
+    public function course()
+    {
+        return $this->belongsTo(Course::class);
+    }
+
+    public function groupUser()
+    {
+        return $this->hasMany(GroupUser::class);
+    }
 }
