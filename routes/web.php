@@ -54,9 +54,9 @@ Route::namespace('App\Http\Controllers')->group(function () {
             });
         });
 
-        // администратор
-        Route::group(['middleware' => ['role:administrator']], function () {
-            Route::prefix('administrator')->namespace('Administrator')->group(function () {
+		// администратор
+		Route::group(['middleware' => ['role:administrator']], function () {
+			Route::prefix('administrator')->namespace('Administrator')->group(function () {
                 Route::apiResources([
                     'users' => UserController::class,
                     'groups' => GroupController::class,
@@ -64,7 +64,12 @@ Route::namespace('App\Http\Controllers')->group(function () {
                     'attendance' => AttendanceController::class,
                 ]);
                 Route::post('/users/auth-link/{uid}', 'UserController@authLink');
-                Route::get('/users/disciples/{groupId}', 'UserController@disciples');
+                Route::get('/groups', [GroupController::class,'index']);
+			Route::get('/groups/{id}', [GroupController::class,'getById']);
+			Route::post('/groups/add', [GroupController::class,'store']);
+			Route::delete('/groups/delete', [GroupController::class,'destroy']);
+
+			Route::get('/users/disciples/{groupId}', 'UserController@disciples');
             });
         });
 

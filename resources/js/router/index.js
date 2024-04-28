@@ -34,6 +34,11 @@ const routes = [
         component: () => import('../pages/Groups/GroupsList.vue'),
     },
     {
+        path: '/group/:id',
+        name: 'DetailGroup',
+        component: () => import('../pages/Groups/DetailGroup.vue'),
+    },
+    {
         path: '/plan',
         name: 'Plan',
         component: () => import('../pages/Plan/Plan.vue'),
