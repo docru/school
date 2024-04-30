@@ -20,7 +20,7 @@
                @click="create">Создать пользователя
         </v-btn>
       </div>
-      <v-divider class="tw-my-3" color="blue"/>
+      <v-divider class="tw-my-3"  color="blue"/>
       <div v-if="getUsers">
         <div class="tw-flex tw-flex-col md:tw-flex-row tw-justify-between">
           <div class="tw-w-full md:tw-w-1/3">
