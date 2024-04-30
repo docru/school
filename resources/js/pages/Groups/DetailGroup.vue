@@ -11,12 +11,18 @@
 
 
   <v-data-table
+      :items-per-page="-1"
       class="table-sh"
       height="800"
       fixed-header
       density="compact"
       :items="items"
-      :headers="headers">
+      :headers="headers"
+      :hide-default-footer="true"
+      disable-pagination
+      :item-class="itemRowBackground"
+  >
+
     <template v-slot:[`item.${it}`]="{item}"
               v-for="(it,index) in headers.map((val)=>{if(val.key !== 'name' &&  val.key !=='') return val.key })"
     >
@@ -63,7 +69,7 @@ export default {
   name: "DetailGroup",
   data() {
     return {
-      now: 'day8',
+      now: 'day3',
       items: [
         {name: 'Иван Петров', day1: true, day2: true, day3: true, day4: true, day5: true,},
         {name: 'Иван Иванов', day1: true, day2: true, day3: true, day4: true, day5: true,},
@@ -138,6 +144,11 @@ export default {
     }
   },
   methods: {
+    itemRowBackground: function (item) {
+      return 'style-1'
+      console.log(item)
+      return item[this.now] ? 'style-1' : 'style-2'
+    },
     ...mapActions('groups', ['actGetGroup']),
     ...mapActions('courses', ['actReqwestCourse'])
   },
@@ -155,6 +166,12 @@ export default {
 
 
 <style lang="scss">
+.style-1 {
+  background-color: rgb(215,215,44)!important;
+}
+.style-2 {
+  background-color: rgb(114,114,67)!important;
+}
 .activeSlot {
   background-color: rgba(66, 209, 197, 0.18) !important;
 }
