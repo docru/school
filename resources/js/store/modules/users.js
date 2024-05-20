@@ -16,9 +16,7 @@ const mutations = {
     setUsersLink(state, payload){
         state.users.filter(el=>el.id === payload.id)[0].entry_code = payload.key
     },
-    setUsers: (state, payload) => {
-        state.users = payload.users
-    },
+    setUsers: (state, payload) => state.users = payload.users,
     setRoles: (state, payload) => {
         state.roles = payload.roles
             .map((el) => {
@@ -30,19 +28,25 @@ const mutations = {
 
 
 const actions = {
-    async ACT_GET_User({state, commit}) {
+    async ACT_GET_Users({state, commit}) {
         return await vuexGet('/users', {}, state, commit, 'setUsers');
     },
     async ACT_GET_UserRoles({state, commit}) {
         return await vuexGet('/users/roles', {}, state, commit, 'setRoles');
     },
-    async ACT_GET_UserCreate({state, commit}, params) {
+    async actUserCreate({state, commit}, params) {
         return await vuexPost('/users/create', params, state, commit, 'setUsers', {showMsg: false});
     },
     async ACT_POST_UserCreateLink({state, commit}, params) {
         return await vuexPost('/users/auth-link/'+params.uid, {}, state, commit, 'setUsersLink', {showMsg: false});
     },
 
+    async actRequestDisciples({state, commit}) {
+        return await vuexGet('/administrator/disciples', {}, state, commit, 'setUsers');
+    },
+    async actDiscipleCreate({state, commit}, params) {
+        return await vuexPost('/administrator/disciples', params, state, commit, 'setUsers', {showMsg: false});
+    },
 }
 
 

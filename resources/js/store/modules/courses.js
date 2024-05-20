@@ -11,7 +11,7 @@ const state = {
 const getters = {
     getLoad: (state) => state.load,
     getCourses: (state) => state.courses ?? [],
-    getCourse: (state) => state.course,
+    getCourse: (state) => state.course ?? {},
     getLessons: (state) => {
         let lessons = {};
         for (const module of state.studyProgram) {

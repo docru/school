@@ -1,16 +1,15 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Methodologist\CourseController;
-use App\Http\Controllers\Methodologist\ModuleController;
-use App\Http\Controllers\Methodologist\LessonController;
-use App\Http\Controllers\Methodologist\ControlController;
-use App\Http\Controllers\Methodologist\TaskController;
-
 use App\Http\Controllers\Administrator\AttendanceController;
 use App\Http\Controllers\Administrator\GroupController;
 use App\Http\Controllers\Administrator\GroupSchoolDayController;
 use App\Http\Controllers\Administrator\UserController;
+use App\Http\Controllers\Methodologist\ControlController;
+use App\Http\Controllers\Methodologist\CourseController;
+use App\Http\Controllers\Methodologist\LessonController;
+use App\Http\Controllers\Methodologist\ModuleController;
+use App\Http\Controllers\Methodologist\TaskController;
+use Illuminate\Support\Facades\Route;
 
 Route::namespace('App\Http\Controllers')->group(function () {
 
@@ -31,7 +30,7 @@ Route::namespace('App\Http\Controllers')->group(function () {
             Route::get('/users', 'UserController@list'); // список всех пользователей
             Route::get('/users/roles', 'UserController@roles'); // список всех ролей с описанием (id, name, display_name, description)
             Route::post('/users/create', 'UserController@create'); // создать пользователя ($phone, $roles)
-            Route::post('/users/auth-link', 'UserController@authLink'); // получить ссылку для пользователя ($uid)
+            Route::post('/users/auth-link/{uid}', 'UserController@authLink'); // получить ссылку для пользователя ($uid)
 
             Route::prefix('superadmin')->group(function () {
 
@@ -54,23 +53,20 @@ Route::namespace('App\Http\Controllers')->group(function () {
             });
         });
 
-		// администратор
-		Route::group(['middleware' => ['role:administrator']], function () {
-			Route::prefix('administrator')->namespace('Administrator')->group(function () {
+        // администратор
+        Route::group(['middleware' => ['role:administrator']], function () {
+            Route::prefix('administrator')->namespace('Administrator')->group(function () {
+                Route::post('/groups/join-user', 'GroupController@joinUserToGroup'); // зачислить ученика в группу
+                Route::post('/groups/school-day/{group}', 'GroupController@addGroupsSchoolDay'); // Добавить новый учебный день группы
                 Route::apiResources([
-                    'users' => UserController::class,
+                    'disciples' => UserController::class,
                     'groups' => GroupController::class,
                     'groupsSchoolDay' => GroupSchoolDayController::class,
                     'attendance' => AttendanceController::class,
                 ]);
-                Route::post('/users/auth-link/{uid}', 'UserController@authLink');
-                Route::get('/groups', [GroupController::class,'index']);
-			Route::get('/groups/{id}', [GroupController::class,'getById']);
-			Route::post('/groups/add', [GroupController::class,'store']);
-			Route::delete('/groups/delete', [GroupController::class,'destroy']);
-
-			Route::get('/users/disciples/{groupId}', 'UserController@disciples');
+                Route::get('/groups/users/{group}', 'GroupController@users'); // зачислить ученика в группу
             });
+            Route::post('/users/auth-link/{uid}', 'UserController@authLink'); // получить ссылку для пользователя ($uid)
         });
 
         // учитель

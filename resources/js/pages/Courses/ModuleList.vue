@@ -24,9 +24,6 @@ export default {
         }
     },
     methods: {
-        clone({name}) {
-            return {name, id: idGlobal++};
-        },
     },
     props: {
         getStudyProgram: {

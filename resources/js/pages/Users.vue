@@ -68,7 +68,7 @@
           </template>
           <template v-slot:header.actions>
             <div style="float: right">
-              <svg class="tw-cursor-pointer" @click.stop="ACT_GET_User" width="17" height="16" viewBox="0 0 17 16"
+              <svg class="tw-cursor-pointer" @click.stop="ACT_GET_Users" width="17" height="16" viewBox="0 0 17 16"
                    fill="none"
                    xmlns="http://www.w3.org/2000/svg">
                 <path fill-rule="evenodd" clip-rule="evenodd"
@@ -150,14 +150,14 @@ export default {
   },
   methods: {
     create() {
-      this.ACT_GET_UserCreate({
+      this.actUserCreate({
         phone: this.phone,
         roles: this.getRoles.filter((el) => el.value).map((elem) => {
           return elem.name
         })
       })
     },
-    ...mapActions('users', ['ACT_GET_User', 'ACT_GET_UserRoles', 'ACT_GET_UserCreate','ACT_POST_UserCreateLink'])
+    ...mapActions('users', ['ACT_GET_Users', 'ACT_GET_UserRoles', 'actUserCreate','ACT_POST_UserCreateLink'])
   },
   computed: {
     searchItems() {
@@ -168,7 +168,7 @@ export default {
       if (!this.search && !isSelectCount) return this.getUsers
 
       if (this.search) result = this.getUsers.filter((el) => {
-        return el.phone.includes(this.search)
+        return el.phone.search(this.search) > -1
       })
 
       if (isSelectCount) {
@@ -184,7 +184,7 @@ export default {
     ...mapGetters('users', ['getUsers', 'getRoles', 'getLoad', 'getRolesSelect'])
   },
   created() {
-    this.ACT_GET_User()
+    this.ACT_GET_Users()
     this.ACT_GET_UserRoles()
   }
 }

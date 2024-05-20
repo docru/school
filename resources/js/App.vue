@@ -119,8 +119,8 @@ export default {
         ],
         menu_items_admin: [
             {
-                name: 'Пользователи',
-                routName: 'Users'
+                name: 'Ученики',
+                routName: 'Disciples'
             },
             {
                 name: 'Группы',

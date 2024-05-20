@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 /**
  * 
@@ -26,6 +29,10 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|Group whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Group whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Group whereUpdatedAt($value)
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\GroupSchoolDay> $groupsSchoolDay
+ * @property-read int|null $groups_school_day_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users
+ * @property-read int|null $users_count
  * @mixin \Eloquent
  */
 class Group extends Model
@@ -39,8 +46,21 @@ class Group extends Model
         return $this->belongsTo(Course::class);
     }
 
-    public function groupUser()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function groupUser(): HasMany
     {
         return $this->hasMany(GroupUser::class);
+    }
+
+    public function users(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'group_users');
+    }
+
+    public function groupsSchoolDay(): HasMany
+    {
+        return $this->hasMany(GroupSchoolDay::class);
     }
 }

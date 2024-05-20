@@ -85,6 +85,9 @@ export default {
                 await this.actDeleteCourseSchoolDay(day);
             }
         },
+        clone(i){
+            console.log(i)
+        },
         onEnd(e) {
             let dayId = e.to.dataset.dayId;
             let lessonId = e.item.dataset.lessonId;
@@ -148,11 +151,12 @@ export default {
                         </v-card-title>
                         <v-card-text>
                             <draggable
-                                :group="{ name: moduleItem.module.name, put: false}"
+                                :group="{ name: moduleItem.module.name, pull: 'clone', put: false}"
                                 :list="moduleItem.lessons"
-                                @end="onEnd"
                                 item-key=""
                                 handle=".item"
+                                @end="onEnd"
+
                             >
                                 <template #item="{element}">
                                     <div

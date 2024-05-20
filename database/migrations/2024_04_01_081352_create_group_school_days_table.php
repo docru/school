@@ -18,6 +18,7 @@ return new class extends Migration
             $table->unsignedBigInteger('course_school_day_id')->comment('Учебный день');
             $table->bigInteger('group_id')->unsigned()->comment('Группа');
             $table->date('date')->index()->comment('Дата');
+            $table->integer('order')->comment('Сортировка');
 
 
             $table->foreign('course_school_day_id')->references('id')->on('course_school_days')

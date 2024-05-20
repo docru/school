@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Administrator;
 
 use App\Http\Controllers\RestController;
+use App\Models\Group;
+use App\Models\GroupUser;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Str;
@@ -11,11 +13,32 @@ use Illuminate\Support\Str;
 class UserController extends RestController
 {
 
+    public function index()
+    {
+        $users = User::whereHasRole('disciple')->orderBy('id')->get()->map(function (User $user) {
+            return [
+                'id' => $user->id,
+                'phone' => $user->phone,
+                'authorized_at' => $user->authorized_at,
+                'name' => $user->name,
+                'nickname' => $user->nickname,
+                'entry_code' => $user->entry_code ? env('APP_URL') . '/login/' . $user->entry_code : '',
+                'groups' => $user->groupUsers->mapWithKeys(function (GroupUser $groupUser) {
+                    return [$groupUser->group_id => $groupUser->role];
+                }),
+//                'roles' => $user->roles->map(function (Role $role) {
+//                    return ['name' => $role->name, 'display_name' => $role->display_name];
+//                }),
+            ];
+        })->toArray();
+        return $this->ResponseOk(['users' => $users]);
+    }
+
     /**
      * Создать пользователя
-     * @return void
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function create()
+    public function store()
     {
 
         $phone = User::phoneNormalize(request()->post('phone'));
@@ -28,24 +51,14 @@ class UserController extends RestController
         }
         $user = User::create(['phone' => $phone]);
 
-        $roles = request()->post('roles');
-
-
-        $existsRoles = Role::all()->map(function (Role $role) {
-            return $role->name;
-        })->toArray();
-
-        $roles = array_intersect($roles, $existsRoles);
-        $user->addRoles($roles);
-        return $this->list();
-//			return $this->ResponseOk($res);
-
-
+        $user->addRoles(['disciple']);
+        return $this->index();
     }
 
     /**
      * Сгенерировать ссылку для авторизации
-     * @return string
+     * @param $uid
+     * @return \Illuminate\Http\JsonResponse|string
      */
     public function authLink($uid)
     {
@@ -66,50 +79,6 @@ class UserController extends RestController
             'key' => env('APP_URL') . '/login/' . $user->entry_code,
             'id' => $user->id
         ]);
-    }
-
-    /**
-     * Список пользователей.
-     */
-    public function list()
-    {
-        $users = User::all()->sortBy('id')->map(function (User $user) {
-            return [
-                'id' => $user->id,
-                'phone' => $user->phone,
-                'authorized_at' => $user->authorized_at,
-                'name' => $user->name,
-                'nickname' => $user->nickname,
-                'entry_code' => $user->entry_code ? env('APP_URL') . '/login/' . $user->entry_code : '',
-                'roles' => $user->roles->map(function (Role $role) {
-                    return ['name' => $role->name, 'display_name' => $role->display_name];
-                }),
-            ];
-        });
-
-        return $this->ResponseOk(['users' => $users]);
-    }
-
-    public function roles()
-    {
-        return $this->ResponseOk(['roles' => Role::all()->map(function (Role $role) {
-            return [
-                'id' => $role->id,
-                'name' => $role->name,
-                'display_name' => $role->display_name,
-                'description' => $role->description,
-            ];
-        })]);
-    }
-
-    /**
-     * Список пользователей группы
-     * @param $groupId
-     * @return void
-     */
-    public function disciples($groupId)
-    {
-        //
     }
 
 }
