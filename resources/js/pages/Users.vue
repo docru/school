@@ -68,7 +68,7 @@
           </template>
           <template v-slot:header.actions>
             <div style="float: right">
-              <svg class="tw-cursor-pointer" @click.stop="ACT_GET_Users" width="17" height="16" viewBox="0 0 17 16"
+              <svg class="tw-cursor-pointer" @click.stop="actReqwestUsers" width="17" height="16" viewBox="0 0 17 16"
                    fill="none"
                    xmlns="http://www.w3.org/2000/svg">
                 <path fill-rule="evenodd" clip-rule="evenodd"
@@ -83,14 +83,13 @@
           </template>
           <template v-slot:item.roles="{item}">
             <div v-html="item.roles.map((el)=>el.display_name).join(', ')" style="font-size: 12px; "/>
-            <!--            {{ item.roles.map((el)=>el.display_name).join('<br>') }}-->
           </template>
           <template v-slot:item.link="{item}">
             <Code
                 v-if="item.entry_code"
                 :code="item.entry_code"
             />
-            <div v-else @click="ACT_POST_UserCreateLink({
+            <div v-else @click="actUserCreateLink({
               uid:item.id
             })"> сгенерить ключ</div>
           </template>
@@ -157,7 +156,7 @@ export default {
         })
       })
     },
-    ...mapActions('users', ['ACT_GET_Users', 'ACT_GET_UserRoles', 'actUserCreate','ACT_POST_UserCreateLink'])
+    ...mapActions('users', ['actReqwestUsers', 'actReqwestUserRoles', 'actUserCreate','actUserCreateLink'])
   },
   computed: {
     searchItems() {
@@ -184,8 +183,8 @@ export default {
     ...mapGetters('users', ['getUsers', 'getRoles', 'getLoad', 'getRolesSelect'])
   },
   created() {
-    this.ACT_GET_Users()
-    this.ACT_GET_UserRoles()
+    this.actReqwestUsers()
+    this.actReqwestUserRoles()
   }
 }
 </script>

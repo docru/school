@@ -69,10 +69,7 @@
                             v-if="item.entry_code"
                             :code="item.entry_code"
                         />
-                        <div v-else @click="ACT_POST_UserCreateLink({
-              uid:item.id
-            })"> сгенерить ключ
-                        </div>
+                        <div v-else @click="actUserCreateLink({ uid:item.id })"> сгенерить ключ</div>
                     </template>
                     <template v-slot:item.entrance="{item}">
                         <v-chip :color="item.authorized_at ? 'green': 'grey'">
@@ -129,9 +126,9 @@ export default {
     },
     methods: {
         create() {
-            this.actDiscipleCreate({phone: this.phone,});
+            this.actUserCreate({phone: this.phone, role: 'disciple'});
         },
-        ...mapActions('users', ['actRequestDisciples', 'actDiscipleCreate', 'ACT_POST_UserCreateLink'])
+        ...mapActions('users', ['actRequestDisciples', 'actUserCreateLink'])
     },
     computed: {
         searchItems() {

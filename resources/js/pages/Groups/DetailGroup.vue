@@ -4,19 +4,33 @@
             <div class="tw-flex tw-justify-between">
                 <div>Группа "{{ getGroup.name }}". Курс "{{ getCourse.name }}"</div>
                 <v-btn color="primary" @click="dialogDate = true">Добавить день</v-btn>
-                <v-btn color="primary" @click="dialog = true">Добавить ученика</v-btn>
+                <v-btn color="primary" @click="dialogDisciple = true">Добавить ученика</v-btn>
+                <v-btn color="primary" @click="dialogTeacher = true">Добавить учителя</v-btn>
             </div>
         </v-card-title>
 
-        <v-dialog v-model="dialog">
+        <v-dialog v-model="dialogDisciple">
             <v-card>
                 <v-card-title>
                     <div class="tw-w-full tw-flex tw-justify-between ">
                         <h6>Добавить ученика</h6>
-                        <v-icon @click="dialog=false">mdi-close</v-icon>
+                        <v-icon @click="dialogDisciple=false">mdi-close</v-icon>
                     </div>
                     <v-card-text>
-                        <DisciplesChoose @choosedUser="dialog = false" :group="getGroup"/>
+                        <UserChoose @choosedUser="dialogDisciple = false; loadUsers()" :group="getGroup"/>
+                    </v-card-text>
+                </v-card-title>
+            </v-card>
+        </v-dialog>
+        <v-dialog v-model="dialogTeacher">
+            <v-card>
+                <v-card-title>
+                    <div class="tw-w-full tw-flex tw-justify-between ">
+                        <h6>Добавить учителя</h6>
+                        <v-icon @click="dialogTeacher=false">mdi-close</v-icon>
+                    </div>
+                    <v-card-text>
+                        <UserChoose @choosedUser="dialogTeacher = false; loadUsers()" role="teacher" :group="getGroup"/>
                     </v-card-text>
                 </v-card-title>
             </v-card>
@@ -27,7 +41,7 @@
                 <v-card-title>
                     <div class="tw-w-full tw-flex tw-justify-between ">
                         <h6>Добавить учебный день</h6>
-                        <v-icon @click="dialog=false">mdi-close</v-icon>
+                        <v-icon @click="dialogDate=false">mdi-close</v-icon>
                     </div>
                     <v-card-text>
                         <v-date-picker
@@ -47,6 +61,21 @@
             </v-card>
         </v-dialog>
 
+        Учителя:
+        <span v-if="Object.keys(getTeachers).length">
+            <v-chip
+                v-for="teacher in getTeachers"
+                :key="teacher.id"
+                :model-value="true"
+                class="ma-2"
+                color="teal"
+                closable
+                @click:close="delTeacher(teacher.id)"
+            >
+              {{ [teacher.name, teacher.nicname, teacher.phone].join(' ') }}
+            </v-chip>
+        </span>
+        <span v-else>В группе пока нет учителей</span>
 
         <v-data-table
             :items-per-page="-1"
@@ -68,8 +97,7 @@
                         <template v-slot:activator="{ props }">
                             <v-icon v-bind="props" color="grey" size="small">mdi-book-open-outline</v-icon>
                         </template>
-                        {{it.lessons}}
-                        <span v-html="'1. 10 заповедей<br> 2. Значение креста'"></span>
+                        <span v-html="lessons(it.lessons)"></span>
                     </v-tooltip>
                     <div
                         v-if="groupsSchoolDays[it.id]?.date"
@@ -83,6 +111,7 @@
 
             <template v-slot:[`item.${it?.key}`]="{item}" v-for="(it,index) in headersNotEmpty">
                 <div :class="{ activeSlot:it.id == lastDay }" v-if="groupsSchoolDays[it.id]">
+                    {{ item }}
                     <v-checkbox
                         :disabled="it !== now"
                         v-model="item[it.key]"
@@ -92,26 +121,22 @@
                         style="text-align: center"
                     />
                 </div>
-
             </template>
-
-
         </v-data-table>
-{{lessonsDays}}
-
     </v-card>
 </template>
 
 <script>
 import {mapActions, mapGetters} from "vuex";
-import DisciplesChoose from './DisciplesChoose.vue';
+import UserChoose from './UserChoose.vue';
 
 export default {
     name: "DetailGroup",
-    components: {DisciplesChoose,},
+    components: {UserChoose,},
     data() {
         return {
-            dialog: false,
+            dialogDisciple: false,
+            dialogTeacher: false,
             dialogDate: false,
             newDate: new Date(),
             now: 'day3',
@@ -120,48 +145,12 @@ export default {
                 {name: 'Иван Иванов', day1: true, day2: true, day3: true, day4: true, day5: true,},
                 {name: 'Иван Иванов', day1: true, day2: true, day3: true, day4: true, day5: true,},
                 {name: 'Иван Иванов', day1: false, day2: true, day3: false, day4: true, day5: true,},
-                {name: 'Иван Иванов', day1: true, day2: true, day3: true, day4: true, day5: true,},
-                {name: 'Иван Иванов', day1: true, day2: false, day3: true, day4: true, day5: true,},
-                {name: 'Иван Иванов', day1: true, day2: true, day3: true, day4: false, day5: true,},
-                {name: 'Иван Иванов', day1: true, day2: true, day3: false, day4: false, day5: true,},
-                {name: 'Иван Иванов', day1: true, day2: true, day3: true, day4: true, day5: true,},
-                {name: 'Иван Петров', day1: true, day2: true, day3: true, day4: true, day5: false,},
-                {name: 'Иван Иванов', day1: true, day2: true, day3: true, day4: true, day5: false,},
-                {name: 'Иван Иванов', day1: true, day2: true, day3: true, day4: true, day5: false,},
-                {name: 'Иван Иванов', day1: true, day2: true, day3: true, day4: true, day5: false,},
-                {name: 'Иван Иванов', day1: true, day2: true, day3: true, day4: true, day5: false,},
-                {name: 'Иван Иванов', day1: true, day2: true, day3: true, day4: true, day5: false,},
-                {name: 'Иван Иванов', day1: true, day2: true, day3: true, day4: true, day5: false,},
-                {name: 'Иван Иванов', day1: true, day2: true, day3: true, day4: true, day5: false,},
-                {name: 'Иван Иванов', day1: true, day2: true, day3: true, day4: true, day5: false,},
-                {name: 'Иван Иванов', day1: true, day2: true, day3: true, day4: true, day5: false,},
-                {name: 'Иван Иванов', day1: true, day2: true, day3: true, day4: true, day5: false,},
-                {name: 'Иван Иванов', day1: true, day2: true, day3: true, day4: true, day5: false,},
-                {name: 'Иван Иванов', day1: true, day2: true, day3: true, day4: true, day5: false,},
-                {name: 'Иван Иванов', day1: true, day2: true, day3: true, day4: true, day5: false,},
-                {name: 'Иван Иванов', day1: true, day2: true, day3: true, day4: true, day5: false,},
-                {name: 'Иван Иванов', day1: true, day2: true, day3: true, day4: true, day5: false,},
-                {name: 'Иван Иванов', day1: true, day2: true, day3: true, day4: true, day5: false,},
-                {name: 'Иван Иванов', day1: true, day2: true, day3: true, day4: true, day5: false,},
-                {name: 'Иван Иванов', day1: true, day2: true, day3: true, day4: true, day5: false,},
-                {name: 'Иван Иванов', day1: true, day2: true, day3: true, day4: true, day5: false,},
-                {name: 'Иван Иванов', day1: true, day2: true, day3: true, day4: true, day5: false,},
-                {name: 'Иван Иванов', day1: true, day2: true, day3: true, day4: true, day5: false,},
-                {name: 'Иван Иванов', day1: true, day2: true, day3: true, day4: true, day5: false,},
-                {name: 'Иван Иванов', day1: true, day2: true, day3: true, day4: true, day5: false,},
-                {name: 'Иван Иванов', day1: true, day2: true, day3: true, day4: true, day5: false,},
-                {name: 'Иван Иванов', day1: true, day2: true, day3: true, day4: true, day5: false,},
-                {name: 'Иван Иванов', day1: true, day2: true, day3: true, day4: true, day5: false,},
-                {name: 'Иван Иванов', day1: true, day2: true, day3: true, day4: true, day5: false,},
-                {name: 'Иван Иванов', day1: true, day2: true, day3: true, day4: true, day5: false,},
-                {name: 'Иван Иванов', day1: true, day2: true, day3: true, day4: true, day5: false,},
-                {name: 'Иван Иванов', day1: true, day2: true, day3: true, day4: true, day5: false,},
                 {name: 'Иван Петров', day1: true},
             ],
         }
     },
     computed: {
-        ...mapGetters('groups', ['getGroup', 'getDisciples']),
+        ...mapGetters('groups', ['getGroup', 'getDisciples', 'getTeachers']),
         ...mapGetters('courses', ['getCourse', 'getLessons', 'getStudyProgram', 'getSchedule']),
         headers() {
             let headers = [{
@@ -186,6 +175,9 @@ export default {
             }
             headers.push({title: '', key: '', sortable: false});
             return headers;
+        },
+        groupId() {
+            return this.$route.params.id;
         },
         headersNotEmpty() {
             return this.headers.map((val) => {
@@ -229,7 +221,12 @@ export default {
         },
     },
     methods: {
-        ...mapActions('groups', ['actRequestGroup', 'actRequestDisciples', 'actAddGroupSchoolDay']),
+        ...mapActions('groups', [
+            'actRequestGroup',
+            'actAddGroupSchoolDay',
+            'actRequestGroupUsers',
+            'actDelUserFromGroup',
+        ]),
         ...mapActions('courses', ['actReqwestCourse']),
         itemRowBackground: function (item) {
             return 'style-1'
@@ -241,11 +238,25 @@ export default {
             await this.actAddGroupSchoolDay({groupId: this.getGroup.id, date: this.newDate})
             this.newDate = new Date();
         },
+        lessons(lessons) {
+            let res = [];
+            for (const i in lessons) {
+                res.push((1 + parseInt(i)) + '. ' + lessons[i])
+            }
+            return res.join('<br/>')
+        },
+        loadUsers() {
+            this.actRequestGroupUsers({groupId: this.groupId});
+        },
+        delTeacher(id) {
+            if (confirm('Удалить учителя?')) {
+                this.actDelUserFromGroup({groupId: this.groupId, userId: id});
+            }
+        },
     },
     created() {
-        let groupId = this.$route.params.id;
-        this.actRequestDisciples(groupId);
-        this.actRequestGroup(groupId).then(() => {
+        this.loadUsers();
+        this.actRequestGroup(this.groupId).then(() => {
             this.actReqwestCourse({id: this.getGroup.course_id})
         });
     }
@@ -312,16 +323,14 @@ export default {
     min-height: 0;
 }
 
-
 </style>
 
 <!--
-//Добавить очередной день
-Список уроков в дне
-Добавить учителя
-Отобразиь список учителей
-Удалить учителя
-Удалиь ученика из группы (толькол на этапе формирования)
-Отчислить ученика из группы
+// Добавить очередной день
+// Список уроков в дне
+// Добавить учителя
+// Отобразиь список учителей
+// Удалить учителя
 Отметить посещение
+Удалить/отчислить ученика из группы (если посетил хоть один урок)
 -->

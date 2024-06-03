@@ -28,24 +28,17 @@ const mutations = {
 
 
 const actions = {
-    async ACT_GET_Users({state, commit}) {
+    async actReqwestUsers({state, commit}) {
         return await vuexGet('/users', {}, state, commit, 'setUsers');
     },
-    async ACT_GET_UserRoles({state, commit}) {
+    async actReqwestUserRoles({state, commit}) {
         return await vuexGet('/users/roles', {}, state, commit, 'setRoles');
     },
     async actUserCreate({state, commit}, params) {
         return await vuexPost('/users/create', params, state, commit, 'setUsers', {showMsg: false});
     },
-    async ACT_POST_UserCreateLink({state, commit}, params) {
+    async actUserCreateLink({state, commit}, params) {
         return await vuexPost('/users/auth-link/'+params.uid, {}, state, commit, 'setUsersLink', {showMsg: false});
-    },
-
-    async actRequestDisciples({state, commit}) {
-        return await vuexGet('/administrator/disciples', {}, state, commit, 'setUsers');
-    },
-    async actDiscipleCreate({state, commit}, params) {
-        return await vuexPost('/administrator/disciples', params, state, commit, 'setUsers', {showMsg: false});
     },
 }
 

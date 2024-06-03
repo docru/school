@@ -56,17 +56,19 @@ Route::namespace('App\Http\Controllers')->group(function () {
         // администратор
         Route::group(['middleware' => ['role:administrator']], function () {
             Route::prefix('administrator')->namespace('Administrator')->group(function () {
-                Route::post('/groups/join-user', 'GroupController@joinUserToGroup'); // зачислить ученика в группу
+                Route::controller(UserController::class)->group(function () {
+                    Route::get('/group/{group}/users', 'index'); // пользователи группы
+                    Route::post('/group/{group}/join-user/{user}/{role}', 'joinUserToGroup'); // зачислить юзера в группу
+                    Route::post('/group/{group}/del-user/{user}', 'delUserFromGroup'); // удалить юзера из группы
+                });
+
                 Route::post('/groups/school-day/{group}', 'GroupController@addGroupsSchoolDay'); // Добавить новый учебный день группы
                 Route::apiResources([
-                    'disciples' => UserController::class,
                     'groups' => GroupController::class,
                     'groupsSchoolDay' => GroupSchoolDayController::class,
                     'attendance' => AttendanceController::class,
                 ]);
-                Route::get('/groups/users/{group}', 'GroupController@users'); // зачислить ученика в группу
             });
-            Route::post('/users/auth-link/{uid}', 'UserController@authLink'); // получить ссылку для пользователя ($uid)
         });
 
         // учитель

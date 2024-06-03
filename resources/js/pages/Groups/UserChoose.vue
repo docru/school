@@ -23,7 +23,6 @@
                     </div>
                 </div>
 
-
                 <v-data-table
                     @click:row="dialog=!dialog"
                     :headers="usersHeaders"
@@ -43,7 +42,7 @@
                             v-if="item.entry_code"
                             :code="item.entry_code"
                         />
-                        <div v-else @click="ACT_POST_UserCreateLink({ uid:item.id })">
+                        <div v-else @click="actUserCreateLink({ uid:item.id })">
                             сгенерить ключ
                         </div>
                     </template>
@@ -53,8 +52,6 @@
         </v-card-text>
     </v-card>
     <Loading v-else/>
-
-
 </template>
 
 <script>
@@ -64,7 +61,7 @@ import Loading from "../../components/Loading.vue";
 import ICode from "../../components/icon/ICode.vue";
 
 export default {
-    name: "DisciplesChoose",
+    name: "UserChoose",
     components: {ICode, Loading, Code},
     props: {
         group: Object,
@@ -88,14 +85,12 @@ export default {
         }
     },
     methods: {
-        ...mapActions('users', [
-            'actRequestDisciples',
-            'actDiscipleCreate',
-            'ACT_POST_UserCreateLink',
-        ]),
-        ...mapActions('groups', ['actJoinUserToGroup']),
+        ...mapActions('users', ['actUserCreateLink', 'actReqwestUsers', 'actUserCreate']),
+        ...mapActions('groups', ['actJoinUserToGroup', 'actRequestGroupUsers']),
         create() {
-            this.actDiscipleCreate({phone: this.phone,});
+            this.actUserCreate({phone: this.phone, role: this.role}).then(()=>{
+                this.search = this.phone;
+            });
         },
         async choose(userId) { // 'disciple'
             await this.actJoinUserToGroup({groupId: this.group.id, userId, role: this.role});
@@ -117,7 +112,7 @@ export default {
         ...mapGetters('users', ['getUsers', 'getLoad'])
     },
     created() {
-        this.actRequestDisciples()
+        this.actReqwestUsers({role: this.role});
     }
 }
 </script>

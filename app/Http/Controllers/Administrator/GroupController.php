@@ -93,41 +93,6 @@ class GroupController extends Controller
     }
 
 
-    /**
-     * Зачислить ученика в группу.
-     */
-    public function joinUserToGroup(Request $request)
-    {
-
-        $group = Group::whereId($request->post('groupId'))->first();
-        $user = User::whereId($request->post('userId'))->first();
-        $role = $request->post('role');
-
-        if (empty($group)) {
-            return $this->ResponseError("Нет такой группы");
-        }
-        if (empty($user)) {
-            return $this->ResponseError("Нет такого пользователя");
-        }
-        if (empty($role)) {
-            return $this->ResponseError("Не указана роль пользователя");
-        }
-
-
-        $PermissionsGroup = $user->PermissionsGroup($group->id);
-        if (!empty($PermissionsGroup)) {
-            return $this->ResponseError("Пользователь уже подключен к группе с ролью '$PermissionsGroup'");
-        }
-
-        $GroupUser = new GroupUser();
-        $GroupUser->group_id = $group->id;
-        $GroupUser->user_id = $user->id;
-        $GroupUser->role = $role;
-        $GroupUser->save();
-
-        return $this->users($group);
-    }
-
 
     public function addGroupsSchoolDay(Request $request, Group $group)
     {

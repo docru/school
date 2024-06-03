@@ -14,8 +14,10 @@ const getters = {
     getCourse: (state) => state.course ?? {},
     getLessons: (state) => {
         let lessons = {};
-        for (const module of state.studyProgram) {
-            for (const lesson of module.lessons) {
+        for (const m in state.studyProgram) {
+            let module = state.studyProgram[m];
+            for (const l in module.lessons) {
+                let lesson = module.lessons[l];
                 lessons[lesson.id] = lesson;
             }
         }

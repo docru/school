@@ -65,10 +65,25 @@ class UserController extends RestController
         if (!empty($user)) {
             return $this->ResponseError('Пользователь с таким телефоном уже зарегистрирован');
         }
-        $user = User::create(['phone' => $phone]);
 
         $roles = request()->post('roles');
+        $role = request()->post('role');
+        if (empty($roles) && !empty($role)) {
+            $roles = [$role];
+        }
+        if (empty($roles)) {
+            return $this->ResponseError('Не заданы роли');
+        }
 
+        if (!auth()->user()->hasRole('superadmin')) {
+            if (auth()->user()->hasRole('administrator') && ($roles == ['disciple'] || $roles == ['teacher'])) {
+
+            } else {
+                return $this->ResponseError('У вас не достаточно прав для создания пользователя');
+            }
+        }
+
+        $user = User::create(['phone' => $phone]);
 
         $existsRoles = Role::all()->map(function (Role $role) {
             return $role->name;
@@ -77,9 +92,6 @@ class UserController extends RestController
         $roles = array_intersect($roles, $existsRoles);
         $user->addRoles($roles);
         return $this->list();
-//			return $this->ResponseOk($res);
-
-
     }
 
     /**
@@ -110,9 +122,15 @@ class UserController extends RestController
     /**
      * Список пользователей.
      */
-    public function list()
+    public function list($role = false)
     {
-        $users = User::all()->sortBy('id')->map(function (User $user) {
+        if (!empty($role)) {
+            $users = User::whereHasRole($role);
+        } else {
+            $users = User::all();
+        }
+
+        $users = $users->sortBy('id')->map(function (User $user) {
             return [
                 'id' => $user->id,
                 'phone' => $user->phone,

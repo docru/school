@@ -5,80 +5,71 @@ namespace App\Http\Controllers\Administrator;
 use App\Http\Controllers\RestController;
 use App\Models\Group;
 use App\Models\GroupUser;
-use App\Models\Role;
 use App\Models\User;
-use Illuminate\Support\Str;
 
 
 class UserController extends RestController
 {
 
-    public function index()
+    public function index(Group $group)
     {
-        $users = User::whereHasRole('disciple')->orderBy('id')->get()->map(function (User $user) {
-            return [
-                'id' => $user->id,
-                'phone' => $user->phone,
-                'authorized_at' => $user->authorized_at,
-                'name' => $user->name,
-                'nickname' => $user->nickname,
-                'entry_code' => $user->entry_code ? env('APP_URL') . '/login/' . $user->entry_code : '',
-                'groups' => $user->groupUsers->mapWithKeys(function (GroupUser $groupUser) {
-                    return [$groupUser->group_id => $groupUser->role];
-                }),
-//                'roles' => $user->roles->map(function (Role $role) {
-//                    return ['name' => $role->name, 'display_name' => $role->display_name];
-//                }),
-            ];
-        })->toArray();
-        return $this->ResponseOk(['users' => $users]);
+        $users = User::orderBy('id')->get()
+            ->map(function (User $user) {
+                return [
+                    'id' => $user->id,
+                    'phone' => $user->phone,
+                    'authorized_at' => $user->authorized_at,
+                    'name' => $user->name,
+                    'nickname' => $user->nickname,
+                    'entry_code' => $user->entry_code ? env('APP_URL') . '/login/' . $user->entry_code : '',
+                    'groups' => $user->groupUsers->mapWithKeys(function (GroupUser $groupUser) {
+                        return [$groupUser->group_id => $groupUser->role];
+                    }),
+                ];
+            });
+
+        $teachers = $users->filter(function ($user) use ($group) {
+            $groups = $user['groups']->toArray();
+            return isset($groups[$group->id]) && $groups[$group->id] == 'teacher';
+        });
+
+        $disciples = $users->filter(function ($user) use ($group) {
+            $groups = $user['groups']->toArray();
+            return isset($groups[$group->id]) && $groups[$group->id] == 'disciple';
+        });
+
+        return $this->ResponseOk(['teachers' => $teachers, 'disciples' => $disciples]);
+    }
+
+
+    /**
+     * Зачислить ученика в группу.
+     */
+    public function joinUserToGroup(Group $group, User $user, $role)
+    {
+        $PermissionsGroup = $user->PermissionsGroup($group->id);
+        if (!empty($PermissionsGroup)) {
+            return $this->ResponseError("Пользователь уже подключен к группе с ролью '$PermissionsGroup'");
+        }
+
+        $GroupUser = new GroupUser();
+        $GroupUser->group_id = $group->id;
+        $GroupUser->user_id = $user->id;
+        $GroupUser->role = $role;
+        $GroupUser->save();
+
+        return $this->index($group);
     }
 
     /**
-     * Создать пользователя
-     * @return \Illuminate\Http\JsonResponse
+     * Удалить юзера из группы.
      */
-    public function store()
+    public function delUserFromGroup(Group $group, User $user)
     {
+        $GroupUser = GroupUser::whereGroupId($group->id)->whereUserId($user->id)->first();
+        $GroupUser->delete();
 
-        $phone = User::phoneNormalize(request()->post('phone'));
-        if (!$phone) {
-            return $this->ResponseError('Не верный формат телефона');
-        }
-        $user = User::wherePhone($phone)->first();
-        if (!empty($user)) {
-            return $this->ResponseError('Пользователь с таким телефоном уже зарегистрирован');
-        }
-        $user = User::create(['phone' => $phone]);
-
-        $user->addRoles(['disciple']);
-        return $this->index();
-    }
-
-    /**
-     * Сгенерировать ссылку для авторизации
-     * @param $uid
-     * @return \Illuminate\Http\JsonResponse|string
-     */
-    public function authLink($uid)
-    {
-        // Проверитиь права на генерацию ссылки
-        if (empty(auth()->user()) || !auth()->user()->hasRole(['superadmin', 'administrator'])) {
-            return '';
-        }
-        $user = User::whereId($uid)->first();
-        if (empty($user)) {
-            return 'Не такого пользователя';
-        }
-
-        $user->entry_code = Str::random(12);
-        $user->entry_code_generated_at = date('Y-m-d H:i:s');
-        $user->save();
-
-        return $this->ResponseOk([
-            'key' => env('APP_URL') . '/login/' . $user->entry_code,
-            'id' => $user->id
-        ]);
+        return $this->index($group);
     }
 
 }
