@@ -5,7 +5,7 @@ const state = {
     group: null,
     teachers: [],
     disciples: [],
-    // groupSchoolDays: [],
+    attendances: {},
     load: false,
 }
 const getters = {
@@ -13,7 +13,7 @@ const getters = {
     getGroup: (state) => state.group ?? {},
     getTeachers: (state) => state.teachers ?? [],
     getDisciples: (state) => state.disciples ?? [],
-    // getGroupSchoolDays: (state) => state.groupSchoolDays ?? [],
+    getAttendances: (state) => state.attendances ?? {},
     getLoad: (state) => state.load,
 }
 const mutations = {
@@ -23,7 +23,7 @@ const mutations = {
         state.teachers = payload.teachers;
         state.disciples = payload.disciples;
     },
-    // setGroupSchoolDays: (state, payload) => state.groupSchoolDays = payload,
+    setAttendances: (state, payload) => state.attendances = payload,
 }
 
 
@@ -61,6 +61,14 @@ const actions = {
     async actAddGroupSchoolDay({state, commit}, params) {
         let url = `/administrator/groups/school-day/${params.groupId}`;
         return await vuexPost(url, params, state, commit, 'setGroup');
+    },
+
+    // посещение
+    async actRequestAttendances({state, commit}, params) {
+        return await vuexGet(`/administrator/attendance/${params.groupId}`, {}, state, commit, 'setAttendances');
+    },
+    async actSetAttendance({state, commit}, params) {
+        return await vuexPost(`/administrator/attendance/${params.groupSchoolDayId}/set/${params.userId}`, {}, state, commit, 'setAttendances');
     },
 }
 

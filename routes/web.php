@@ -56,18 +56,27 @@ Route::namespace('App\Http\Controllers')->group(function () {
         // администратор
         Route::group(['middleware' => ['role:administrator']], function () {
             Route::prefix('administrator')->namespace('Administrator')->group(function () {
+
+                // группы
+                Route::apiResources([
+                    'groups' => GroupController::class,
+                ]);
+
+                // ученики и учителя группы
                 Route::controller(UserController::class)->group(function () {
                     Route::get('/group/{group}/users', 'index'); // пользователи группы
                     Route::post('/group/{group}/join-user/{user}/{role}', 'joinUserToGroup'); // зачислить юзера в группу
                     Route::post('/group/{group}/del-user/{user}', 'delUserFromGroup'); // удалить юзера из группы
                 });
 
-                Route::post('/groups/school-day/{group}', 'GroupController@addGroupsSchoolDay'); // Добавить новый учебный день группы
-                Route::apiResources([
-                    'groups' => GroupController::class,
-                    'groupsSchoolDay' => GroupSchoolDayController::class,
-                    'attendance' => AttendanceController::class,
-                ]);
+                // Добавить новый учебный день группы
+                Route::post('/groups/school-day/{group}', 'GroupController@addGroupsSchoolDay');
+
+                // посещение
+                Route::controller(AttendanceController::class)->group(function () {
+                    Route::get('/attendance/{group}', 'index'); // посещение группы
+                    Route::post('/attendance/{groupSchoolDay}/set/{user}', 'set'); // отметить посещение ученика
+                });
             });
         });
 

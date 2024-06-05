@@ -76,7 +76,6 @@
             </v-chip>
         </span>
         <span v-else>В группе пока нет учителей</span>
-
         <v-data-table
             :items-per-page="-1"
             class="table-sh"
@@ -90,35 +89,35 @@
             :item-class="itemRowBackground"
         >
 
-            <template v-slot:[`header.${it?.key}`]="{column}" v-for="(it,index) in headersNotEmpty">
-                <div :class="{ activeSlot:it.id == lastDay }">
+            <template v-slot:[`header.day${day?.id}`]="{column}" v-for="(day,index) in headersNotEmpty">
+                <div :class="{ activeSlot:day.id == lastDay }">
                     {{ column.title }} <br>
                     <v-tooltip location="top">
                         <template v-slot:activator="{ props }">
                             <v-icon v-bind="props" color="grey" size="small">mdi-book-open-outline</v-icon>
                         </template>
-                        <span v-html="lessons(it.lessons)"></span>
+                        <span v-html="lessons(day.lessons)"></span>
                     </v-tooltip>
                     <div
-                        v-if="groupsSchoolDays[it.id]?.date"
-                        :style="{ color: it.key !== now ? 'grey' :'black', }"
+                        v-if="groupsSchoolDays[day.id]?.date"
+                        :style="{ color: day.key !== now ? 'grey' :'black', }"
                     >
-                        {{ groupsSchoolDays[it.id].date }}
+                        {{ groupsSchoolDays[day.id].date }}
                     </div>
                     <div></div>
                 </div>
             </template>
 
-            <template v-slot:[`item.${it?.key}`]="{item}" v-for="(it,index) in headersNotEmpty">
-                <div :class="{ activeSlot:it.id == lastDay }" v-if="groupsSchoolDays[it.id]">
-                    {{ item }}
+            <template v-slot:[`item.day${day?.id}`]="{item}" v-for="(day,index) in headersNotEmpty">
+                <div :class="{ activeSlot:day.id == lastDay }" v-if="groupsSchoolDays[day.id]">
                     <v-checkbox
-                        :disabled="it !== now"
-                        v-model="item[it.key]"
                         color="green"
                         hide-details
                         density="compact"
                         style="text-align: center"
+                        v-model="attendance"
+                        :value="day?.id + '_' + item?.id"
+                        @change="actSetAttendance({groupSchoolDayId: day.id, userId: item.id})"
                     />
                 </div>
             </template>
@@ -150,7 +149,7 @@ export default {
         }
     },
     computed: {
-        ...mapGetters('groups', ['getGroup', 'getDisciples', 'getTeachers']),
+        ...mapGetters('groups', ['getGroup', 'getDisciples', 'getTeachers', 'getAttendances']),
         ...mapGetters('courses', ['getCourse', 'getLessons', 'getStudyProgram', 'getSchedule']),
         headers() {
             let headers = [{
@@ -205,7 +204,8 @@ export default {
             let disciples = [];
             for (const d in this.getDisciples) {
                 let disciple = this.getDisciples[d];
-                disciples.push({name: (disciple.name ?? '') + ' ' + (disciple.nickname ?? '') + ' [' + disciple.phone + ']'})
+                let name = (disciple.name ?? '') + ' ' + (disciple.nickname ?? '') + ' [' + disciple.phone + ']';
+                disciples.push({id: disciple.id, name});
             }
             return disciples;
         },
@@ -219,6 +219,13 @@ export default {
             }
             return res;
         },
+        attendance: {
+            get() {
+                return this.getAttendances;
+            },
+            set(val) {
+            },
+        },
     },
     methods: {
         ...mapActions('groups', [
@@ -226,6 +233,8 @@ export default {
             'actAddGroupSchoolDay',
             'actRequestGroupUsers',
             'actDelUserFromGroup',
+            'actRequestAttendances',
+            'actSetAttendance',
         ]),
         ...mapActions('courses', ['actReqwestCourse']),
         itemRowBackground: function (item) {
@@ -257,8 +266,9 @@ export default {
     created() {
         this.loadUsers();
         this.actRequestGroup(this.groupId).then(() => {
-            this.actReqwestCourse({id: this.getGroup.course_id})
+            this.actReqwestCourse({id: this.getGroup.course_id});
         });
+        this.actRequestAttendances({groupId: this.groupId});
     }
 }
 </script>
@@ -292,8 +302,6 @@ export default {
     }
 
     table thead th {
-        //background-color: #FC5A5A!important;
-        //border: 1px solid indianred!important;/
         padding: 3px !important;
         margin: 3px !important;
 
@@ -303,8 +311,6 @@ export default {
     }
 
     table tbody td {
-        //background-color: #FC5A5A!important;
-        //border: 1px solid indianred!important;/
         padding: 0 !important;
         margin: 2px !important;
 
@@ -331,6 +337,6 @@ export default {
 // Добавить учителя
 // Отобразиь список учителей
 // Удалить учителя
-Отметить посещение
+// Отметить посещение
 Удалить/отчислить ученика из группы (если посетил хоть один урок)
 -->
