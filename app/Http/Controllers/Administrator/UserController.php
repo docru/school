@@ -11,7 +11,7 @@ use App\Models\User;
 class UserController extends RestController
 {
 
-    public function index(Group $group)
+    public function index(Group $group, $msgOk = false)
     {
         $users = User::orderBy('id')->get()
             ->map(function (User $user) {
@@ -38,7 +38,12 @@ class UserController extends RestController
             return isset($groups[$group->id]) && $groups[$group->id] == 'disciple';
         });
 
-        return $this->ResponseOk(['teachers' => $teachers, 'disciples' => $disciples]);
+        $res = ['teachers' => $teachers, 'disciples' => $disciples];
+        if (!!$msgOk) {
+            $res['msgOk'] = $msgOk;
+        }
+
+        return $this->ResponseOk($res);
     }
 
 
@@ -64,12 +69,30 @@ class UserController extends RestController
     /**
      * Удалить юзера из группы.
      */
-    public function delUserFromGroup(Group $group, User $user)
+    public function removeUserFromGroup(Group $group, User $user)
     {
         $GroupUser = GroupUser::whereGroupId($group->id)->whereUserId($user->id)->first();
-        $GroupUser->delete();
+        if (!empty($GroupUser)) {
+            $roleName = $GroupUser->roleName();
+            $roleName = mb_strtoupper(mb_substr($roleName, 0, 1)) . mb_substr($roleName, 1);
 
-        return $this->index($group);
+
+            $action = 'удален';
+            if ($GroupUser->role == 'disciple' && $GroupUser->attendances()->count() > 0) {
+                $GroupUser->status = 'expelled';
+                $GroupUser->save();
+                $action = 'отчислен';
+            } else {
+                $GroupUser->delete();
+            }
+
+            $msgOk = "$roleName $action из группы";
+
+            return $this->index($group, $msgOk);
+        } else {
+            return $this->ResponseError("Такого пользователя в группе нет.");
+        }
+
     }
 
 }

@@ -51,8 +51,8 @@ const actions = {
         let config = {msgOk: 'Пользователь успешно добавлен в группу'};
         return await vuexPost(url, {}, state, commit, 'setUsers', config);
     },
-    async actDelUserFromGroup({state, commit}, params) {
-        let url = `/administrator/group/${params.groupId}/del-user/${params.userId}`;
+    async actRemoveUserFromGroup({state, commit}, params) {
+        let url = `/administrator/group/${params.groupId}/remove-user/${params.userId}`;
         let config = {msgOk: 'Пользователь успешно удален из группы'};
         return await vuexPost(url, {}, state, commit, 'setUsers', config);
     },

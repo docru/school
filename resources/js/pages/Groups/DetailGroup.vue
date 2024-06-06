@@ -70,7 +70,7 @@
                 class="ma-2"
                 color="teal"
                 closable
-                @click:close="delTeacher(teacher.id)"
+                @click:close="removeTeacher(teacher.id)"
             >
               {{ [teacher.name, teacher.nicname, teacher.phone].join(' ') }}
             </v-chip>
@@ -121,6 +121,19 @@
                     />
                 </div>
             </template>
+
+            <template v-slot:item.name="{item}">
+               {{ item.name }}
+
+                <v-btn
+                    class="ml-5"
+                    color="red"
+                    icon="mdi-account-remove-outline"
+                    @click="removeDisciple(item.id)"
+                    variant="text"
+                    density="compact"
+                ></v-btn>
+            </template>
         </v-data-table>
     </v-card>
 </template>
@@ -139,13 +152,6 @@ export default {
             dialogDate: false,
             newDate: new Date(),
             now: 'day3',
-            items: [
-                {name: 'Иван Петров', day1: true, day2: true, day3: true, day4: true, day5: true,},
-                {name: 'Иван Иванов', day1: true, day2: true, day3: true, day4: true, day5: true,},
-                {name: 'Иван Иванов', day1: true, day2: true, day3: true, day4: true, day5: true,},
-                {name: 'Иван Иванов', day1: false, day2: true, day3: false, day4: true, day5: true,},
-                {name: 'Иван Петров', day1: true},
-            ],
         }
     },
     computed: {
@@ -232,7 +238,7 @@ export default {
             'actRequestGroup',
             'actAddGroupSchoolDay',
             'actRequestGroupUsers',
-            'actDelUserFromGroup',
+            'actRemoveUserFromGroup',
             'actRequestAttendances',
             'actSetAttendance',
         ]),
@@ -257,9 +263,14 @@ export default {
         loadUsers() {
             this.actRequestGroupUsers({groupId: this.groupId});
         },
-        delTeacher(id) {
+        removeTeacher(id) {
             if (confirm('Удалить учителя?')) {
-                this.actDelUserFromGroup({groupId: this.groupId, userId: id});
+                this.actRemoveUserFromGroup({groupId: this.groupId, userId: id});
+            }
+        },
+        removeDisciple(id) {
+            if (confirm('Отчислить ученика?')) {
+                this.actRemoveUserFromGroup({groupId: this.groupId, userId: id});
             }
         },
     },
@@ -338,5 +349,6 @@ export default {
 // Отобразиь список учителей
 // Удалить учителя
 // Отметить посещение
-Удалить/отчислить ученика из группы (если посетил хоть один урок)
+//Удалить/отчислить ученика из группы (если посетил хоть один урок)
+отображение отчисленного ученика
 -->

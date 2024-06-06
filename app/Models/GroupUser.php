@@ -15,14 +15,10 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $user_id Пользователь
  * @property int $group_id Группа
  * @property string $role Роль в группе
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\GroupSchoolDay> $groupSchoolDays
- * @property-read int|null $group_school_days_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $students
- * @property-read int|null $students_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $teachers
- * @property-read int|null $teachers_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users
- * @property-read int|null $users_count
+ * @property string $status Статус
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Group> $group
+ * @property-read int|null $group_count
+ * @property-read \App\Models\User $user
  * @method static \Illuminate\Database\Eloquent\Builder|GroupUser newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|GroupUser newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|GroupUser query()
@@ -31,6 +27,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|GroupUser whereGroupId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|GroupUser whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|GroupUser whereRole($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|GroupUser whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder|GroupUser whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|GroupUser whereUserId($value)
  * @mixin \Eloquent
@@ -39,25 +36,24 @@ class GroupUser extends Model
 {
     use HasFactory;
 
-    public function users()
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsToMany(User::class);
+        return $this->belongsTo(User::class);
     }
 
-
-    public function teachers()
+    public function group(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->belongsToMany(User::class)->whereRole('teacher');
+        return $this->hasMany(Group::class);
     }
 
-
-    public function students()
+    public function attendances(): Attendance|\Illuminate\Database\Eloquent\Builder
     {
-        return $this->belongsToMany(User::class)->whereRole('student');
+        return Attendance::whereUserId($this->user_id);
     }
 
-    public function groupSchoolDays()
+    public function roleName(): string
     {
-        return $this->hasMany(GroupSchoolDay::class);
+        return $this->role == 'teacher' ? 'учитель' : ($this->role == 'disciple' ? 'ученик' : '');
     }
+
 }

@@ -18,7 +18,7 @@ return new class extends Migration
             $table->softDeletes();
             $table->bigInteger('user_id')->unsigned()->comment('Пользователь');
             $table->bigInteger('group_id')->unsigned()->comment('Группа');
-            $table->text('role')->comment('Роль в группе');
+            $table->string('role')->comment('Роль в группе');
 
             $table->foreign('user_id')->references('id')->on('users')
                 ->cascadeOnUpdate()->cascadeOnDelete();
