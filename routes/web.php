@@ -70,7 +70,10 @@ Route::namespace('App\Http\Controllers')->group(function () {
                 });
 
                 // Добавить новый учебный день группы
-                Route::post('/groups/school-day/{group}', 'GroupController@addGroupsSchoolDay');
+                Route::controller(GroupController::class)->group(function () {
+                    Route::post('/groups/school-day/{group}/add', 'addGroupsSchoolDay');
+                    Route::post('/groups/school-day/{group}/close', 'closeGroupsSchoolDay');
+                });
 
                 // посещение
                 Route::controller(AttendanceController::class)->group(function () {

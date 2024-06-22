@@ -59,7 +59,11 @@ const actions = {
 
     // учебные дни
     async actAddGroupSchoolDay({state, commit}, params) {
-        let url = `/administrator/groups/school-day/${params.groupId}`;
+        let url = `/administrator/groups/school-day/${params.groupId}/add`;
+        return await vuexPost(url, params, state, commit, 'setGroup');
+    },
+    async actCloseGroupSchoolDay({state, commit}, params) {
+        let url = `/administrator/groups/school-day/${params.groupId}/close`;
         return await vuexPost(url, params, state, commit, 'setGroup');
     },
 

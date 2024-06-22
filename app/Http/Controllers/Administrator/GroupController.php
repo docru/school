@@ -50,6 +50,7 @@ class GroupController extends Controller
             return [$day->course_school_day_id => [
                 'id' => $day->id,
                 'date' => date('d.m', strtotime($day->date)),
+                'status' => $day->status,
             ]];
         });
         $group = $group->toArray();
@@ -102,6 +103,9 @@ class GroupController extends Controller
         }
         $date = date('Y-m-d', strtotime($date));
 
+        // Закрыть открытые учебные дни
+        $group->groupsSchoolDay()->whereStatus('open')->update(['status' => 'close']);
+
         $lastGroupsSchoolDay = $group->groupsSchoolDay()->orderByDesc('date')->first();
         $lastOrder = empty($lastGroupsSchoolDay) ? 0 : $lastGroupsSchoolDay->order;
 
@@ -121,6 +125,13 @@ class GroupController extends Controller
 
         }
 
+        return $this->show($group);
+    }
+
+
+    public function closeGroupsSchoolDay(Request $request, Group $group)
+    {
+        $group->groupsSchoolDay()->whereStatus('open')->update(['status' => 'close']);
         return $this->show($group);
     }
 

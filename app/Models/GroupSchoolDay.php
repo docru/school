@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 
-
 /**
  * 
  *
@@ -17,6 +16,7 @@ use Illuminate\Support\Carbon;
  * @property int $course_school_day_id Учебный день
  * @property int $group_id Группа
  * @property string $date Дата
+ * @property string $status Статус
  * @property int $order
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Attendance> $attendances
  * @property-read int|null $attendances_count
@@ -31,6 +31,7 @@ use Illuminate\Support\Carbon;
  * @method static Builder|GroupSchoolDay whereGroupId($value)
  * @method static Builder|GroupSchoolDay whereId($value)
  * @method static Builder|GroupSchoolDay whereOrder($value)
+ * @method static Builder|GroupSchoolDay whereStatus($value)
  * @method static Builder|GroupSchoolDay whereUpdatedAt($value)
  * @mixin \Eloquent
  */

@@ -4,6 +4,7 @@
             <div class="tw-flex tw-justify-between">
                 <div>Группа "{{ getGroup.name }}". Курс "{{ getCourse.name }}"</div>
                 <v-btn color="primary" @click="dialogDate = true">Добавить день</v-btn>
+                <v-btn color="primary" @click="closeSchoolDay()">Закрыть день</v-btn>
                 <v-btn color="primary" @click="dialogDisciple = true">Добавить ученика</v-btn>
                 <v-btn color="primary" @click="dialogTeacher = true">Добавить учителя</v-btn>
             </div>
@@ -90,7 +91,7 @@
         >
 
             <template v-slot:[`header.day${day?.id}`]="{column}" v-for="(day,index) in headersNotEmpty">
-                <div :class="{ activeSlot:day.id == lastDay }">
+                <div :class="{ activeSlot:groupsSchoolDays[day.id]?.status == 'open' }">
                     {{ column.title }} <br>
                     <v-tooltip location="top">
                         <template v-slot:activator="{ props }">
@@ -104,18 +105,22 @@
                     >
                         {{ groupsSchoolDays[day.id].date }}
                     </div>
-                    <div></div>
+                    <div v-else>?</div>
                 </div>
             </template>
 
             <template v-slot:[`item.day${day?.id}`]="{item}" v-for="(day,index) in headersNotEmpty">
-                <div :class="{ activeSlot:day.id == lastDay }" v-if="groupsSchoolDays[day.id]">
+                <div
+                    :class="{ activeSlot:groupsSchoolDays[day.id]?.status == 'open' }"
+                    v-if="groupsSchoolDays[day.id]"
+                >
                     <v-checkbox
                         color="green"
                         hide-details
                         density="compact"
                         style="text-align: center"
                         v-model="attendance"
+                        :disabled="groupsSchoolDays[day.id]?.status != 'open'"
                         :value="day?.id + '_' + item?.id"
                         @change="actSetAttendance({groupSchoolDayId: day.id, userId: item.id})"
                     />
@@ -237,6 +242,7 @@ export default {
         ...mapActions('groups', [
             'actRequestGroup',
             'actAddGroupSchoolDay',
+            'actCloseGroupSchoolDay',
             'actRequestGroupUsers',
             'actRemoveUserFromGroup',
             'actRequestAttendances',
@@ -252,6 +258,9 @@ export default {
             this.dialogDate = false;
             await this.actAddGroupSchoolDay({groupId: this.getGroup.id, date: this.newDate})
             this.newDate = new Date();
+        },
+        async closeSchoolDay(){
+            await this.actCloseGroupSchoolDay({groupId: this.getGroup.id})
         },
         lessons(lessons) {
             let res = [];
