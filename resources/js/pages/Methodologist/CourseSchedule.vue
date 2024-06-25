@@ -17,7 +17,7 @@ export default {
         }
     },
     computed: {
-        ...mapGetters('courses', [
+        ...mapGetters('methodologist', [
             'getCourse',
             'getStudyProgram',
             'getSchedule',
@@ -73,7 +73,7 @@ export default {
         },
     },
     methods: {
-        ...mapActions('courses', [
+        ...mapActions('methodologist', [
             'actCreateCourseSchoolDay',
             'actDeleteCourseSchoolDay',
         ]),

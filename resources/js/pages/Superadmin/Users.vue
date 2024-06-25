@@ -110,12 +110,12 @@
 
 <script>
 import {mapActions, mapGetters} from "vuex";
-import Code from "../components/Code.vue";
-import Loading from "../components/Loading.vue";
-import ICode from "../components/icon/ICode.vue";
-import IVast from "../components/icon/IVast.vue";
-import IModeration from "../components/icon/IModeration.vue";
-import IMore from "../components/icon/IMore.vue";
+import Code from "../../components/Code.vue";
+import Loading from "../../components/Loading.vue";
+import ICode from "../../components/icon/ICode.vue";
+import IVast from "../../components/icon/IVast.vue";
+import IModeration from "../../components/icon/IModeration.vue";
+import IMore from "../../components/icon/IMore.vue";
 
 export default {
   name: "Users",

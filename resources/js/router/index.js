@@ -12,62 +12,83 @@ const routes = [
             ]
         }
     },
+
+    // администратор
     {
-        path: '/schedule',
-        name: 'Schedule',
-        component: () => import('../pages/Schedule.vue'),
-        meta:{
-            title: 'Обзор платформы',
-            breadcrumbs:[
-                {title:'Дашборд'},
-            ]
-        }
+        path: '/administrator/disciples',
+        name: 'Disciples',
+        component: () => import('../pages/Disciples.vue'),
     },
+    {
+        path: '/administrator/groups',
+        name: 'AdministratorGroupsList',
+        component: () => import('../pages/Administrator/GroupsList.vue'),
+    },
+    {
+        path: '/administrator/group/:id',
+        name: 'AdministratorDetailGroup',
+        component: () => import('../pages/Administrator/DetailGroup.vue'),
+    },
+
+    // методист
+    {
+        path: '/methodologist/courses',
+        name: 'MethodologistCoursesList',
+        component: () => import('../pages/Methodologist/CoursesList.vue'),
+    },
+    {
+        path: '/methodologist/courses/:idCourse',
+        name: 'MethodologistCourseDetail',
+        component: () => import('../pages/Methodologist/CourseDetail.vue'),
+    },
+
+    // ученик
+    {
+        path: '/disciple/groups',
+        name: 'DiscipleGroupsList',
+        component: () => import('../pages/Disciple/GroupsList.vue'),
+    },
+    {
+        path: '/disciple/group/:id',
+        name: 'DiscipleDetailGroup',
+        component: () => import('../pages/Disciple/DetailGroup.vue'),
+    },
+    {
+        path: '/disciple/lesson/:groupId/:lessonId',
+        name: 'DiscipleLesson',
+        component: () => import('../pages/Disciple/Lesson.vue'),
+    },
+
+
+
+
     {
         path: '/formnicname',
         name: 'FormNicName',
         component: () => import('../pages/FormNicName.vue'),
     },
-    {
-        path: '/groups',
-        name: 'GroupsList',
-        component: () => import('../pages/Groups/GroupsList.vue'),
-    },
-    {
-        path: '/group/:id',
-        name: 'DetailGroup',
-        component: () => import('../pages/Groups/DetailGroup.vue'),
-    },
-    {
-        path: '/plan',
-        name: 'Plan',
-        component: () => import('../pages/Plan/Plan.vue'),
-    },
+
+
     {
         path: '/profile',
         name: 'Profile',
         component: () => import('../pages/Profile.vue'),
     },
     {
-        path: '/courses/:idCourse',
-        name: 'courseDetail',
-        component: () => import('../pages/Courses/CoursesDetail.vue'),
+        path: '/superadmin/users',
+        name: 'SuperadminUsers',
+        component: () => import('../pages/Superadmin/Users.vue'),
     },
+
+
+    // Под вопросом???
     {
-        path: '/users',
-        name: 'Users',
-        component: () => import('../pages/Users.vue'),
+        path: '/plan',
+        name: 'Plan',
+        component: () => import('../pages/Plan/Plan.vue'),
     },
-    {
-        path: '/disciples',
-        name: 'Disciples',
-        component: () => import('../pages/Disciples.vue'),
-    },
-    {
-        path: '/courses',
-        name: 'CoursesList',
-        component: () => import('../pages/Courses/CoursesList.vue'),
-    },
+
+
     {
         path: '/:pathMatch(.*)*',
         name: '404',

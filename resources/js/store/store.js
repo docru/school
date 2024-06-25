@@ -1,18 +1,20 @@
 import {createStore} from 'vuex';
 import app from './modules/app.js';
 import users from './modules/users.js';
-import courses from './modules/courses.js';
 import profile from './modules/profile.js';
-import groups from './modules/groups.js';
+import methodologist from './modules/methodologist.js';
+import administrator from './modules/administrator.js';
+import disciple from './modules/disciple.js';
 
 
 export const store = createStore({
     modules: {
-        groups,
         profile,
         app,
         users,
-        courses,
+        methodologist,
+        administrator,
+        disciple
     }
 })
 

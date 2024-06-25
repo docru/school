@@ -3,11 +3,8 @@
 namespace App\Http\Controllers\Administrator;
 
 use App\Http\Controllers\Controller;
-use App\Models\CourseSchoolDay;
 use App\Models\Group;
 use App\Models\GroupSchoolDay;
-use App\Models\GroupUser;
-use App\Models\User;
 use Illuminate\Http\Request;
 
 class GroupController extends Controller
@@ -84,8 +81,8 @@ class GroupController extends Controller
 
     /**
      * Список пользователей группы
-     * @param $group
-     * @return void
+     * @param Group $group
+     * @return \Illuminate\Http\JsonResponse
      */
     public function users(Group $group)
     {

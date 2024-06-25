@@ -18,14 +18,14 @@ export default {
         }
     },
     computed: {
-        ...mapGetters('courses', ['getCourse', 'getStudyProgram']),
+        ...mapGetters('methodologist', ['getCourse', 'getStudyProgram']),
         courseId() {
             return this.$route.params.idCourse;
         },
     },
     methods: {
-        ...mapMutations('courses', ['setStudyProgram']),
-        ...mapActions('courses', [
+        ...mapMutations('methodologist', ['setStudyProgram']),
+        ...mapActions('methodologist', [
             'actReqwestCourse',
             'actCreateModule',
             'actDeleteModule',

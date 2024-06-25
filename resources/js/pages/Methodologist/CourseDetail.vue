@@ -51,7 +51,7 @@ import StudyProgram from './StudyProgram.vue';
 import CourseSchedule from './CourseSchedule.vue';
 
 export default {
-    name: 'CoursesDetail',
+    name: 'CourseDetail',
     components: {StudyProgram, CourseSchedule},
     data() {
         return {
@@ -60,7 +60,7 @@ export default {
         }
     },
     computed: {
-        ...mapGetters('courses', ['getCourse', 'getStudyProgram', 'isSaved']),
+        ...mapGetters('methodologist', ['getCourse', 'getStudyProgram', 'isSaved']),
         courseId() {
             return this.$route.params.idCourse;
         },
@@ -83,7 +83,7 @@ export default {
         },
     },
     methods: {
-        ...mapActions('courses', ['actReqwestCourse', 'actSaveCourse']),
+        ...mapActions('methodologist', ['actReqwestCourse', 'actSaveCourse']),
         async save() {
             await this.actSaveCourse();
         },

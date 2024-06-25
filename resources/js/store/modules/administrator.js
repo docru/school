@@ -3,6 +3,8 @@ import {vuexDelete, vuexGet, vuexPost} from "../../helpers/vuexHelper.js";
 const state = {
     groups: [],
     group: null,
+    courses: null,
+    course: null,
     teachers: [],
     disciples: [],
     attendances: {},
@@ -11,6 +13,21 @@ const state = {
 const getters = {
     getGroups: (state) => state.groups ?? [],
     getGroup: (state) => state.group ?? {},
+    getCourses: (state) => state.courses ?? [],
+    getCourse: (state) => state.course ?? {},
+    getLessons: (state) => {
+        let lessons = {};
+        for (const m in state.studyProgram) {
+            let module = state.studyProgram[m];
+            for (const l in module.lessons) {
+                let lesson = module.lessons[l];
+                lessons[lesson.id] = lesson;
+            }
+        }
+        return lessons;
+    },
+    getStudyProgram: (state) => state.studyProgram ?? [],
+    getSchedule: (state) => state.schedule ?? [],
     getTeachers: (state) => state.teachers ?? [],
     getDisciples: (state) => state.disciples ?? [],
     getAttendances: (state) => state.attendances ?? {},
@@ -19,6 +36,12 @@ const getters = {
 const mutations = {
     setGroups: (state, payload) => state.groups = payload,
     setGroup: (state, payload) => state.group = payload,
+    setCourses: (state, data) => state.courses = data,
+    setCourse: (state, data) => {
+        state.course = data.course;
+        state.studyProgram = data.studyProgram;
+        state.schedule = data.schedule;
+    },
     setUsers: (state, payload) => {
         state.teachers = payload.teachers;
         state.disciples = payload.disciples;
@@ -40,6 +63,14 @@ const actions = {
     },
     async actRequestGroup({state, commit}, groupId) {
         return await vuexGet('/administrator/groups/' + groupId, {}, state, commit, 'setGroup');
+    },
+
+    // курсы
+    async actReqwestCourses({state, commit}, params = {}) {
+        await vuexGet('/methodologist/courses', params, state, commit, 'setCourses');
+    },
+    async actReqwestCourse({state, commit}, params = {}) {
+        await vuexGet('/methodologist/courses/' + params.id, params, state, commit, 'setCourse');
     },
 
     // учителя и и ученики группы

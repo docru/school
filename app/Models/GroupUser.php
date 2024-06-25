@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -41,9 +41,9 @@ class GroupUser extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function group(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function group(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->hasMany(Group::class);
+        return $this->belongsTo(Group::class);
     }
 
     public function attendances(): Attendance|\Illuminate\Database\Eloquent\Builder

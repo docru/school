@@ -87,7 +87,6 @@
             :headers="headers"
             :hide-default-footer="true"
             disable-pagination
-            :item-class="itemRowBackground"
         >
 
             <template v-slot:[`header.day${day?.id}`]="{column}" v-for="(day,index) in headersNotEmpty">
@@ -128,7 +127,7 @@
             </template>
 
             <template v-slot:item.name="{item}">
-               {{ item.name }}
+                {{ item.name }}
 
                 <v-btn
                     class="ml-5"
@@ -160,8 +159,16 @@ export default {
         }
     },
     computed: {
-        ...mapGetters('groups', ['getGroup', 'getDisciples', 'getTeachers', 'getAttendances']),
-        ...mapGetters('courses', ['getCourse', 'getLessons', 'getStudyProgram', 'getSchedule']),
+        ...mapGetters('administrator', [
+            'getGroup',
+            'getDisciples',
+            'getTeachers',
+            'getAttendances',
+            'getCourse',
+            'getLessons',
+            'getStudyProgram',
+            'getSchedule'
+        ]),
         headers() {
             let headers = [{
                 title: 'Имя',
@@ -223,23 +230,16 @@ export default {
         groupsSchoolDays() {
             return this.getGroup.groups_school_day ?? {};
         },
-        lastDay() {
-            let res = 0;
-            for (const k in this.groupsSchoolDays) {
-                res = k;
-            }
-            return res;
-        },
         attendance: {
             get() {
                 return this.getAttendances;
             },
-            set(val) {
+            set() {
             },
         },
     },
     methods: {
-        ...mapActions('groups', [
+        ...mapActions('administrator', [
             'actRequestGroup',
             'actAddGroupSchoolDay',
             'actCloseGroupSchoolDay',
@@ -247,19 +247,14 @@ export default {
             'actRemoveUserFromGroup',
             'actRequestAttendances',
             'actSetAttendance',
+            'actReqwestCourse',
         ]),
-        ...mapActions('courses', ['actReqwestCourse']),
-        itemRowBackground: function (item) {
-            return 'style-1'
-            console.log(item)
-            return item[this.now] ? 'style-1' : 'style-2'
-        },
         async addSchoolDay() {
             this.dialogDate = false;
             await this.actAddGroupSchoolDay({groupId: this.getGroup.id, date: this.newDate})
             this.newDate = new Date();
         },
-        async closeSchoolDay(){
+        async closeSchoolDay() {
             await this.actCloseGroupSchoolDay({groupId: this.getGroup.id})
         },
         lessons(lessons) {
@@ -295,14 +290,6 @@ export default {
 
 
 <style lang="scss">
-.style-1 {
-    background-color: rgb(215, 215, 44) !important;
-}
-
-.style-2 {
-    background-color: rgb(114, 114, 67) !important;
-}
-
 .activeSlot {
     background-color: rgba(66, 209, 197, 0.18) !important;
 }

@@ -86,7 +86,7 @@ export default {
     },
     methods: {
         ...mapActions('users', ['actUserCreateLink', 'actReqwestUsers', 'actUserCreate']),
-        ...mapActions('groups', ['actJoinUserToGroup', 'actRequestGroupUsers']),
+        ...mapActions('administrator', ['actJoinUserToGroup', 'actRequestGroupUsers']),
         create() {
             this.actUserCreate({phone: this.phone, role: this.role}).then(()=>{
                 this.search = this.phone;

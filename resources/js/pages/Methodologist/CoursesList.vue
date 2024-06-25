@@ -87,17 +87,17 @@ export default {
         }
     },
     computed: {
-        ...mapGetters('courses', ['getCourses', 'getLoad']),
+        ...mapGetters('methodologist', ['getCourses', 'getLoad']),
     },
     methods: {
         goCourse(item, row) {
             this.$router.push({
-                name: 'courseDetail',
+                name: 'MethodologistCourseDetail',
                 params: {idCourse: row.item.id}
             })
         },
         ...mapMutations('app', ['setSnackBar']),
-        ...mapActions('courses', ['actReqwestCourses', 'actCreateCourse']),
+        ...mapActions('methodologist', ['actReqwestCourses', 'actCreateCourse']),
         async createCourse() {
             if (this.nameCourse.length === 0) {
                 this.setSnackBar({text: 'Задайте название курса'});

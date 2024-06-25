@@ -109,7 +109,7 @@ export default {
             },
             {
                 name: 'Мои курсы ',
-                routName: 'Home'
+                routName: 'DiscipleGroupsList'
             },
             {
                 name: 'Мои задания ',
@@ -124,20 +124,20 @@ export default {
             },
             {
                 name: 'Группы',
-                routName: 'GroupsList'
+                routName: 'AdministratorGroupsList'
             },
 
         ],
         menu_items_metod: [
             {
                 name: 'Курсы ',
-                routName: 'CoursesList'
+                routName: 'MethodologistCoursesList'
             },
         ],
         menu_items_superadmin: [
             {
                 name: 'Пользователи ',
-                routName: 'Users'
+                routName: 'SuperadminUsers'
             },
 
         ],

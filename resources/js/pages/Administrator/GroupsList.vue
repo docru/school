@@ -25,7 +25,7 @@
                 <v-icon
                     class="me-2"
                     size="small"
-                    @click.stop="$router.push({name: 'DetailGroup', id: item.id})"
+                    @click.stop="$router.push({name: 'AdministratorDetailGroup', id: item.id})"
                 >
                     mdi-pencil
                 </v-icon>
@@ -99,16 +99,11 @@ export default {
                 {title: '', align: 'end', sortable: false, key: 'actions'},
             ],
             dialog: false,
-            nameCourse: '',
-            description: ""
         }
     },
     computed: {
-        ...mapGetters('groups', {
+        ...mapGetters('administrator', {
             groups: 'getGroups',
-            load: 'getLoad'
-        }),
-        ...mapGetters('courses', {
             courses: 'getCourses',
             load: 'getLoad'
         })
@@ -116,13 +111,17 @@ export default {
     methods: {
         go(item, row) {
             this.$router.push({
-                name: 'DetailGroup',
+                name: 'AdministratorDetailGroup',
                 params: {id: row.item.id}
             })
         },
         ...mapMutations('app', ['setSnackBar']),
-        ...mapActions('groups', ['actRequestGroups', 'actCreateGroup', 'actDeleteGroup']),
-        ...mapActions('courses', ['actReqwestCourses']),
+        ...mapActions('administrator', [
+            'actRequestGroups',
+            'actCreateGroup',
+            'actDeleteGroup',
+            'actReqwestCourses'
+        ]),
         async createGroup() {
             if (await this.actCreateGroup({
                 name: this.nameGroup,

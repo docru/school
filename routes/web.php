@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\Administrator\AttendanceController;
-use App\Http\Controllers\Administrator\GroupController;
+use App\Http\Controllers\Administrator\GroupController as AdministratorGroupController;
 use App\Http\Controllers\Administrator\GroupSchoolDayController;
 use App\Http\Controllers\Administrator\UserController;
 use App\Http\Controllers\Methodologist\ControlController;
@@ -9,6 +9,8 @@ use App\Http\Controllers\Methodologist\CourseController;
 use App\Http\Controllers\Methodologist\LessonController;
 use App\Http\Controllers\Methodologist\ModuleController;
 use App\Http\Controllers\Methodologist\TaskController;
+use App\Http\Controllers\Disciple\GroupController as DiscipleGroupController;
+use App\Http\Controllers\Disciple\LessonController as DiscipleLessonController;
 use Illuminate\Support\Facades\Route;
 
 Route::namespace('App\Http\Controllers')->group(function () {
@@ -54,32 +56,34 @@ Route::namespace('App\Http\Controllers')->group(function () {
         });
 
         // администратор
-        Route::group(['middleware' => ['role:administrator']], function () {
-            Route::prefix('administrator')->namespace('Administrator')->group(function () {
+        Route::group([
+            'middleware' => ['role:administrator'],
+            'prefix' => 'administrator',
+            'namespace' => 'Administrator',
+        ], function () {
 
-                // группы
-                Route::apiResources([
-                    'groups' => GroupController::class,
-                ]);
+            // группы
+            Route::apiResources([
+                'groups' => AdministratorGroupController::class,
+            ]);
 
-                // ученики и учителя группы
-                Route::controller(UserController::class)->group(function () {
-                    Route::get('/group/{group}/users', 'index'); // пользователи группы
-                    Route::post('/group/{group}/join-user/{user}/{role}', 'joinUserToGroup'); // зачислить юзера в группу
-                    Route::post('/group/{group}/remove-user/{user}', 'removeUserFromGroup'); // удалить юзера из группы
-                });
+            // ученики и учителя группы
+            Route::controller(UserController::class)->group(function () {
+                Route::get('/group/{group}/users', 'index'); // пользователи группы
+                Route::post('/group/{group}/join-user/{user}/{role}', 'joinUserToGroup'); // зачислить юзера в группу
+                Route::post('/group/{group}/remove-user/{user}', 'removeUserFromGroup'); // удалить юзера из группы
+            });
 
-                // Добавить новый учебный день группы
-                Route::controller(GroupController::class)->group(function () {
-                    Route::post('/groups/school-day/{group}/add', 'addGroupsSchoolDay');
-                    Route::post('/groups/school-day/{group}/close', 'closeGroupsSchoolDay');
-                });
+            // Добавить новый учебный день группы
+            Route::controller(AdministratorGroupController::class)->group(function () {
+                Route::post('/groups/school-day/{group}/add', 'addGroupsSchoolDay');
+                Route::post('/groups/school-day/{group}/close', 'closeGroupsSchoolDay');
+            });
 
-                // посещение
-                Route::controller(AttendanceController::class)->group(function () {
-                    Route::get('/attendance/{group}', 'index'); // посещение группы
-                    Route::post('/attendance/{groupSchoolDay}/set/{user}', 'set'); // отметить посещение ученика
-                });
+            // посещение
+            Route::controller(AttendanceController::class)->group(function () {
+                Route::get('/attendance/{group}', 'index'); // посещение группы
+                Route::post('/attendance/{groupSchoolDay}/set/{user}', 'set'); // отметить посещение ученика
             });
         });
 
@@ -91,10 +95,17 @@ Route::namespace('App\Http\Controllers')->group(function () {
         });
 
         // ученик
-        Route::group(['middleware' => ['role:disciple']], function () {
-            Route::prefix('disciple')->namespace('Disciple')->group(function () {
-
-            });
+        Route::group([
+            'middleware' => ['role:disciple'],
+            'prefix' => 'disciple',
+//            'namespace' => 'Disciple',
+        ], function () {
+            // группы
+            Route::apiResources([
+                'groups' => DiscipleGroupController::class,
+            ]);
+            // Урок
+            Route::post('/lesson/{group}/{lesson}', [DiscipleLessonController::class, 'show']);
         });
     });
 
