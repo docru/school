@@ -52,6 +52,9 @@ class UserController extends RestController
      */
     public function joinUserToGroup(Group $group, User $user, $role)
     {
+        if(!in_array($role, ['teacher', 'disciple'])){
+            return $this->ResponseError("Нельзя присоединить к группе с ролью '$role'");
+        }
         $PermissionsGroup = $user->PermissionsGroup($group->id);
         if (!empty($PermissionsGroup)) {
             return $this->ResponseError("Пользователь уже подключен к группе с ролью '$PermissionsGroup'");
@@ -62,6 +65,10 @@ class UserController extends RestController
         $GroupUser->user_id = $user->id;
         $GroupUser->role = $role;
         $GroupUser->save();
+
+        if(!$user->hasRole($role)){
+            $user->addRole($role);
+        }
 
         return $this->index($group);
     }

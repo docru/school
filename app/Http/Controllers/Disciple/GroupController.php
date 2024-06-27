@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Disciple;
 
 use App\Http\Controllers\Controller;
+use App\Models\Attendance;
 use App\Models\CourseSchoolDay;
 use App\Models\Group;
 use App\Models\GroupSchoolDay;
@@ -55,6 +56,7 @@ class GroupController extends Controller
             ]];
         });
 
+        // расписание (все дни расписания, уроки в днях, дни группы со статусом)
         $courseSchoolDay = $course->course_school_days()->get(['id', 'order'])->map(function (CourseSchoolDay $item) {
             $lessons = $item->lessons()->orderBy('school_day_order')->get(['id', 'name', 'school_day_order', 'hours']);
             return [
@@ -64,25 +66,49 @@ class GroupController extends Controller
             ];
         });
 
-        // группа (название)
-        // учителя (список)
-        // ученики (список)
-        // курс (название)
-        // расписание (все дни расписания, уроки в днях, дни группы со статусом)
+        // учителя и ученики (список)
+        $users = $group->groupUser()->get();
+        $teachers = [];
+        $disciples = [];
+        foreach ($users as $user) {
+            $member = $user->user()->get(['id', 'name', 'nickname', 'nickname_description'])->toArray();
+            if($user->role == 'disciple'){
+                $disciples[] = $member;
+            }
+            if($user->role == 'teacher'){
+                $teachers[] = $member;
+            }
+        }
+
         // посещаемость (присутствовал/отсутствовал/?)
+        $gsd = $groupsSchoolDay->keys()->toArray();
+        $attendances = Attendance::whereUserId(auth()->user()->id)->get('group_school_day_id')
+            ->filter(function ($item) use ($gsd) {
+                return in_array($item->group_school_day_id, $gsd);
+            })
+            ->map(function ($item) {
+                return $item->group_school_day_id;
+            })
+            ->toArray();
+
         // статус в группе (в процессе обучения / отчислен / переведен)
 
         return $this->ResponseOk([
+            // группа (название)
             'group' => [
                 'id' => $group->id,
                 'name' => $group->name,
             ],
+            // курс (название)
             'course' => [
                 'id' => $course->id,
                 'name' => $course->name,
             ],
             'courseSchoolDay' => $courseSchoolDay,
             'groupsSchoolDay' => $groupsSchoolDay,
+            'attendances' => $attendances,
+            'disciples' => $disciples,
+            'teachers' => $teachers,
         ]);
     }
 }

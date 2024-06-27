@@ -4,6 +4,11 @@ const state = {
     groups: [],
     group: null,
     lesson: null,
+    // courses: null,
+    // course: null,
+    // teachers: [],
+    // disciples: [],
+    // attendances: {},
     load: false,
 }
 
@@ -28,13 +33,13 @@ const mutations = {
 const actions = {
     // группа
     async actRequestGroups({state, commit}) {
-        return await vuexGet('/disciple/groups', {}, state, commit, 'setGroups');
+        return await vuexGet('/teacher/groups', {}, state, commit, 'setGroups');
     },
     async actRequestGroup({state, commit}, groupId) {
-        return await vuexGet('/disciple/groups/' + groupId, {}, state, commit, 'setGroup');
+        return await vuexGet('/teacher/groups/' + groupId, {}, state, commit, 'setGroup');
     },
     async actRequestLesson({state, commit}, params) {
-        return await vuexPost(`/disciple/lesson/${params.groupId}/${params.lessonId}`, {}, state, commit, 'setLesson');
+        return await vuexPost(`/teacher/lesson/${params.groupId}/${params.lessonId}`, {}, state, commit, 'setLesson');
     },
 }
 

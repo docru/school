@@ -21,7 +21,7 @@
                 <template v-if="getProfile.roles.includes('disciple')">
                     <v-list-subheader>Учебный процесс</v-list-subheader>
                     <v-list-item
-                        v-for="item in menu_items"
+                        v-for="item in menu_disciple"
                         :key="item"
                         :to="{name:item.routName}"
                         link
@@ -30,11 +30,23 @@
                     />
                 </template>
 
+                <template v-if="getProfile.roles.includes('teacher')">
+                    <v-list-subheader>Учитель</v-list-subheader>
+                    <v-list-item
+                        v-for="item in menu_teacher"
+                        :key="item"
+                        :to="{name:item.routName}"
+                        link
+                        :title="item.name"
+                        v-if="getProfile.roles.includes('teacher')"
+                    />
+                </template>
+
                 <template v-if="getProfile.roles.includes('administrator')">
                     <v-divider></v-divider>
                     <v-list-subheader>Администрирование</v-list-subheader>
                     <v-list-item
-                        v-for="item in menu_items_admin"
+                        v-for="item in menu_admin"
                         :key="item"
                         :to="{name:item.routName}"
                         link
@@ -46,7 +58,7 @@
                     <v-divider></v-divider>
                     <v-list-subheader>Методология</v-list-subheader>
                     <v-list-item
-                        v-for="item in menu_items_metod"
+                        v-for="item in menu_methodologist"
                         :key="item"
                         :to="{name:item.routName}"
                         link
@@ -58,7 +70,7 @@
                     <v-divider></v-divider>
                     <v-list-subheader>СуперАдминистрирование</v-list-subheader>
                     <v-list-item
-                        v-for="item in  menu_items_superadmin"
+                        v-for="item in  menu_superadmin"
                         :key="item"
                         :to="{name:item.routName}"
                         link
@@ -102,13 +114,13 @@ export default {
     components: {SnackBar},
     data: () => ({
         drawer: false,
-        menu_items: [
+        menu_disciple: [
             {
                 name: 'Главная ',
                 routName: 'Home'
             },
             {
-                name: 'Мои курсы ',
+                name: 'Мои курсы',
                 routName: 'DiscipleGroupsList'
             },
             {
@@ -117,7 +129,13 @@ export default {
             },
 
         ],
-        menu_items_admin: [
+        menu_teacher: [
+            {
+                name: 'Мои группы',
+                routName: 'TeacherGroupsList'
+            },
+        ],
+        menu_admin: [
             {
                 name: 'Ученики',
                 routName: 'Disciples'
@@ -128,13 +146,13 @@ export default {
             },
 
         ],
-        menu_items_metod: [
+        menu_methodologist: [
             {
                 name: 'Курсы ',
                 routName: 'MethodologistCoursesList'
             },
         ],
-        menu_items_superadmin: [
+        menu_superadmin: [
             {
                 name: 'Пользователи ',
                 routName: 'SuperadminUsers'

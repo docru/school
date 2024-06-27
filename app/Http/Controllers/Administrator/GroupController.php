@@ -112,14 +112,15 @@ class GroupController extends Controller
             ->orderBy('order')
             ->first();
 
-        if(!empty($nextCourseSchoolDays)){
+        if(empty($nextCourseSchoolDays)){
+            return $this->ResponseError('В курсе больше нет учебных дней');
+        } else {
             $newGroupSchoolDays = new GroupSchoolDay();
             $newGroupSchoolDays->group_id = $group->id;
             $newGroupSchoolDays->course_school_day_id = $nextCourseSchoolDays->id;
             $newGroupSchoolDays->date = $date;
             $newGroupSchoolDays->order = $nextCourseSchoolDays->order;
             $newGroupSchoolDays->save();
-
         }
 
         return $this->show($group);

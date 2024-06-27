@@ -9,6 +9,8 @@ use App\Http\Controllers\Methodologist\CourseController;
 use App\Http\Controllers\Methodologist\LessonController;
 use App\Http\Controllers\Methodologist\ModuleController;
 use App\Http\Controllers\Methodologist\TaskController;
+use App\Http\Controllers\Teacher\GroupController as TeacherGroupController;
+use App\Http\Controllers\Teacher\LessonController as TeacherLessonController;
 use App\Http\Controllers\Disciple\GroupController as DiscipleGroupController;
 use App\Http\Controllers\Disciple\LessonController as DiscipleLessonController;
 use Illuminate\Support\Facades\Route;
@@ -88,10 +90,17 @@ Route::namespace('App\Http\Controllers')->group(function () {
         });
 
         // учитель
-        Route::group(['middleware' => ['role:teacher']], function () {
-            Route::prefix('teacher')->namespace('Teacher')->group(function () {
-
-            });
+        Route::group([
+            'middleware' => ['role:teacher'],
+            'prefix' => 'teacher',
+//            'namespace' => 'Teacher',
+        ], function () {
+            // группы
+            Route::apiResources([
+                'groups' => TeacherGroupController::class,
+            ]);
+            // Урок
+            Route::post('/lesson/{group}/{lesson}', [TeacherLessonController::class, 'show']);
         });
 
         // ученик

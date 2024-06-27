@@ -38,7 +38,7 @@
                             <v-chip
                                 v-for="lesson in item.lessons ?? []"
                                 :key="lesson.id"
-                                @click="$router.push({name: 'DiscipleLesson', params: {groupId: group.group.id, lessonId:lesson.id}})"
+                                @click="$router.push({name: 'TeacherLesson', params: {groupId: group.group.id, lessonId:lesson.id}})"
                             >
                                 {{ lesson.name }}
                             </v-chip>
@@ -87,7 +87,7 @@ export default {
         }
     },
     computed: {
-        ...mapGetters('disciple', {
+        ...mapGetters('teacher', {
             group: 'getGroup',
             courseSchoolDays: 'getCourseSchoolDay',
             groupSchoolDays: 'getGroupSchoolDay',
@@ -143,7 +143,7 @@ export default {
         },
     },
     methods: {
-        ...mapActions('disciple', ['actRequestGroup',]),
+        ...mapActions('teacher', ['actRequestGroup',]),
         lessons(lessons) {
             if (!lessons) {
                 return '';

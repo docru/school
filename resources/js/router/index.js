@@ -42,6 +42,23 @@ const routes = [
         component: () => import('../pages/Methodologist/CourseDetail.vue'),
     },
 
+    // учитель
+    {
+        path: '/teacher/groups',
+        name: 'TeacherGroupsList',
+        component: () => import('../pages/Teacher/GroupsList.vue'),
+    },
+    {
+        path: '/teacher/group/:id',
+        name: 'TeacherDetailGroup',
+        component: () => import('../pages/Teacher/DetailGroup.vue'),
+    },
+    {
+        path: '/teacher/lesson/:groupId/:lessonId',
+        name: 'TeacherLesson',
+        component: () => import('../pages/Teacher/Lesson.vue'),
+    },
+
     // ученик
     {
         path: '/disciple/groups',
