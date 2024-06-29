@@ -88,12 +88,12 @@
 
 <script>
 import {mapActions, mapGetters} from "vuex";
-import Code from "../components/Code.vue";
-import Loading from "../components/Loading.vue";
-import ICode from "../components/icon/ICode.vue";
-import IVast from "../components/icon/IVast.vue";
-import IModeration from "../components/icon/IModeration.vue";
-import IMore from "../components/icon/IMore.vue";
+import Code from "../../components/Code.vue";
+import Loading from "../../components/Loading.vue";
+import ICode from "../../components/icon/ICode.vue";
+import IVast from "../../components/icon/IVast.vue";
+import IModeration from "../../components/icon/IModeration.vue";
+import IMore from "../../components/icon/IMore.vue";
 
 export default {
     name: "Disciples",
@@ -128,7 +128,7 @@ export default {
         create() {
             this.actUserCreate({phone: this.phone, role: 'disciple'});
         },
-        ...mapActions('users', ['actRequestDisciples', 'actUserCreateLink'])
+        ...mapActions('users', ['actReqwestUsers', 'actUserCreateLink']),
     },
     computed: {
         searchItems() {
@@ -145,7 +145,7 @@ export default {
         ...mapGetters('users', ['getUsers', 'getLoad'])
     },
     created() {
-        this.actRequestDisciples()
+        this.actReqwestUsers()
     }
 }
 </script>

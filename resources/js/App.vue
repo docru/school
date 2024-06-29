@@ -138,7 +138,7 @@ export default {
         menu_admin: [
             {
                 name: 'Ученики',
-                routName: 'Disciples'
+                routName: 'AdministratorDisciples'
             },
             {
                 name: 'Группы',

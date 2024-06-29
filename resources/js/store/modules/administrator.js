@@ -67,10 +67,10 @@ const actions = {
 
     // курсы
     async actReqwestCourses({state, commit}, params = {}) {
-        await vuexGet('/methodologist/courses', params, state, commit, 'setCourses');
+        await vuexGet('/administrator/courses', params, state, commit, 'setCourses');
     },
     async actReqwestCourse({state, commit}, params = {}) {
-        await vuexGet('/methodologist/courses/' + params.id, params, state, commit, 'setCourse');
+        await vuexGet('/administrator/courses/' + params.id, params, state, commit, 'setCourse');
     },
 
     // учителя и и ученики группы

@@ -28,8 +28,12 @@ const mutations = {
 
 
 const actions = {
-    async actReqwestUsers({state, commit}) {
-        return await vuexGet('/users', {}, state, commit, 'setUsers');
+    async actReqwestUsers({state, commit}, params) {
+        let url = '/users';
+        if(params.role){
+            url += '/' + params.role;
+        }
+        return await vuexGet(url, {}, state, commit, 'setUsers');
     },
     async actReqwestUserRoles({state, commit}) {
         return await vuexGet('/users/roles', {}, state, commit, 'setRoles');

@@ -124,13 +124,23 @@ class UserController extends RestController
      */
     public function list($role = false)
     {
-        if (!empty($role)) {
-            $users = User::whereHasRole($role);
+        if (
+            !empty(auth()->user())
+            && (auth()->user()->hasRole('superadmin')
+                || auth()->user()->hasRole('administrator') && in_array($role, ['disciple', 'teacher']))
+        ) {
+
         } else {
-            $users = User::all();
+            return $this->ResponseError('Нет прав на получение этого списка');
         }
 
-        $users = $users->sortBy('id')->map(function (User $user) {
+        if (!empty($role)) {
+            $users = User::whereHasRole($role)->orderBy('id')->get();
+        } else {
+            $users = User::orderBy('id')->get();
+        }
+
+        $users = $users->map(function (User $user) {
             return [
                 'id' => $user->id,
                 'phone' => $user->phone,

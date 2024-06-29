@@ -8,7 +8,7 @@
                     <v-text-field label="Введите телефон" type="number" v-model="phone"></v-text-field>
                 </div>
 
-                <v-btn class="tw-mt-2" color="primary" :disabled="!phone" @click="create">Создать ученика</v-btn>
+                <v-btn class="tw-mt-2" color="primary" :disabled="!phone" @click="create">Создать нового пользователя</v-btn>
             </div>
             <v-divider class="tw-my-3" color="blue"/>
             <div v-if="getUsers">

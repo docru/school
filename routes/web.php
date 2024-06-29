@@ -1,14 +1,14 @@
 <?php
 
-use App\Http\Controllers\Administrator\AttendanceController;
+use App\Http\Controllers\Administrator\AttendanceController as AdministratorAttendanceController;
 use App\Http\Controllers\Administrator\GroupController as AdministratorGroupController;
-use App\Http\Controllers\Administrator\GroupSchoolDayController;
-use App\Http\Controllers\Administrator\UserController;
-use App\Http\Controllers\Methodologist\ControlController;
-use App\Http\Controllers\Methodologist\CourseController;
-use App\Http\Controllers\Methodologist\LessonController;
-use App\Http\Controllers\Methodologist\ModuleController;
-use App\Http\Controllers\Methodologist\TaskController;
+use App\Http\Controllers\Administrator\CourseController as AdministratorCourseController;
+use App\Http\Controllers\Administrator\UserController as AdministratorUserController;
+use App\Http\Controllers\Methodologist\ControlController as MethodologistControlController;
+use App\Http\Controllers\Methodologist\CourseController as MethodologistCourseController;
+use App\Http\Controllers\Methodologist\LessonController as MethodologistLessonController;
+use App\Http\Controllers\Methodologist\ModuleController as MethodologistModuleController;
+use App\Http\Controllers\Methodologist\TaskController as MethodologistTaskController;
 use App\Http\Controllers\Teacher\GroupController as TeacherGroupController;
 use App\Http\Controllers\Teacher\LessonController as TeacherLessonController;
 use App\Http\Controllers\Disciple\GroupController as DiscipleGroupController;
@@ -30,30 +30,29 @@ Route::namespace('App\Http\Controllers')->group(function () {
 
         // Суперадмин
         Route::group(['middleware' => ['role:superadmin']], function () {
-
-            Route::get('/users', 'UserController@list'); // список всех пользователей
             Route::get('/users/roles', 'UserController@roles'); // список всех ролей с описанием (id, name, display_name, description)
             Route::post('/users/create', 'UserController@create'); // создать пользователя ($phone, $roles)
+        });
+
+        Route::group(['middleware' => ['role:superadmin|administrator']], function () {
             Route::post('/users/auth-link/{uid}', 'UserController@authLink'); // получить ссылку для пользователя ($uid)
-
-            Route::prefix('superadmin')->group(function () {
-
-            });
+            Route::get('/users', 'UserController@list'); // список всех пользователей
+            Route::get('/users/{role}', 'UserController@list'); // список всех пользователей с указанной ролью
         });
 
         // методист
         Route::group(['middleware' => ['role:methodologist']], function () {
             Route::prefix('methodologist')->namespace('Methodologist')->group(function () {
                 Route::apiResources([
-                    'courses' => CourseController::class,
-                    'modules' => ModuleController::class,
-                    'lessons' => LessonController::class,
-                    'control' => ControlController::class,
-                    'tasks' => TaskController::class,
+                    'courses' => MethodologistCourseController::class,
+                    'modules' => MethodologistModuleController::class,
+                    'lessons' => MethodologistLessonController::class,
+                    'control' => MethodologistControlController::class,
+                    'tasks' => MethodologistTaskController::class,
                 ]);
 
-                Route::post('course_school_day', [CourseController::class, 'createCourseSchoolDay']);
-                Route::delete('course_school_day/{courseSchoolDay}', [CourseController::class, 'destroyCourseSchoolDay']);
+                Route::post('course_school_day', [MethodologistCourseController::class, 'createCourseSchoolDay']);
+                Route::delete('course_school_day/{courseSchoolDay}', [MethodologistCourseController::class, 'destroyCourseSchoolDay']);
             });
         });
 
@@ -64,13 +63,15 @@ Route::namespace('App\Http\Controllers')->group(function () {
             'namespace' => 'Administrator',
         ], function () {
 
-            // группы
             Route::apiResources([
+                // курсы
+                'courses' => AdministratorCourseController::class,
+                // группы
                 'groups' => AdministratorGroupController::class,
             ]);
 
             // ученики и учителя группы
-            Route::controller(UserController::class)->group(function () {
+            Route::controller(AdministratorUserController::class)->group(function () {
                 Route::get('/group/{group}/users', 'index'); // пользователи группы
                 Route::post('/group/{group}/join-user/{user}/{role}', 'joinUserToGroup'); // зачислить юзера в группу
                 Route::post('/group/{group}/remove-user/{user}', 'removeUserFromGroup'); // удалить юзера из группы
@@ -83,7 +84,7 @@ Route::namespace('App\Http\Controllers')->group(function () {
             });
 
             // посещение
-            Route::controller(AttendanceController::class)->group(function () {
+            Route::controller(AdministratorAttendanceController::class)->group(function () {
                 Route::get('/attendance/{group}', 'index'); // посещение группы
                 Route::post('/attendance/{groupSchoolDay}/set/{user}', 'set'); // отметить посещение ученика
             });

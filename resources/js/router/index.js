@@ -16,8 +16,8 @@ const routes = [
     // администратор
     {
         path: '/administrator/disciples',
-        name: 'Disciples',
-        component: () => import('../pages/Disciples.vue'),
+        name: 'AdministratorDisciples',
+        component: () => import('../pages/Administrator/Disciples.vue'),
     },
     {
         path: '/administrator/groups',
