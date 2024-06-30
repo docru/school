@@ -108,22 +108,24 @@
                 </div>
             </template>
 
-            <template v-slot:[`item.day${day?.id}`]="{item}" v-for="(day,index) in headersNotEmpty">
-                <div
-                    :class="{ activeSlot:groupsSchoolDays[day.id]?.status == 'open' }"
-                    v-if="groupsSchoolDays[day.id]"
-                >
-                    <v-checkbox
-                        color="green"
-                        hide-details
-                        density="compact"
-                        style="text-align: center"
-                        v-model="attendance"
-                        :disabled="groupsSchoolDays[day.id]?.status != 'open'"
-                        :value="day?.id + '_' + item?.id"
-                        @change="actSetAttendance({groupSchoolDayId: day.id, userId: item.id})"
-                    />
-                </div>
+            <template
+                v-slot:[`item.day${day?.id}`]="{item}"
+                v-for="(day,index) in headersNotEmpty"
+            >
+                <template v-if="(gsd=groupsSchoolDays[day.id])">
+                    <div :class="{ activeSlot:gsd?.status == 'open' }">
+                        <v-checkbox
+                            color="green"
+                            hide-details
+                            density="compact"
+                            style="text-align: center"
+                            v-model="attendance"
+                            :disabled="gsd.status != 'open'"
+                            :value="gsd.id + '_' + item.id"
+                            @change="actSetAttendance({groupSchoolDayId: groupsSchoolDays[day.id].id, userId: item.id})"
+                        />
+                    </div>
+                </template>
             </template>
 
             <template v-slot:item.name="{item}">
