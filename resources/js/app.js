@@ -10,6 +10,23 @@ import {createVuetify} from 'vuetify'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 
+
+import VMdEditor from '@kangc/v-md-editor';
+import '@kangc/v-md-editor/lib/style/base-editor.css';
+import vuepressTheme from '@kangc/v-md-editor/lib/theme/vuepress.js';
+import '@kangc/v-md-editor/lib/theme/style/vuepress.css';
+import ruRU from '@kangc/v-md-editor/lib/lang/ru-RU';
+// Prism
+import Prism from 'prismjs';
+// highlight code
+import 'prismjs/components/prism-json';
+
+VMdEditor.use(vuepressTheme, {
+    Prism,
+});
+VMdEditor.lang.use('ru-RU', ruRU);
+
+
 const adfLight = {
     dark: false,
     colors: {
@@ -117,4 +134,5 @@ const app = createApp(App);
 app.use(vuetify);
 app.use(router)
 app.use(store)
+app.use(VMdEditor);
 app.mount('#appVue');
