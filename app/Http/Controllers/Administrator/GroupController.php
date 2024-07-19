@@ -47,6 +47,7 @@ class GroupController extends Controller
             return [$day->course_school_day_id => [
                 'id' => $day->id,
                 'date' => date('d.m', strtotime($day->date)),
+                'dateOrigin' => $day->date,
                 'status' => $day->status,
             ]];
         });

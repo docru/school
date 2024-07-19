@@ -14,7 +14,8 @@ class UserController extends RestController
     public function index(Group $group, $msgOk = false)
     {
         $users = User::orderBy('id')->get()
-            ->map(function (User $user) {
+            ->map(function (User $user) use ($group) {
+                $groupUser = $user->groupUsers()->withTrashed()->whereGroupId($group->id)->first(['role', 'status', 'deleted_at']);
                 return [
                     'id' => $user->id,
                     'phone' => $user->phone,
@@ -22,20 +23,18 @@ class UserController extends RestController
                     'name' => $user->name,
                     'nickname' => $user->nickname,
                     'entry_code' => $user->entry_code ? env('APP_URL') . '/login/' . $user->entry_code : '',
-                    'groups' => $user->groupUsers->mapWithKeys(function (GroupUser $groupUser) {
-                        return [$groupUser->group_id => $groupUser->role];
-                    }),
+                    'role' => (!empty($groupUser)) ? $groupUser->role : '',
+                    'status' => (!empty($groupUser)) ? $groupUser->status : '',
+                    'deleted_at' => (!empty($groupUser)) ? $groupUser->deleted_at : '',
                 ];
             });
 
-        $teachers = $users->filter(function ($user) use ($group) {
-            $groups = $user['groups']->toArray();
-            return isset($groups[$group->id]) && $groups[$group->id] == 'teacher';
+        $teachers = $users->filter(function ($user) {
+            return $user['role'] == 'teacher';
         });
 
-        $disciples = $users->filter(function ($user) use ($group) {
-            $groups = $user['groups']->toArray();
-            return isset($groups[$group->id]) && $groups[$group->id] == 'disciple';
+        $disciples = $users->filter(function ($user) {
+            return $user['role'] == 'disciple';
         });
 
         $res = ['teachers' => $teachers, 'disciples' => $disciples];
@@ -52,7 +51,7 @@ class UserController extends RestController
      */
     public function joinUserToGroup(Group $group, User $user, $role)
     {
-        if(!in_array($role, ['teacher', 'disciple'])){
+        if (!in_array($role, ['teacher', 'disciple'])) {
             return $this->ResponseError("Нельзя присоединить к группе с ролью '$role'");
         }
         $PermissionsGroup = $user->PermissionsGroup($group->id);
@@ -66,7 +65,7 @@ class UserController extends RestController
         $GroupUser->role = $role;
         $GroupUser->save();
 
-        if(!$user->hasRole($role)){
+        if (!$user->hasRole($role)) {
             $user->addRole($role);
         }
 
@@ -88,9 +87,10 @@ class UserController extends RestController
             if ($GroupUser->role == 'disciple' && $GroupUser->attendances()->count() > 0) {
                 $GroupUser->status = 'expelled';
                 $GroupUser->save();
+                $GroupUser->delete();
                 $action = 'отчислен';
             } else {
-                $GroupUser->delete();
+                $GroupUser->forceDelete();
             }
 
             $msgOk = "$roleName $action из группы";

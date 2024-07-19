@@ -77,6 +77,7 @@
             </v-chip>
         </span>
         <span v-else>В группе пока нет учителей</span>
+
         <v-data-table
             :items-per-page="-1"
             class="table-sh"
@@ -100,7 +101,7 @@
                     </v-tooltip>
                     <div
                         v-if="groupsSchoolDays[day.id]?.date"
-                        :style="{ color: day.key !== now ? 'grey' :'black', }"
+                        :style="{ color: groupsSchoolDays[day.id].status !== 'open' ? 'grey' :'black', }"
                     >
                         {{ groupsSchoolDays[day.id].date }}
                     </div>
@@ -108,22 +109,28 @@
                 </div>
             </template>
 
-            <template v-slot:[`item.day${day?.id}`]="{item}" v-for="(day,index) in headersNotEmpty">
-                <div
-                    :class="{ activeSlot:groupsSchoolDays[day.id]?.status == 'open' }"
-                    v-if="groupsSchoolDays[day.id]"
-                >
-                    <v-checkbox
-                        color="green"
-                        hide-details
-                        density="compact"
-                        style="text-align: center"
-                        v-model="attendance"
-                        :disabled="groupsSchoolDays[day.id]?.status != 'open'"
-                        :value="day?.id + '_' + item?.id"
-                        @change="actSetAttendance({groupSchoolDayId: day.id, userId: item.id})"
-                    />
-                </div>
+            <template
+                v-slot:[`item.day${day?.id}`]="{item}"
+                v-for="(day,index) in headersNotEmpty"
+            >
+                <template v-if="(gsd=groupsSchoolDays[day.id])">
+                    <div
+                        :class="{ activeSlot:gsd?.status === 'open' }"
+                        v-if="!expelledDay(item, day)"
+                    >
+                        <v-checkbox
+                            color="green"
+                            hide-details
+                            density="compact"
+                            style="text-align: center"
+                            v-model="attendance"
+                            :disabled="gsd.status !== 'open'"
+                            :value="gsd.id + '_' + item.id"
+                            @change="actSetAttendance({groupSchoolDayId: groupsSchoolDays[day.id].id, userId: item.id})"
+                        />
+                    </div>
+                    <div v-else>-</div>
+                </template>
             </template>
 
             <template v-slot:item.name="{item}">
@@ -136,7 +143,9 @@
                     @click="removeDisciple(item.id)"
                     variant="text"
                     density="compact"
+                    v-if="!item.deleted_at"
                 ></v-btn>
+                <span v-else>отчислен</span>
             </template>
         </v-data-table>
     </v-card>
@@ -184,7 +193,7 @@ export default {
                 headers.push({
                     title: day.order,
                     align: 'center',
-                    key: 'day' + day.order,
+                    key: 'day' + day.id,
                     id: day.id,
                     width: "20px",
                     sortable: false
@@ -223,7 +232,7 @@ export default {
             for (const d in this.getDisciples) {
                 let disciple = this.getDisciples[d];
                 let name = (disciple.name ?? '') + ' ' + (disciple.nickname ?? '') + ' [' + disciple.phone + ']';
-                disciples.push({id: disciple.id, name});
+                disciples.push({id: disciple.id, name, status: disciple.status, deleted_at: disciple.deleted_at});
             }
             return disciples;
         },
@@ -277,6 +286,14 @@ export default {
                 this.actRemoveUserFromGroup({groupId: this.groupId, userId: id});
             }
         },
+        expelledDay(user, day) {
+            if(!user.deleted_at){ // не отчислен
+                return false;
+            }
+            let deleted_at = Date.parse(user.deleted_at);
+            let gsdTm = Date.parse(this.groupsSchoolDays[day.id].dateOrigin);
+            return gsdTm > deleted_at;
+        },
     },
     created() {
         this.loadUsers();
@@ -292,6 +309,10 @@ export default {
 <style lang="scss">
 .activeSlot {
     background-color: rgba(66, 209, 197, 0.18) !important;
+}
+
+.expelled {
+    background-color: grey !important;
 }
 
 .table-sh {

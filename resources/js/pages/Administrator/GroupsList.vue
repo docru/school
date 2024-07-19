@@ -23,13 +23,6 @@
             </template>
             <template v-slot:item.actions="{ item }">
                 <v-icon
-                    class="me-2"
-                    size="small"
-                    @click.stop="$router.push({name: 'AdministratorDetailGroup', id: item.id})"
-                >
-                    mdi-pencil
-                </v-icon>
-                <v-icon
                     size="small"
                     @click.stop="actDeleteGroup(item.id)"
                 >
