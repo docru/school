@@ -1,13 +1,16 @@
 import {calcHash, vuexDelete, vuexGet, vuexPost, vuexPut} from "../../helpers/vuexHelper.js";
 
 
-function hashParams(state) {
-    let params = {
+function listParams(state) {
+    return {
         course: state.course,
         studyProgram: state.studyProgram,
         schedule: state.schedule,
     };
-    return calcHash(params);
+}
+
+function hashParams(state) {
+    return calcHash(listParams(state));
 }
 
 const state = {
@@ -52,7 +55,7 @@ const mutations = {
             let module = state.studyProgram[m];
             for (const l in module.lessons) {
                 let lesson = module.lessons[l];
-                if(data.id === lesson.id){
+                if (data.id === lesson.id) {
                     state.studyProgram[m][l] = lesson;
                     return true;
                 }
@@ -85,9 +88,9 @@ const actions = {
     async actDeleteLesson({state, commit}, params) {
         return await vuexDelete('/methodologist/lessons/' + params.id, params, state, commit, 'setCourse', {msgOk: `Урок "${params.name}" удален`});
     },
-    async actSaveCourse({state, commit}, params) {
+    async actSaveCourse({state, commit}) {
         if (state.hash !== hashParams(state)) {
-            return await vuexPut('/methodologist/courses/' + state.course.id, params, state, commit, 'setCourse', {msgOk: 'Курс сохранен'});
+            return await vuexPut('/methodologist/courses/' + state.course.id, listParams(state), state, commit, 'setCourse', {msgOk: 'Курс сохранен'});
         }
     },
     async actCreateCourseSchoolDay({state, commit}, params) {
