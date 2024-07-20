@@ -121,7 +121,17 @@ Route::namespace('App\Http\Controllers')->group(function () {
 
 
     // страница подключения vue
-    Route::fallback('UserController@index');
+    Route::fallback(function ($path = '')
+    {
+        if (empty(auth()->user())) {
+            if (!empty($path)) {
+                return redirect()->to('/');
+            }
+            return view('welcome');
+        } else {
+            return view('layout');
+        }
+    });
 
 
     if (class_exists(\App\Http\Controllers\AAController::class)) {

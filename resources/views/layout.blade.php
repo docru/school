@@ -15,9 +15,9 @@
     <link rel="apple-touch-startup-image" href="/build/img/favicon/adfinity-logo-152.png">
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    @vite(['resources/css/app.css','resources/css/app.scss', 'resources/js/app.js'])
 </head>
-<body>
+<body{!! config('app.env') == 'production' ? '' : ' class="env_' . config('app.env') . '"' !!}>
 <div id="appVue"></div>
+@vite(['resources/css/app.css','resources/css/app.scss', 'resources/js/app.js'])
 </body>
 </html>

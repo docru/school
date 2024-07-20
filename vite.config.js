@@ -6,7 +6,6 @@ export default defineConfig({
     plugins: [
         vue(),
         laravel({
-            buildDirectory: './bundle',
             input: [
                 'resources/css/app.css',
                 'resources/css/app.scss',
