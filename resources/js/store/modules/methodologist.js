@@ -1,4 +1,14 @@
-import {vuexDelete, vuexGet, vuexPost, vuexPut} from "../../helpers/vuexHelper.js";
+import {calcHash, vuexDelete, vuexGet, vuexPost, vuexPut} from "../../helpers/vuexHelper.js";
+
+
+function hashParams(state) {
+    let params = {
+        course: state.course,
+        studyProgram: state.studyProgram,
+        schedule: state.schedule,
+    };
+    return calcHash(params);
+}
 
 const state = {
     load: false,
@@ -25,14 +35,8 @@ const getters = {
     },
     getStudyProgram: (state) => state.studyProgram ?? [],
     getSchedule: (state) => state.schedule ?? [],
-    isSaved: (state) => {
-        let params = {
-            course: state.course,
-            studyProgram: state.studyProgram,
-            schedule: state.schedule,
-        };
-        return state.hash === JSON.stringify(params).hashCode()
-    },
+    isSaved: (state) => state.hash === hashParams(state),
+    getHashParams: (state) => hashParams(state),
 }
 const mutations = {
     setCourses: (state, data) => state.courses = data,
@@ -40,10 +44,22 @@ const mutations = {
         state.course = data.course;
         state.studyProgram = data.studyProgram;
         state.schedule = data.schedule;
-        state.hash = JSON.stringify(data).hashCode();
+        state.hash = hashParams(state);
     },
     setStudyProgram: (state, data) => state.studyProgram = data,
-    setSchedule: (state, data) => state.schedule = data,
+    setLesson: (state, data) => {
+        for (const m in state.studyProgram) {
+            let module = state.studyProgram[m];
+            for (const l in module.lessons) {
+                let lesson = module.lessons[l];
+                if(data.id === lesson.id){
+                    state.studyProgram[m][l] = lesson;
+                    return true;
+                }
+            }
+        }
+        return false;
+    },
 }
 
 
@@ -70,13 +86,7 @@ const actions = {
         return await vuexDelete('/methodologist/lessons/' + params.id, params, state, commit, 'setCourse', {msgOk: `Урок "${params.name}" удален`});
     },
     async actSaveCourse({state, commit}, params) {
-        params = {
-            course: state.course,
-            studyProgram: state.studyProgram,
-            schedule: state.schedule,
-        };
-        let newHash = JSON.stringify(params).hashCode();
-        if (state.hash !== newHash) {
+        if (state.hash !== hashParams(state)) {
             return await vuexPut('/methodologist/courses/' + state.course.id, params, state, commit, 'setCourse', {msgOk: 'Курс сохранен'});
         }
     },

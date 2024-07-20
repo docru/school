@@ -57,10 +57,13 @@ export default {
         return {
             tab: 'studyProgram',
             timerSaveId: null,
+            lastChangeDataTimerId: false,
+            lastChangeDataHash: false,
+            lastChangeDataTm: 0,
         }
     },
     computed: {
-        ...mapGetters('methodologist', ['getCourse', 'getStudyProgram', 'isSaved']),
+        ...mapGetters('methodologist', ['getCourse', 'getStudyProgram', 'isSaved', 'getHashParams']),
         courseId() {
             return this.$route.params.idCourse;
         },
@@ -88,15 +91,34 @@ export default {
             await this.actSaveCourse();
         },
         autoSaveStart() {
-            this.timerSaveId = setInterval(() => {
-                if (!this.isSaved) {
-                    this.save();
+            let saveInterval = 750; // интервал сохранения
+            // таймер запоминания последнего изменения
+            this.lastChangeDataTimerId = setInterval(async () => {
+                // сравнить текущий хеш данных блока с последним запомненным
+                let newHash = this.getHashParams;
+                if (newHash !== this.lastChangeDataHash) {
+                    // если изменился - запомнить время изменения и хеш
+                    this.lastChangeDataTm = performance.now();
+                    this.lastChangeDataHash = newHash;
                 }
-            }, 1000);
+            }, saveInterval / 2); // дважды в секунду проверять изменение данных
+
+            // таймер автосохранения
+            this.timerSaveId = setInterval(async () => {
+                // блок не сохранен и последние изменения данных были более секунды назад
+                if (!this.isSaved && (performance.now() - this.lastChangeDataTm) > saveInterval) {
+                    await this.save();
+                }
+            }, saveInterval);
         },
         autoSaveStop() {
             if (this.timerSaveId) {
                 clearInterval(this.timerSaveId);
+                this.timerSaveId = false;
+            }
+            if (this.lastChangeDataTimerId) {
+                clearInterval(this.lastChangeDataTimerId);
+                this.lastChangeDataTimerId = false;
             }
         },
     },

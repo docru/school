@@ -1,12 +1,12 @@
 <script>
 import draggable from 'vuedraggable'
 
-let idGlobal = 8;
 export default {
-    components: {
-        draggable,
-    },
     name: "ModuleList",
+    props: {
+        getStudyProgram: {default: []},
+    },
+    components: {draggable},
     data() {
         return {
             drag: false,
@@ -23,16 +23,6 @@ export default {
             }, deep: true
         }
     },
-    methods: {
-    },
-    props: {
-        getStudyProgram: {
-            default: []
-        },
-        curLesson: {
-            default: null
-        }
-    }
 }
 </script>
 

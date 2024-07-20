@@ -12,6 +12,15 @@ export const vuexLSGet = (name, defaultData) => {
     return data;
 }
 
+/**
+ * Получить хеш переданных данных
+ * исключаются поля updated_at
+ * @param params
+ * @returns {*}
+ */
+export function calcHash(params) {
+    return JSON.stringify(params).replace(/"updated_at":"[^"]*",*/g, '').hashCode();
+}
 
 export const vuexRequest = async (method, url, params = {}, state, commit, mutatorName = false, config = {}) => {
     let result = true;
