@@ -9,6 +9,7 @@ const routes = [
             title: 'Обзор платформы',
             breadcrumbs:[
                 {title:'Дашборд'},
+                // {title:'Дашборд',routName:'AdministratorDisciples'},
             ]
         }
     },
@@ -35,11 +36,24 @@ const routes = [
         path: '/methodologist/courses',
         name: 'MethodologistCoursesList',
         component: () => import('../pages/Methodologist/CoursesList.vue'),
+        meta:{
+            title: 'Курсы',
+            breadcrumbs:[
+                {title:'Курсы'},
+                // {title:'Дашборд',routName:'AdministratorDisciples'},
+            ]
+        }
     },
     {
         path: '/methodologist/courses/:idCourse',
         name: 'MethodologistCourseDetail',
         component: () => import('../pages/Methodologist/CourseDetail.vue'),
+        meta:{
+            title: 'Курсы',
+            breadcrumbs:[
+                {title:'Курсы',routName:'MethodologistCoursesList'},
+            ]
+        }
     },
 
     // учитель
