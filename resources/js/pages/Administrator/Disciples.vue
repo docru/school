@@ -145,7 +145,7 @@ export default {
         ...mapGetters('users', ['getUsers', 'getLoad'])
     },
     created() {
-        this.actReqwestUsers()
+        this.actReqwestUsers({role: 'disciple'});
     }
 }
 </script>

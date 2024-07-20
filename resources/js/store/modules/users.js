@@ -30,7 +30,7 @@ const mutations = {
 const actions = {
     async actReqwestUsers({state, commit}, params) {
         let url = '/users';
-        if(params.role){
+        if(params?.role){
             url += '/' + params.role;
         }
         return await vuexGet(url, {}, state, commit, 'setUsers');

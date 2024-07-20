@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -104,6 +104,8 @@ class Course extends Model
             foreach ($saveLessons as $order => $saveLesson) {
                 $saveLesson['order'] = $order + 1;
                 $saveLesson['module_id'] = $saveModule['id'];
+                $saveLesson['methodical_description'] = $saveLesson['methodical_description'] ?: '';
+                $saveLesson['abstract'] = $saveLesson['abstract'] ?: '';
                 $lesson = $this->lessons()->find($saveLesson['id']);
                 if (!empty($lesson)) {
                     $lesson->update($saveLesson);
