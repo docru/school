@@ -122,3 +122,12 @@ tw-w-9 tw-h-9 tw-rounded-md tw-p-2.5 tw-bg-gray-blue-light tw-cursor-pointer hov
   tw-px-2
   tw-mb-5 tw-w-full tw-inline-block;
 }
+
+.v-md-editor--fullscreen {
+  position: fixed;
+  top: 65px!important;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1001 !important;
+}
