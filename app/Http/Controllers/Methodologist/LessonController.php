@@ -43,6 +43,8 @@ class LessonController extends Controller
         $lesson = new Lesson();
         $lesson->course_id = $courseId;
         $lesson->name = $lessonName;
+        $lesson->methodical_description = '';
+        $lesson->abstract = '';
         if (!empty($moduleId)) {
             $lesson->module_id = $moduleId;
 

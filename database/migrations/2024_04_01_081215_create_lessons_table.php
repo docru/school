@@ -19,8 +19,8 @@ return new class extends Migration {
             $table->string('name', 255)->default('Урок')->comment('Название урока');
             $table->float('hours')->nullable()->default(1)->comment('Количество учебных часов');
             $table->integer('order')->default(0)->comment('Порядок');
-            $table->text('methodical_description')->default('')->comment('Методическое описание');
-            $table->text('abstract')->default('')->comment('Конспект');
+            $table->text('methodical_description')->comment('Методическое описание');
+            $table->text('abstract')->comment('Конспект');
             $table->integer('school_day')->nullable()->comment('Учебный день');
             $table->integer('school_day_order')->nullable()->comment('Сортировка в учебном дне');
 

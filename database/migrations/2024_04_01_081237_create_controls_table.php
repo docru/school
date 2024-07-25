@@ -16,7 +16,7 @@ return new class extends Migration
             $table->id();
             $table->timestamps();
             $table->bigInteger('course_id')->unsigned()->comment('Курс');
-            $table->json('tasks')->default('{}')->comment('Задания');
+            $table->json('tasks')->comment('Задания');
 
             $table->foreign('course_id')->references('id')->on('courses')
                 ->cascadeOnUpdate()->cascadeOnDelete();

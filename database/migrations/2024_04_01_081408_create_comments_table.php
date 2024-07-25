@@ -17,7 +17,7 @@ return new class extends Migration {
             $table->bigInteger('entity_id')->unsigned()->comment('Сущность');
             $table->string('type_entity')->comment('Тип сущности');
             $table->text('comment')->comment('Комментарий');
-            $table->json('score')->default('{}')->comment('Оценка');
+            $table->json('score')->comment('Оценка');
         });
     }
 

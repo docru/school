@@ -15,21 +15,6 @@ use mysql_xdevapi\Exception;
 
 class UserController extends RestController
 {
-    /**
-     * Создать пользователя
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function index($path = '')
-    {
-        if (empty(auth()->user())) {
-            if (!empty($path)) {
-                return redirect()->to('/');
-            }
-            return view('welcome');
-        } else {
-            return view('layout');
-        }
-    }
 
     /**
      * Авторизация
