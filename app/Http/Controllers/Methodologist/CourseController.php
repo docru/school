@@ -51,7 +51,11 @@ class CourseController extends Controller
     {
         $course->update($request->input('course'));
 
-        $course->saveStudyProgram($request->input('studyProgram'));
+        $res = file_get_contents('php://input');
+        $req = json_decode($res, 1);
+
+        $course->saveStudyProgram($req['studyProgram']);
+//        $course->saveStudyProgram($request->input('studyProgram'));
 
         return $this->ResponseOk($course->dump());
     }
