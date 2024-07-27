@@ -21,6 +21,11 @@ const routes = [
         component: () => import('../pages/Administrator/Disciples.vue'),
     },
     {
+        path: '/administrator/attendance',
+        name: 'AdministratorAttendance',
+        component: () => import('../pages/Administrator/Attendance.vue'),
+    },
+    {
         path: '/administrator/groups',
         name: 'AdministratorGroupsList',
         component: () => import('../pages/Administrator/GroupsList.vue'),

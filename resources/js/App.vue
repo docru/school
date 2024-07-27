@@ -149,6 +149,10 @@ export default {
         name: 'Группы',
         routName: 'AdministratorGroupsList'
       },
+      {
+        name: 'Посещаемость',
+        routName: 'AdministratorAttendance'
+      },
 
     ],
     menu_methodologist: [
