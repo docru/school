@@ -15,12 +15,12 @@
 
         <v-divider></v-divider>
         <v-card-text>
-            {{ attendances }}
+
 
             <v-window v-model="tab">
                 <v-window-item value="lessons">
                     <v-data-table
-                        class="table-sh"
+                        :mobile="true"
                         height="800"
                         fixed-header
                         density="compact"
@@ -33,6 +33,18 @@
                         <template v-slot:item.order="{item}">
                             {{ item.order }}. {{ groupSchoolDay(item.id, 'date') ?? '-' }}
                         </template>
+                      <template v-slot:headers v-if="$vuetify.display.name === 'sm'"></template>
+                      <template #item="{ item }" v-if="$vuetify.display.name === 'sm'">
+                        <v-list lines="one" v-if="$vuetify.display.name === 'sm'">
+                          <v-list-item
+                              v-for="n in 3"
+                              :key="n"
+                              :title="'Item ' + n"
+                              subtitle="Lorem ipsum dolor sit amet consectetur adipisicing elit"
+                          ></v-list-item>
+                        </v-list>
+
+                      </template>
 
                         <template v-slot:item.lessons="{item}">
                             <v-chip
