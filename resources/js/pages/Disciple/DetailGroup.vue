@@ -35,13 +35,26 @@
                         </template>
                       <template v-slot:headers v-if="$vuetify.display.name === 'sm'"></template>
                       <template #item="{ item }" v-if="$vuetify.display.name === 'sm'">
-                        <v-list lines="one" v-if="$vuetify.display.name === 'sm'">
-                          <v-list-item
-                              v-for="n in 3"
-                              :key="n"
-                              :title="'Item ' + n"
-                              subtitle="Lorem ipsum dolor sit amet consectetur adipisicing elit"
-                          ></v-list-item>
+                        <v-list lines="one" v-if="$vuetify.display.name === 'sm'"
+                                class=" tw-mt-1" :class="{
+                                // 'tw-bg-[grey]':!item.attendance
+                                }">
+                          <v-list-item>
+                            {{ item.order }}. {{ groupSchoolDay(item.id, 'date') ?? '-' }}
+                          </v-list-item>
+                          <v-list-item>
+                            {{ item.lessons }}
+                          </v-list-item>
+                          <v-list-item>
+                            <template v-if="groupSchoolDay(item.id, 'date')">
+                              <v-chip v-if="attendance(item.id)" color="secondary" density="compact">
+                                Присутствовал
+                              </v-chip>
+                              <v-chip v-else color="red" density="compact">
+                                Отсутствовал
+                              </v-chip>
+                            </template>
+                          </v-list-item>
                         </v-list>
 
                       </template>
