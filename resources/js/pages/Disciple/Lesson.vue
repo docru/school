@@ -26,11 +26,11 @@ export default {
 <template>
 <!--  {{ $route.params }} {{ lesson }} <br>-->
   <div class="tw-flex">
-    <MdCatalog :editorId="id" :scrollElement="scrollElement"
-                     style="position: fixed; "
-    />
+<!--    <MdCatalog :editorId="id" :scrollElement="scrollElement"-->
+<!--                     style="position: fixed; "-->
+<!--    />-->
 
-    <MdPreview style="margin-left: 100px; " :editorId="id" :modelValue="lesson?.lesson?.abstract" />
+    <MdPreview  :editorId="id" :modelValue="lesson?.lesson?.abstract" />
 
 
   </div>
