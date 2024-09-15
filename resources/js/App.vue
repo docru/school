@@ -128,10 +128,10 @@ export default {
         name: 'Мои курсы',
         routName: 'DiscipleGroupsList'
       },
-      {
-        name: 'Мои задания ',
-        routName: 'Home'
-      },
+      // {
+      //   name: 'Мои задания ',
+      //   routName: 'Home'
+      // },
 
     ],
     menu_teacher: [

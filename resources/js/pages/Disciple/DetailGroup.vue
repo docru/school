@@ -1,5 +1,6 @@
 <template>
     <v-card>
+
         <v-card-title>
             <div class="tw-flex tw-justify-between">
                 <div>Группа "{{ group?.group?.name }}". Курс "{{ group?.course?.name }}"</div>
@@ -9,7 +10,7 @@
                 bg-color=""
             >
                 <v-tab value="lessons">Уроки</v-tab>
-                <v-tab value="group">Группа</v-tab>
+                <v-tab value="group"  v-if="!getProfile.roles.includes('disciple')">Группа</v-tab>
             </v-tabs>
         </v-card-title>
 
@@ -21,7 +22,6 @@
                 <v-window-item value="lessons">
                     <v-data-table
                         :mobile="true"
-                        height="800"
                         fixed-header
                         density="compact"
                         :items="courseSchoolDays"
@@ -54,9 +54,9 @@
                           </template>
                           </div>
                           Уроки:
-                          <div v-for="les in item.lessons" :key="les.id" style="color: lightskyblue">
+                          <div v-for="les in item.lessons" :key="les.id" style="color: lightskyblue; margin: 5px 0;">
                             <router-link
-                                style="border-bottom: 1px dashed lightskyblue"
+                                style="border-bottom: 1px dashed lightskyblue;"
                                 :to="{path:`/disciple/lesson/${group?.course?.id}/${les.id}`}">
                               {{les.name}}
                             </router-link>
@@ -117,6 +117,7 @@ export default {
         }
     },
     computed: {
+      ...mapGetters('profile',['getProfile']),
         ...mapGetters('disciple', {
             group: 'getGroup',
             courseSchoolDays: 'getCourseSchoolDay',
