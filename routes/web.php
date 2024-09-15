@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\Administrator\AttendanceController as AdministratorAttendanceController;
 use App\Http\Controllers\Administrator\GroupController as AdministratorGroupController;
 use App\Http\Controllers\Administrator\CourseController as AdministratorCourseController;
@@ -23,9 +24,12 @@ Route::namespace('App\Http\Controllers')->group(function () {
     Route::prefix('api')->group(function () {
         // профиль пользователя
         Route::group(['middleware' => ['auth']], function () {
-            Route::get('/users/profile', 'UserController@profile');
-            Route::get('/users/profile/{uid?}', 'UserController@profile');
-            Route::post('/users/profile', 'UserController@profileSave');
+            Route::controller(UserController::class)->group(function () {
+                Route::get('/home', 'home');
+                Route::get('/users/profile', 'profile');
+                Route::get('/users/profile/{uid?}', 'profile');
+                Route::post('/users/profile', 'profileSave');
+            });
         });
 
         // Суперадмин
@@ -121,8 +125,7 @@ Route::namespace('App\Http\Controllers')->group(function () {
 
 
     // страница подключения vue
-    Route::fallback(function ($path = '')
-    {
+    Route::fallback(function ($path = '') {
         if (empty(auth()->user())) {
             if (!empty($path)) {
                 return redirect()->to('/');

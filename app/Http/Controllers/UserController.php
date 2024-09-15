@@ -2,15 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Http\Controllers\RestController;
-use App\Models\Lesson;
+use App\Models\GroupUser;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
-use mysql_xdevapi\Exception;
 
 
 class UserController extends RestController
@@ -33,6 +30,65 @@ class UserController extends RestController
             $user->save();
         }
         return redirect()->to('/');
+    }
+
+    public function home()
+    {
+        $user = Auth::user();
+        $arRes = [];
+        if ($user->hasRole('teacher')) {
+            $groups = GroupUser::whereRole('teacher')
+                ->whereUserId(auth()->id())
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->map(function (GroupUser $groupUser) {
+                    $group = $groupUser->group;
+                    $course = $group->course;
+
+                    $res = [
+                        'id' => $groupUser->id,
+                        'status' => $groupUser->status,
+                        'group' => [
+                            'id' => $group->id,
+                            'name' => $group->name,
+                        ],
+                        'course' => [
+                            'id' => $course->id,
+                            'name' => $course->name,
+                        ],
+                    ];
+                    return $res;
+                })->toArray();
+            $arRes['teacher'] = $groups;
+        }
+
+        if ($user->hasRole('disciple')) {
+            $groups = GroupUser::whereRole('disciple')
+                ->whereUserId(auth()->id())
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->map(function (GroupUser $groupUser) {
+                    $group = $groupUser->group;
+                    $course = $group->course;
+
+                    $res =[
+                        'id' => $groupUser->id,
+                        'status' => $groupUser->status,
+                        'group' => [
+                            'id' => $group->id,
+                            'name' => $group->name,
+                        ],
+                        'course' => [
+                            'id' => $course->id,
+                            'name' => $course->name,
+                        ],
+                    ];
+                    return $res;
+                })->toArray();
+            $arRes['disciple'] = $groups;
+        }
+
+        return $this->ResponseOk($arRes);
     }
 
     /**
