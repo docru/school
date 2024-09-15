@@ -136,6 +136,7 @@ Route::namespace('App\Http\Controllers')->group(function () {
 
     if (class_exists(\App\Http\Controllers\AAController::class)) {
         Route::get('/dev/', 'AAController@test');
+        Route::any('/convert/', 'AAController@convert');
     }
 
 });

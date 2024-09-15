@@ -84,7 +84,7 @@ export default {
                                 <div @click="$emit('chooseLesson',element)"
                                      class="lesson">
                                     <div class="tw-flex tw-justify-between">
-                                        <div>урок: {{ element.name }}</div>
+                                        <div>{{ element.order }} урок: {{ element.name }}</div>
                                         <div>
                                             <div @click="$emit('deleteLesson',element)">
                                                 <v-icon size="small" color="grey">mdi-trash-can-outline</v-icon>

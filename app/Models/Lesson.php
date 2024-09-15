@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -53,6 +54,14 @@ class Lesson extends Model
         'school_day',
         'school_day_order',
     ];
+
+    protected function methodicalDescription(): Attribute
+    {
+        return Attribute::make(
+            get: fn(string $value) => $value . "\n",
+            set: fn(string $value) => trim($value),
+        );
+    }
 
     public function course()
     {
