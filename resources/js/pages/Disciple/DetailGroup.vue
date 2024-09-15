@@ -1,5 +1,6 @@
 <template>
     <v-card>
+
         <v-card-title>
             <div class="tw-flex tw-justify-between">
                 <div>Группа "{{ group?.group?.name }}". Курс "{{ group?.course?.name }}"</div>
@@ -9,7 +10,7 @@
                 bg-color=""
             >
                 <v-tab value="lessons">Уроки</v-tab>
-                <v-tab value="group">Группа</v-tab>
+                <v-tab value="group"  v-if="!getProfile.roles.includes('disciple')">Группа</v-tab>
             </v-tabs>
         </v-card-title>
 
@@ -21,7 +22,6 @@
                 <v-window-item value="lessons">
                     <v-data-table
                         :mobile="true"
-                        height="800"
                         fixed-header
                         density="compact"
                         :items="courseSchoolDays"
@@ -34,29 +34,34 @@
                             {{ item.order }}. {{ groupSchoolDay(item.id, 'date') ?? '-' }}
                         </template>
                       <template v-slot:headers v-if="$vuetify.display.name === 'sm'"></template>
-                      <template #item="{ item }" v-if="$vuetify.display.name === 'sm'">
-                        <v-list lines="one" v-if="$vuetify.display.name === 'sm'"
-                                class=" tw-mt-1" :class="{
+
+                      <template #item="{ item,columns }" v-if="$vuetify.display.name === 'sm'"  >
+                        <div  v-if="$vuetify.display.name === 'sm'"
+                                class="tw-border tw-rounded tw-border-[rgba(221,218,218,0.49)] tw-mt-2 tw-p-2"
+                                :class="{
                                 // 'tw-bg-[grey]':!item.attendance
                                 }">
-                          <v-list-item>
+                          <div class="tw-flex tw-justify-between">
                             {{ item.order }}. {{ groupSchoolDay(item.id, 'date') ?? '-' }}
-                          </v-list-item>
-                          <v-list-item>
-                            {{ item.lessons }}
-                          </v-list-item>
-                          <v-list-item>
-                            <template v-if="groupSchoolDay(item.id, 'date')">
-                              <v-chip v-if="attendance(item.id)" color="secondary" density="compact">
-                                Присутствовал
-                              </v-chip>
-                              <v-chip v-else color="red" density="compact">
-                                Отсутствовал
-                              </v-chip>
-                            </template>
-                          </v-list-item>
-                        </v-list>
 
+                            <template v-if="groupSchoolDay(item.id, 'date')" >
+                            <span v-if="attendance(item.id)" class="tw-text-[12px]">
+                              Присутствовал
+                            </span>
+                            <span v-else class="tw-text-[12px]">
+                              Отсутствовал
+                            </span>
+                          </template>
+                          </div>
+                          Уроки:
+                          <div v-for="les in item.lessons" :key="les.id" style="color: lightskyblue; margin: 5px 0;">
+                            <router-link
+                                style="border-bottom: 1px dashed lightskyblue;"
+                                :to="{path:`/disciple/lesson/${group?.course?.id}/${les.id}`}">
+                              {{les.name}}
+                            </router-link>
+                          </div>
+                        </div>
                       </template>
 
                         <template v-slot:item.lessons="{item}">
@@ -112,6 +117,7 @@ export default {
         }
     },
     computed: {
+      ...mapGetters('profile',['getProfile']),
         ...mapGetters('disciple', {
             group: 'getGroup',
             courseSchoolDays: 'getCourseSchoolDay',

@@ -6,12 +6,19 @@
             </div>
         </v-card-title>
         <v-data-table
+            :mobile="true"
             v-if="groups.length"
             :headers="headers"
             :items="groups || []"
             :loading="load"
             @click:row="go"
         >
+          <template #item="{ item,columns }" v-if="$vuetify.display.name === 'sm'"  >
+            <div @click="goFun(item.group.id)" style="border: 1px dashed #c7c7d1; padding: 5px; cursor: pointer;">
+                {{item.group.name}} / {{item.course.name}}
+            </div>
+<!--            {{item}}-->
+          </template>
             <template v-slot:item.name="{item}">
                 {{ item.group.name }}
             </template>
@@ -46,6 +53,12 @@ export default {
                 params: {id: row.item.group.id}
             })
         },
+      goFun(id) {
+        this.$router.push({
+          name: 'DiscipleDetailGroup',
+          params: {id:id}
+        })
+      },
         ...mapMutations('app', ['setSnackBar']),
         ...mapActions('disciple', ['actRequestGroups',]),
     },
