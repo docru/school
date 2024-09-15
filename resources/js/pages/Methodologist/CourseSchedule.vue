@@ -165,7 +165,7 @@ export default {
                                         :data-lesson-id="element.id"
                                     >
                                         <div class="tw-flex tw-justify-between">
-                                            <div>урок: {{ element.name }}</div>
+                                            <div>{{ parseInt(element.order) }} урок: {{ element.name }}</div>
                                         </div>
                                     </div>
                                 </template>
@@ -174,7 +174,7 @@ export default {
                         <v-divider/>
                     </v-card>
                 </div>
-                <div class="tw-w-2/3">
+                <div class="tw-w-2/3" style="height: calc(100vh - 300px); overflow: auto">
                     <v-card hover elevation="2" style="padding: 5px 10px; margin: 15px 0 ">
                         <v-card-title>
                             <div class="tw-flex">
@@ -209,7 +209,8 @@ export default {
                                         <template #item="{element}">
                                             <div class="lesson" :data-lesson-id="element.id">
                                                 <div class="tw-flex tw-justify-between">
-                                                    <div>урок: {{ element.name }}</div>
+                                                    <div>{{ parseInt(element.school_day_order) + 1 }} урок: {{ element.name }}</div>
+                                                    {{element}}
                                                     <v-icon
                                                         size="small"
                                                         color="grey"

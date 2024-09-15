@@ -91,7 +91,7 @@ export default {
             await this.actSaveCourse();
         },
         autoSaveStart() {
-            let saveInterval = 750; // интервал сохранения
+            let saveInterval = 1000; // интервал сохранения
             // таймер запоминания последнего изменения
             this.lastChangeDataTimerId = setInterval(async () => {
                 // сравнить текущий хеш данных блока с последним запомненным
