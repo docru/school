@@ -8,7 +8,7 @@ const routes = [
         meta:{
             title: 'Обзор платформы',
             breadcrumbs:[
-                {title:'Дашборд'},
+                {title:'Главная'},
                 // {title:'Дашборд',routName:'AdministratorDisciples'},
             ]
         }
@@ -60,16 +60,42 @@ const routes = [
         path: '/teacher/groups',
         name: 'TeacherGroupsList',
         component: () => import('../pages/Teacher/GroupsList.vue'),
+        meta:{
+            title: 'Группы',
+            breadcrumbs:[
+                {title:'Главная',routName:'Home'},
+                {title:'Курсы'},
+            ]
+        }
     },
     {
         path: '/teacher/group/:id',
         name: 'TeacherDetailGroup',
         component: () => import('../pages/Teacher/DetailGroup.vue'),
+        meta:{
+            title: 'Группы',
+            breadcrumbs:[
+                {title:'Главная',routName:'Home'},
+                {title:'Курсы',routName:'TeacherGroupsList'},
+                {title:'Уроки'},
+
+            ]
+        }
     },
     {
         path: '/teacher/lesson/:groupId/:lessonId',
         name: 'TeacherLesson',
         component: () => import('../pages/Teacher/Lesson.vue'),
+        meta:{
+            title: 'Урок',
+            breadcrumbs:[
+                {title:'Главная',routName:'Home'},
+                {title:'Курсы',routName:'TeacherGroupsList'},
+                {title:'Уроки'},
+                {title:'Урок'},
+
+            ]
+        }
     },
 
     // ученик

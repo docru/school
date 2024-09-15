@@ -95,14 +95,18 @@
         <router-link class="tw-mx-3" :to="{name:'Profile'}">
           {{ getProfile?.name }} ({{ getProfile?.nickname }})
         </router-link>
+
       </v-app-bar>
-
       <v-main>
-<!--        {{ $route.meta.breadcrumbs }} <br>-->
-<!--        {{ breadcrumbs }}-->
-        <v-breadcrumbs :items="breadcrumbs"></v-breadcrumbs>
-        <v-card variant="text" class="ma-2 pa-2" style="min-height: 100%">
+        <v-breadcrumbs :items="breadcrumbs"
 
+                       class="tw-w-full"
+                       style="position: fixed;
+                         background-color: white;
+                          z-index: 100;" ></v-breadcrumbs>
+
+
+        <v-card variant="text" class=" px-3 pt-15" style="min-height: 100%">
           <router-view></router-view>
         </v-card>
       </v-main>
@@ -135,6 +139,10 @@ export default {
 
     ],
     menu_teacher: [
+      {
+        name: 'Главная ',
+        routName: 'Home'
+      },
       {
         name: 'Мои группы',
         routName: 'TeacherGroupsList'
