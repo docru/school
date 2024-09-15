@@ -165,7 +165,7 @@ export default {
                                         :data-lesson-id="element.id"
                                     >
                                         <div class="tw-flex tw-justify-between">
-                                            <div>урок: {{ element.name }}</div>
+                                            <div>{{ parseInt(element.order) }} урок: {{ element.name }}</div>
                                         </div>
                                     </div>
                                 </template>
@@ -209,7 +209,8 @@ export default {
                                         <template #item="{element}">
                                             <div class="lesson" :data-lesson-id="element.id">
                                                 <div class="tw-flex tw-justify-between">
-                                                    <div>урок: {{ element.name }}</div>
+                                                    <div>{{ parseInt(element.school_day_order) + 1 }} урок: {{ element.name }}</div>
+                                                    {{element}}
                                                     <v-icon
                                                         size="small"
                                                         color="grey"
