@@ -40,7 +40,6 @@ const routes = [
             title: 'Курсы',
             breadcrumbs:[
                 {title:'Курсы'},
-                // {title:'Дашборд',routName:'AdministratorDisciples'},
             ]
         }
     },
@@ -78,16 +77,42 @@ const routes = [
         path: '/disciple/groups',
         name: 'DiscipleGroupsList',
         component: () => import('../pages/Disciple/GroupsList.vue'),
+        meta:{
+            title: 'Группы',
+            breadcrumbs:[
+                {title:'Главная',routName:'Home'},
+                {title:'Курсы'},
+            ]
+        }
     },
     {
         path: '/disciple/group/:id',
         name: 'DiscipleDetailGroup',
         component: () => import('../pages/Disciple/DetailGroup.vue'),
+        meta:{
+            title: 'Группы',
+            breadcrumbs:[
+                {title:'Главная',routName:'Home'},
+                {title:'Курсы',routName:'DiscipleGroupsList'},
+                {title:'Уроки'},
+
+            ]
+        }
     },
     {
         path: '/disciple/lesson/:groupId/:lessonId',
         name: 'DiscipleLesson',
         component: () => import('../pages/Disciple/Lesson.vue'),
+        meta:{
+            title: 'Урок',
+            breadcrumbs:[
+                {title:'Главная',routName:'Home'},
+                {title:'Курсы',routName:'DiscipleGroupsList'},
+                {title:'Уроки'},
+                {title:'Урок'},
+
+            ]
+        }
     },
 
 
