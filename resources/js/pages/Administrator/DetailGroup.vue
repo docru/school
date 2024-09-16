@@ -2,11 +2,19 @@
     <v-card>
         <v-card-title>
             <div class="tw-flex tw-justify-between">
+
                 <div>Группа "{{ getGroup.name }}". Курс "{{ getCourse.name }}"</div>
-                <v-btn color="primary" @click="dialogDate = true">Добавить день</v-btn>
-                <v-btn color="primary" @click="closeSchoolDay()">Закрыть день</v-btn>
-                <v-btn color="primary" @click="dialogDisciple = true">Добавить ученика</v-btn>
-                <v-btn color="primary" @click="dialogTeacher = true">Добавить учителя</v-btn>
+            </div>
+            <div class="tw-flex tw-justify-between">
+                <v-btn density="compact" variant="plain" color="primary" @click="dialogDate = true">Добавить день
+                </v-btn>
+                <v-btn density="compact" variant="plain" color="primary" @click="closeSchoolDay()">Закрыть день</v-btn>
+                <v-btn density="compact" variant="plain" color="primary" @click="dialogDisciple = true">Добавить
+                    ученика
+                </v-btn>
+                <v-btn density="compact" variant="plain" color="primary" @click="dialogTeacher = true">Добавить
+                    учителя
+                </v-btn>
             </div>
         </v-card-title>
 
@@ -287,7 +295,7 @@ export default {
             }
         },
         expelledDay(user, day) {
-            if(!user.deleted_at){ // не отчислен
+            if (!user.deleted_at) { // не отчислен
                 return false;
             }
             let deleted_at = Date.parse(user.deleted_at);
