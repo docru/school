@@ -71,7 +71,7 @@ class UserController extends RestController
                     $group = $groupUser->group;
                     $course = $group->course;
 
-                    $res =[
+                    $res = [
                         'id' => $groupUser->id,
                         'status' => $groupUser->status,
                         'group' => [
@@ -93,7 +93,7 @@ class UserController extends RestController
 
     /**
      * Создать пользователя
-     * @return void
+     * @return \Illuminate\Http\JsonResponse
      */
     public function create()
     {
@@ -115,6 +115,15 @@ class UserController extends RestController
         if (empty($roles)) {
             return $this->ResponseError('Не заданы роли');
         }
+        $surname = request()->post('surname');
+        if (empty($surname)) {
+            return $this->ResponseError('Не задана фамилия');
+        }
+        $name = request()->post('surname');
+        if (empty($name)) {
+            return $this->ResponseError('Не задано имя');
+        }
+        $patronymic = request()->post('patronymic');
 
         if (!auth()->user()->hasRole('superadmin')) {
             if (auth()->user()->hasRole('administrator') && ($roles == ['disciple'] || $roles == ['teacher'])) {
@@ -124,7 +133,12 @@ class UserController extends RestController
             }
         }
 
-        $user = User::create(['phone' => $phone]);
+        $user = User::create([
+            'surname' => $surname,
+            'name' => $name,
+            'patronymic' => $patronymic,
+            'phone' => $phone,
+        ]);
 
         $existsRoles = Role::all()->map(function (Role $role) {
             return $role->name;
@@ -132,7 +146,7 @@ class UserController extends RestController
 
         $roles = array_intersect($roles, $existsRoles);
         $user->addRoles($roles);
-        return $this->list();
+        return $this->list($role);
     }
 
     /**
@@ -168,7 +182,7 @@ class UserController extends RestController
         if (
             !empty(auth()->user())
             && (auth()->user()->hasRole('superadmin')
-                || auth()->user()->hasRole('administrator') && in_array($role, ['disciple', 'teacher']))
+                || (auth()->user()->hasRole('administrator') && in_array($role, ['disciple', 'teacher'])))
         ) {
 
         } else {
@@ -186,8 +200,9 @@ class UserController extends RestController
                 'id' => $user->id,
                 'phone' => $user->phone,
                 'authorized_at' => $user->authorized_at,
+                'surname' => $user->surname,
                 'name' => $user->name,
-                'nickname' => $user->nickname,
+                'patronymic' => $user->patronymic,
                 'entry_code' => $user->entry_code ? env('APP_URL') . '/login/' . $user->entry_code : '',
                 'roles' => $user->roles->map(function (Role $role) {
                     return ['name' => $role->name, 'display_name' => $role->display_name];
@@ -200,14 +215,15 @@ class UserController extends RestController
 
     public function roles()
     {
-        return $this->ResponseOk(['roles' => Role::all()->map(function (Role $role) {
+        $roles = Role::all()->map(function (Role $role) {
             return [
                 'id' => $role->id,
                 'name' => $role->name,
                 'display_name' => $role->display_name,
                 'description' => $role->description,
             ];
-        })]);
+        })->toArray();
+        return $this->ResponseOk($roles);
     }
 
     /**
@@ -237,9 +253,9 @@ class UserController extends RestController
         return $this->ResponseOk([
             'id' => $user->id,
             'phone' => $user->phone,
+            'surname' => $user->surname,
             'name' => $user->name,
-            'nickname' => $user->nickname,
-            'nickname_description' => $user->nickname_description,
+            'patronymic' => $user->patronymic,
             'roles' => $roles,
         ]);
     }
@@ -251,8 +267,8 @@ class UserController extends RestController
     {
         $user = auth()->user();
         $user->name = $request->name;
-        $user->nickname = $request->nickname;
-        $user->nickname_description = $request->nickname_description;
+        $user->surname = $request->surname;
+        $user->patronymic = $request->patronymic;
         $user->save();
 
         return $this->profile();

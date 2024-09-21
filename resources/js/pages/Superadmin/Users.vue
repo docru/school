@@ -6,22 +6,28 @@
         <v-card-text>
             <v-card>
                 <v-card-text>
-                    <div
-                        class="tw-flex tw-flex-col md:tw-flex-row  tw-gap-[15px] tw-mb-5 tw-justify-center"
-                    >
-                        <div class="tw-w-full">
-                            <v-text-field label="Введите телефон" type="number" v-model="phone"></v-text-field>
-                            <div class="tw-flex tw-flex-col md:tw-flex-row ">
-                                <v-checkbox hide-details density="compact" v-model="role.value" v-for="role in getRoles"
-                                            top
+                    <div class="tw-flex tw-flex-col tw-gap-[15px] tw-mb-5 tw-justify-center">
+                        <div class="tw-w-full tw-grid tw-gap-2 tw-grid-cols-1 md:tw-grid-cols-2 xl:tw-grid-cols-4">
+                            <v-text-field label="Фамилия" v-model="surname"></v-text-field>
+                            <v-text-field label="Имя" v-model="name"></v-text-field>
+                            <v-text-field label="Отчество" v-model="patronymic"></v-text-field>
+                            <v-text-field label="Телефон" type="number" v-model="phone"></v-text-field>
+                        </div>
+                        <div class="tw-w-full tw-grid tw-gap-2 tw-grid-cols-1 md:tw-grid-cols-2">
+                            <div class="tw-flex tw-flex-col md:tw-flex-row">
+                                <v-checkbox hide-details top
+                                            density="compact"
+                                            v-model="role.value"
+                                            v-for="role in getRoles"
                                             :label="role.display_name"/>
                             </div>
+
+                            <v-btn class="tw-mt-2" v-if="getRoles" color="primary"
+                                   :disabled="!canCreate"
+                                   @click="create">Создать пользователя
+                            </v-btn>
                         </div>
 
-                        <v-btn class="tw-mt-2" v-if="getRoles" color="primary"
-                               :disabled="!getRoles.filter((el)=>el.value).length || !phone"
-                               @click="create">Создать пользователя
-                        </v-btn>
                     </div>
                 </v-card-text>
             </v-card>
@@ -31,8 +37,8 @@
                     <div class="tw-w-full md:tw-w-1/3">
                         <v-text-field
                             clearable
-                            type="number"
-                            label="Поиск по номеру телефона"
+                            persistent-clear
+                            label="Поиск по фамилии/телефону"
                             v-model="search"
                         ></v-text-field>
                     </div>
@@ -57,19 +63,8 @@
                     :loading="getLoad"
                 >
                     <template v-slot:item.actions="{ item }">
-                        <v-icon
-                            class="me-2"
-                            size="small"
-                            @click.stop="editItem(item)"
-                        >
-                            mdi-pencil
-                        </v-icon>
-                        <v-icon
-                            size="small"
-                            @click.stop="deleteItem(item)"
-                        >
-                            mdi-delete
-                        </v-icon>
+                        <v-icon class="me-2" size="small" @click.stop="editItem(item)">mdi-pencil</v-icon>
+                        <v-icon size="small" @click.stop="deleteItem(item)">mdi-delete</v-icon>
                     </template>
                     <template v-slot:header.actions>
                         <div style="float: right">
@@ -90,15 +85,12 @@
                     <template v-slot:item.roles="{item}">
                         <div v-html="item.roles.map((el)=>el.display_name).join(', ')" style="font-size: 12px; "/>
                     </template>
+                    <template v-slot:item.surname="{item}">
+                        {{ item.surname }} {{ item.name }} {{ item.patronymic }}
+                    </template>
                     <template v-slot:item.link="{item}">
-                        <Code
-                            v-if="item.entry_code"
-                            :code="item.entry_code"
-                        />
-                        <div v-else @click="actUserCreateLink({
-              uid:item.id
-            })"> сгенерить ключ
-                        </div>
+                        <Code v-if="item.entry_code" :code="item.entry_code"/>
+                        <div v-else @click="actUserCreateLink({ uid:item.id })">сгенерить ключ</div>
                     </template>
                     <template v-slot:item.entrance="{item}">
                         <v-chip :color="item.authorized_at ? 'green': 'grey'">
@@ -116,7 +108,7 @@
 </template>
 
 <script>
-import {mapActions, mapGetters} from "vuex";
+import {mapActions, mapGetters, mapMutations} from "vuex";
 import Code from "../../components/Code.vue";
 import Loading from "../../components/Loading.vue";
 import ICode from "../../components/icon/ICode.vue";
@@ -131,66 +123,79 @@ export default {
         return {
             search: '',
             dialog: false,
+            surname: '',
+            name: '',
+            patronymic: '',
             phone: '',
             usersHeaders: [
                 {title: 'id', key: 'id'},
                 {title: 'Вход', key: 'entrance'},
-                {title: 'Имя', key: 'name'},
-                {title: 'Псевдоним', key: 'nicname'},
+                {title: 'ФИО', key: 'surname'},
                 {title: 'Роли', key: 'roles'},
                 {title: 'Телефон', key: 'phone'},
-
-                // {
-                //   title: 'Дата', key: 'phone',
-                //   children: [
-                //     {title: 'Обновлен', key: 'updated_at'},
-                //     {title: 'Обновлен', key: 'updated_at'}
-                // ]},
-                // {title: 'Обновлен', key: 'updated_at'},
-                // {title: 'Обновлен', key: 'updated_at'},
-                {title: 'link', sortable: false, key: 'link'},
+                {title: 'Ссылка', sortable: false, key: 'link'},
                 {title: '', align: 'end', sortable: false, key: 'actions'},
-
-            ]
+            ],
         }
     },
     methods: {
         create() {
             this.actUserCreate({
+                surname: this.surname,
+                name: this.name,
+                patronymic: this.patronymic,
                 phone: this.phone,
-                roles: this.getRoles.filter((el) => el.value).map((elem) => {
-                    return elem.name
-                })
-            })
+                roles: this.getRoles.filter(el => el.value).map(el => el.name)
+            }).then(() => {
+                this.search = this.phone.replace(/^8/, 7);
+                this.surname = '';
+                this.name = '';
+                this.patronymic = '';
+                this.phone = '';
+                let roles = this.getRoles();
+                for (const k in roles) {
+                    roles[k].value = false;
+                }
+                this.setRoles(roles);
+            });
         },
         editItem(item) {
-
+            alert('Редактирование пользователя. Пока не сделано ((');
         },
-        ...mapActions('users', ['actReqwestUsers', 'actReqwestUserRoles', 'actUserCreate', 'actUserCreateLink'])
+        deleteItem(item) {
+            alert('Удаление пользователя. Пока не сделано ((');
+        },
+        ...mapMutations('users', ['setRoles']),
+        ...mapActions('users', ['actReqwestUsers', 'actReqwestUserRoles', 'actUserCreate', 'actUserCreateLink']),
     },
     computed: {
+        ...mapGetters('users', ['getUsers', 'getRoles', 'getLoad', 'getRolesSelect']),
         searchItems() {
             let result = this.getUsers;
-            let isSelectCount = this.getRolesSelect.filter(el => el.value).length
-            let helpSelectArrSelected = this.getRolesSelect.filter(select => select.value)?.map(el => el.name)
+            let isSelectCount = this.getRolesSelect.filter(el => el.value).length;
+            let helpSelectArrSelected = this.getRolesSelect.filter(select => select.value)?.map(el => el.name);
 
-            if (!this.search && !isSelectCount) return this.getUsers
+            if (!this.search && !isSelectCount) {
+                return this.getUsers;
+            }
 
-            if (this.search) result = this.getUsers.filter((el) => {
-                return el.phone.search(this.search) > -1
-            })
+            if (this.search) {
+                result = this.getUsers.filter((el) => {
+                    return el.phone?.search(this.search) > -1 || el.surname?.search(this.search) > -1;
+                });
+            }
 
             if (isSelectCount) {
                 result = result.filter(elem => {
-                    let arrRoles = elem.roles.map(el => el.name)
-                    return arrRoles.filter(ar => helpSelectArrSelected.includes(ar)).length
-
-                })
+                    let arrRoles = elem.roles.map(el => el.name);
+                    return arrRoles.filter(ar => helpSelectArrSelected.includes(ar)).length;
+                });
             }
             return result;
-
         },
-        ...mapGetters('users', ['getUsers', 'getRoles', 'getLoad', 'getRolesSelect'])
+        canCreate() {
+            return !!this.getRoles.filter((el) => el.value).length && !!this.phone && !!this.surname && !!this.name;
+        },
     },
     created() {
         this.actReqwestUsers()

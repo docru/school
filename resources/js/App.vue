@@ -195,7 +195,8 @@ export default {
       return this.getProfile?.nickname && this.getProfile?.name
     },
     showLoading() {
-      return this.getLoad || (!this.validProfile && this.$route.name !== 'FormNicName');
+      return this.getLoad;
+      // return this.getLoad || (!this.validProfile && this.$route.name !== 'FormNicName');
     },
     showFormNicName() {
       return !this.getLoad && this.$route.name === 'FormNicName';
@@ -204,7 +205,7 @@ export default {
   },
   async mounted() {
     await this.actResetProfile();
-    this.routePoint();
+    // this.routePoint();
   },
 
 }

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- *
+ * 
  *
  * @property int $id
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -31,6 +31,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder|GroupUser whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder|GroupUser whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|GroupUser whereUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|GroupUser onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|GroupUser withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|GroupUser withoutTrashed()
  * @mixin \Eloquent
  */
 class GroupUser extends Model

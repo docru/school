@@ -4,23 +4,13 @@
             Ученики
         </v-card-title>
         <v-card-text>
-            <div
-                class="tw-flex tw-flex-col md:tw-flex-row  tw-gap-[15px] tw-mb-5 tw-justify-center"
-            >
-                <div class="tw-w-full">
-                    <v-text-field label="Введите телефон" type="number" v-model="phone"></v-text-field>
-                </div>
-
-                <v-btn class="tw-mt-2" color="primary" :disabled="!phone" @click="create">Создать ученика</v-btn>
-            </div>
-            <v-divider class="tw-my-3" color="blue"/>
             <div v-if="getUsers">
                 <div class="tw-flex tw-flex-col md:tw-flex-row tw-justify-between">
                     <div class="tw-w-full md:tw-w-1/3">
                         <v-text-field
                             clearable
-                            type="number"
-                            label="Поиск по номеру телефона"
+                            persistent-clear
+                            label="Поиск по фамилии/телефону"
                             v-model="search"
                         ></v-text-field>
                     </div>
@@ -59,10 +49,13 @@
                                       fill="#B0BACD"/>
                             </svg>
                         </div>
-
                     </template>
+
                     <template v-slot:loading>
                         <v-skeleton-loader type="table-row@10"></v-skeleton-loader>
+                    </template>
+                    <template v-slot:item.surname="{item}">
+                        {{item.surname}} {{item.name}} {{item.patronymic}}
                     </template>
                     <template v-slot:item.link="{item}">
                         <Code
@@ -102,45 +95,38 @@ export default {
         return {
             search: '',
             dialog: false,
+            surname: '',
+            name: '',
+            patronymic: '',
             phone: '',
             usersHeaders: [
                 {title: 'id', key: 'id'},
                 {title: 'Вход', key: 'entrance'},
-                {title: 'Имя', key: 'name'},
-                {title: 'Псевдоним', key: 'nicname'},
+                {title: 'ФИО', key: 'surname'},
                 {title: 'Телефон', key: 'phone'},
-
-                // {
-                //   title: 'Дата', key: 'phone',
-                //   children: [
-                //     {title: 'Обновлен', key: 'updated_at'},
-                //     {title: 'Обновлен', key: 'updated_at'}
-                // ]},
-                // {title: 'Обновлен', key: 'updated_at'},
-                // {title: 'Обновлен', key: 'updated_at'},
                 {title: 'link', sortable: false, key: 'link'},
                 {title: '', align: 'end', sortable: false, key: 'actions'},
-
-            ]
+            ],
         }
     },
     methods: {
-        create() {
-            this.actUserCreate({phone: this.phone, role: 'disciple'});
-        },
         ...mapActions('users', ['actReqwestUsers', 'actUserCreateLink']),
+        editItem(item) {
+            alert('Редактирование пользователя. Пока не сделано ((');
+        },
+        deleteItem(item) {
+            alert('Удаление пользователя. Пока не сделано ((');
+        },
     },
     computed: {
         searchItems() {
-            let result = this.getUsers;
+            if (!this.search) {
+                return this.getUsers;
+            }
 
-            if (!this.search) return this.getUsers
-
-            if (this.search)
-                result = this.getUsers.filter((el) => {
-                    return el.phone.search(this.search) > -1
-                })
-            return result;
+            return this.getUsers.filter((el) => {
+                return el.phone?.search(this.search) > -1 || el.surname?.search(this.search) > -1;
+            });
         },
         ...mapGetters('users', ['getUsers', 'getLoad'])
     },

@@ -71,7 +71,7 @@ class GroupController extends Controller
         $teachers = [];
         $disciples = [];
         foreach ($users as $user) {
-            $member = $user->user()->get(['id', 'name', 'nickname', 'nickname_description'])->toArray();
+            $member = $user->user()->get(['id', 'surname', 'name', 'patronymic'])->toArray();
             if($user->role == 'disciple'){
                 $disciples[] = $member;
             }

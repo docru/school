@@ -81,7 +81,7 @@
                 closable
                 @click:close="removeTeacher(teacher.id)"
             >
-              {{ [teacher.name, teacher.nicname, teacher.phone].join(' ') }}
+              {{ [teacher.surname, teacher.name, teacher.phone].join(' ') }}
             </v-chip>
         </span>
         <span v-else>В группе пока нет учителей</span>
@@ -239,7 +239,7 @@ export default {
             let disciples = [];
             for (const d in this.getDisciples) {
                 let disciple = this.getDisciples[d];
-                let name = (disciple.name ?? '') + ' ' + (disciple.nickname ?? '') + ' [' + disciple.phone + ']';
+                let name = (disciple.surname ?? '') + ' ' + (disciple.name ?? '') + ' [' + disciple.phone + ']';
                 disciples.push({id: disciple.id, name, status: disciple.status, deleted_at: disciple.deleted_at});
             }
             return disciples;
