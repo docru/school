@@ -61,6 +61,7 @@
                         hide-details
                         v-model="course"
                         clearable
+                        persistent-clear
                         label="Курс"
                         :items="courses"
                     ></v-autocomplete>

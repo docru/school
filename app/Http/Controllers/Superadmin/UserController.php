@@ -83,8 +83,9 @@ class UserController extends RestController
                 'id' => $user->id,
                 'phone' => $user->phone,
                 'authorized_at' => $user->authorized_at,
+                'surname' => $user->surname,
                 'name' => $user->name,
-                'nickname' => $user->nickname,
+                'patronymic' => $user->patronymic,
                 'entry_code' => $user->entry_code ? env('APP_URL') . '/login/' . $user->entry_code : '',
                 'roles' => $user->roles->map(function (Role $role) {
                     return ['name' => $role->name, 'display_name' => $role->display_name];

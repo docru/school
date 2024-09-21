@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 
 /**
- *
+ * 
  *
  * @property int $id
  * @property \Illuminate\Support\Carbon|null $created_at

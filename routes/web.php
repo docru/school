@@ -22,26 +22,26 @@ Route::namespace('App\Http\Controllers')->group(function () {
     Route::get('/login/{entryCode}', 'UserController@login');
 
     Route::prefix('api')->group(function () {
-        // профиль пользователя
-        Route::group(['middleware' => ['auth']], function () {
-            Route::controller(UserController::class)->group(function () {
+        Route::controller(UserController::class)->group(function () {
+            // профиль пользователя
+            Route::group(['middleware' => ['auth']], function () {
                 Route::get('/home', 'home');
                 Route::get('/users/profile', 'profile');
                 Route::get('/users/profile/{uid?}', 'profile');
                 Route::post('/users/profile', 'profileSave');
             });
-        });
 
-        // Суперадмин
-        Route::group(['middleware' => ['role:superadmin']], function () {
-            Route::get('/users/roles', 'UserController@roles'); // список всех ролей с описанием (id, name, display_name, description)
-            Route::post('/users/create', 'UserController@create'); // создать пользователя ($phone, $roles)
-        });
+            // Суперадмин
+            Route::group(['middleware' => ['role:superadmin|administrator']], function () {
+                Route::get('/users/roles', 'roles'); // список всех ролей с описанием (id, name, display_name, description)
+                Route::post('/users/create', 'create'); // создать пользователя ($phone, $roles)
+            });
 
-        Route::group(['middleware' => ['role:superadmin|administrator']], function () {
-            Route::post('/users/auth-link/{uid}', 'UserController@authLink'); // получить ссылку для пользователя ($uid)
-            Route::get('/users', 'UserController@list'); // список всех пользователей
-            Route::get('/users/{role}', 'UserController@list'); // список всех пользователей с указанной ролью
+            Route::group(['middleware' => ['role:superadmin|administrator']], function () {
+                Route::post('/users/auth-link/{uid}', 'authLink'); // получить ссылку для пользователя ($uid)
+                Route::get('/users', 'list'); // список всех пользователей
+                Route::get('/users/{role}', 'list'); // список всех пользователей с указанной ролью
+            });
         });
 
         // методист
