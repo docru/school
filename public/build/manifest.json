@@ -1,10 +1,10 @@
 {
-  "_CourseSchedule-!~{00n}~.js": {
+  "_CourseSchedule-!~{00m}~.js": {
     "file": "assets/CourseSchedule-BTzxbmqr.css",
-    "src": "_CourseSchedule-!~{00n}~.js"
+    "src": "_CourseSchedule-!~{00m}~.js"
   },
-  "_CourseSchedule-D7N2zbSL.js": {
-    "file": "assets/CourseSchedule-D7N2zbSL.js",
+  "_CourseSchedule-DNUlLRSd.js": {
+    "file": "assets/CourseSchedule-DNUlLRSd.js",
     "name": "CourseSchedule",
     "imports": [
       "resources/js/app.js"
@@ -13,12 +13,12 @@
       "assets/CourseSchedule-BTzxbmqr.css"
     ]
   },
-  "_ICode-!~{00l}~.js": {
+  "_ICode-!~{00k}~.js": {
     "file": "assets/ICode-CAifg6Of.css",
-    "src": "_ICode-!~{00l}~.js"
+    "src": "_ICode-!~{00k}~.js"
   },
-  "_ICode-Ct6qO7Nl.js": {
-    "file": "assets/ICode-Ct6qO7Nl.js",
+  "_ICode-rrbXcgbd.js": {
+    "file": "assets/ICode-rrbXcgbd.js",
     "name": "ICode",
     "imports": [
       "resources/js/app.js"
@@ -27,15 +27,15 @@
       "assets/ICode-CAifg6Of.css"
     ]
   },
-  "_IMore-DaRYw2kD.js": {
-    "file": "assets/IMore-DaRYw2kD.js",
+  "_IMore-DC-Nu93q.js": {
+    "file": "assets/IMore-DC-Nu93q.js",
     "name": "IMore",
     "imports": [
       "resources/js/app.js"
     ]
   },
-  "_index-DZXbmRZO.js": {
-    "file": "assets/index-DZXbmRZO.js",
+  "_index-B2Jxu_kw.js": {
+    "file": "assets/index-B2Jxu_kw.js",
     "name": "index",
     "imports": [
       "resources/js/app.js"
@@ -58,7 +58,7 @@
     "src": "node_modules/@mdi/font/fonts/materialdesignicons-webfont.woff2"
   },
   "resources/css/app.css": {
-    "file": "assets/app-b8etvZb8.css",
+    "file": "assets/app-DnhYITwt.css",
     "src": "resources/css/app.css",
     "isEntry": true
   },
@@ -68,7 +68,7 @@
     "isEntry": true
   },
   "resources/js/app.js": {
-    "file": "assets/app-1A470Pyi.js",
+    "file": "assets/app-D83wlC67.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
@@ -85,14 +85,13 @@
       "resources/js/pages/Disciple/GroupsList.vue",
       "resources/js/pages/Disciple/DetailGroup.vue",
       "resources/js/pages/Disciple/Lesson.vue",
-      "resources/js/pages/FormNicName.vue",
       "resources/js/pages/Profile.vue",
       "resources/js/pages/Superadmin/Users.vue",
       "resources/js/pages/Plan/Plan.vue",
       "resources/js/pages/404.vue"
     ],
     "css": [
-      "assets/app-D_agXYMc.css"
+      "assets/app-D2M-ZaIG.css"
     ],
     "assets": [
       "assets/materialdesignicons-webfont-CSr8KVlo.eot",
@@ -102,7 +101,7 @@
     ]
   },
   "resources/js/pages/404.vue": {
-    "file": "assets/404-CG9TcLWN.js",
+    "file": "assets/404-CbH7z1Hl.js",
     "name": "404",
     "src": "resources/js/pages/404.vue",
     "isDynamicEntry": true,
@@ -111,31 +110,31 @@
     ]
   },
   "resources/js/pages/Administrator/DetailGroup.vue": {
-    "file": "assets/DetailGroup-B_UXvgYl.js",
+    "file": "assets/DetailGroup-C5oe_rji.js",
     "name": "DetailGroup",
     "src": "resources/js/pages/Administrator/DetailGroup.vue",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.js",
-      "_ICode-Ct6qO7Nl.js"
+      "_ICode-rrbXcgbd.js"
     ],
     "css": [
       "assets/DetailGroup-CIHs7_DB.css"
     ]
   },
   "resources/js/pages/Administrator/Disciples.vue": {
-    "file": "assets/Disciples-BaSsvkJ8.js",
+    "file": "assets/Disciples-Blq9nt_j.js",
     "name": "Disciples",
     "src": "resources/js/pages/Administrator/Disciples.vue",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.js",
-      "_ICode-Ct6qO7Nl.js",
-      "_IMore-DaRYw2kD.js"
+      "_ICode-rrbXcgbd.js",
+      "_IMore-DC-Nu93q.js"
     ]
   },
   "resources/js/pages/Administrator/GroupsList.vue": {
-    "file": "assets/GroupsList-Dscp4P9h.js",
+    "file": "assets/GroupsList-Bn6R-WJi.js",
     "name": "GroupsList",
     "src": "resources/js/pages/Administrator/GroupsList.vue",
     "isDynamicEntry": true,
@@ -144,20 +143,20 @@
     ]
   },
   "resources/js/pages/Disciple/DetailGroup.vue": {
-    "file": "assets/DetailGroup-Ct3u2pPs.js",
+    "file": "assets/DetailGroup-l-3Ekl2L.js",
     "name": "DetailGroup",
     "src": "resources/js/pages/Disciple/DetailGroup.vue",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.js",
-      "_CourseSchedule-D7N2zbSL.js"
+      "_CourseSchedule-DNUlLRSd.js"
     ],
     "css": [
       "assets/DetailGroup-KSFu6Sc2.css"
     ]
   },
   "resources/js/pages/Disciple/GroupsList.vue": {
-    "file": "assets/GroupsList-CnTez8Fj.js",
+    "file": "assets/GroupsList-BFf3AXzu.js",
     "name": "GroupsList",
     "src": "resources/js/pages/Disciple/GroupsList.vue",
     "isDynamicEntry": true,
@@ -166,26 +165,17 @@
     ]
   },
   "resources/js/pages/Disciple/Lesson.vue": {
-    "file": "assets/Lesson-CXDq4nxO.js",
+    "file": "assets/Lesson-D3qD_VzQ.js",
     "name": "Lesson",
     "src": "resources/js/pages/Disciple/Lesson.vue",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.js",
-      "_index-DZXbmRZO.js"
-    ]
-  },
-  "resources/js/pages/FormNicName.vue": {
-    "file": "assets/FormNicName-C4RnetzN.js",
-    "name": "FormNicName",
-    "src": "resources/js/pages/FormNicName.vue",
-    "isDynamicEntry": true,
-    "imports": [
-      "resources/js/app.js"
+      "_index-B2Jxu_kw.js"
     ]
   },
   "resources/js/pages/Home.vue": {
-    "file": "assets/Home-Cnwl_zeh.js",
+    "file": "assets/Home-Cf9m5_FB.js",
     "name": "Home",
     "src": "resources/js/pages/Home.vue",
     "isDynamicEntry": true,
@@ -197,17 +187,17 @@
     ]
   },
   "resources/js/pages/Methodologist/CourseDetail.vue": {
-    "file": "assets/CourseDetail-C9uDwtha.js",
+    "file": "assets/CourseDetail-Be8sL8IJ.js",
     "name": "CourseDetail",
     "src": "resources/js/pages/Methodologist/CourseDetail.vue",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.js",
-      "_CourseSchedule-D7N2zbSL.js"
+      "_CourseSchedule-DNUlLRSd.js"
     ]
   },
   "resources/js/pages/Methodologist/CoursesList.vue": {
-    "file": "assets/CoursesList-CmtxFmfp.js",
+    "file": "assets/CoursesList-B09OJCiY.js",
     "name": "CoursesList",
     "src": "resources/js/pages/Methodologist/CoursesList.vue",
     "isDynamicEntry": true,
@@ -216,7 +206,7 @@
     ]
   },
   "resources/js/pages/Plan/Plan.vue": {
-    "file": "assets/Plan-DM1h33Ig.js",
+    "file": "assets/Plan-IiVkYiRe.js",
     "name": "Plan",
     "src": "resources/js/pages/Plan/Plan.vue",
     "isDynamicEntry": true,
@@ -228,7 +218,7 @@
     ]
   },
   "resources/js/pages/Profile.vue": {
-    "file": "assets/Profile-CYd_BMyo.js",
+    "file": "assets/Profile-DYkvy30M.js",
     "name": "Profile",
     "src": "resources/js/pages/Profile.vue",
     "isDynamicEntry": true,
@@ -237,31 +227,31 @@
     ]
   },
   "resources/js/pages/Superadmin/Users.vue": {
-    "file": "assets/Users-C9E9wvWO.js",
+    "file": "assets/Users-DPKsnZkp.js",
     "name": "Users",
     "src": "resources/js/pages/Superadmin/Users.vue",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.js",
-      "_ICode-Ct6qO7Nl.js",
-      "_IMore-DaRYw2kD.js"
+      "_ICode-rrbXcgbd.js",
+      "_IMore-DC-Nu93q.js"
     ]
   },
   "resources/js/pages/Teacher/DetailGroup.vue": {
-    "file": "assets/DetailGroup-CaNaYe9p.js",
+    "file": "assets/DetailGroup-Cs-MCEon.js",
     "name": "DetailGroup",
     "src": "resources/js/pages/Teacher/DetailGroup.vue",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.js",
-      "_CourseSchedule-D7N2zbSL.js"
+      "_CourseSchedule-DNUlLRSd.js"
     ],
     "css": [
       "assets/DetailGroup-KSFu6Sc2.css"
     ]
   },
   "resources/js/pages/Teacher/GroupsList.vue": {
-    "file": "assets/GroupsList-BRaKNVfb.js",
+    "file": "assets/GroupsList-DOlkbMEM.js",
     "name": "GroupsList",
     "src": "resources/js/pages/Teacher/GroupsList.vue",
     "isDynamicEntry": true,
@@ -270,13 +260,13 @@
     ]
   },
   "resources/js/pages/Teacher/Lesson.vue": {
-    "file": "assets/Lesson-CPy4TY_X.js",
+    "file": "assets/Lesson-DdYo8C5J.js",
     "name": "Lesson",
     "src": "resources/js/pages/Teacher/Lesson.vue",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.js",
-      "_index-DZXbmRZO.js"
+      "_index-B2Jxu_kw.js"
     ]
   }
 }
