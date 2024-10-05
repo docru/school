@@ -79,6 +79,7 @@ Route::namespace('App\Http\Controllers')->group(function () {
                 Route::get('/group/{group}/users', 'index'); // пользователи группы
                 Route::post('/group/{group}/join-user/{user}/{role}', 'joinUserToGroup'); // зачислить юзера в группу
                 Route::post('/group/{group}/remove-user/{user}', 'removeUserFromGroup'); // удалить юзера из группы
+                Route::post('/group/{group}/restore-user/{user}', 'restoreUserToGroup'); // восстановить ученика в группе
             });
 
             // Добавить новый учебный день группы

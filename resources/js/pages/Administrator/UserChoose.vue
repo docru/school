@@ -36,14 +36,11 @@
                 >
                     <template v-slot:item.name="{ item }">
                         <div @click="choose(item.id)">
-                            {{ item.surname }} [{{ item.name }}]
+                            {{ item.surname }} {{ item.name }} {{ item.patronymic }}
                         </div>
                     </template>
                     <template v-slot:loading>
                         <v-skeleton-loader type="table-row@10"></v-skeleton-loader>
-                    </template>
-                    <template v-slot:item.surname="{item}">
-                        {{ item.surname }} {{ item.name }} {{ item.patronymic }}
                     </template>
                     <template v-slot:item.link="{item}">
                         <Code
@@ -87,7 +84,7 @@ export default {
             patronymic: '',
             phone: '',
             usersHeaders: [
-                {title: 'ФИО', key: 'surname'},
+                {title: 'ФИО', key: 'name'},
                 {title: 'Телефон', key: 'phone'},
                 {title: 'link', sortable: false, key: 'link'},
             ],
@@ -103,12 +100,14 @@ export default {
                 patronymic: this.patronymic,
                 phone: this.phone,
                 role: this.role
-            }).then(() => {
-                this.search = this.phone.replace(/^8/, 7);
-                this.surname = '';
-                this.name = '';
-                this.patronymic = '';
-                this.phone = '';
+            }).then((res) => {
+                if (res) {
+                    this.search = this.phone.replace(/^8/, 7);
+                    this.surname = '';
+                    this.name = '';
+                    this.patronymic = '';
+                    this.phone = '';
+                }
             });
         },
         async choose(userId) { // 'disciple'

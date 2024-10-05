@@ -87,6 +87,11 @@ const actions = {
         let config = {msgOk: 'Пользователь успешно удален из группы'};
         return await vuexPost(url, {}, state, commit, 'setUsers', config);
     },
+    async actRestoreUserToGroup({state, commit}, params) {
+        let url = `/administrator/group/${params.groupId}/restore-user/${params.userId}`;
+        let config = {msgOk: 'Пользователь успешно восстановлен в группу'};
+        return await vuexPost(url, {}, state, commit, 'setUsers', config);
+    },
 
     // учебные дни
     async actAddGroupSchoolDay({state, commit}, params) {

@@ -15,7 +15,7 @@ class UserController extends RestController
     {
         $users = User::orderBy('id')->get()
             ->map(function (User $user) use ($group) {
-                $groupUser = $user->groupUsers()->withTrashed()->whereGroupId($group->id)->first(['role', 'status', 'deleted_at']);
+                $groupUser = $user->groupUsers()->whereGroupId($group->id)->first(['role', 'status', 'expelled_at']);
                 return [
                     'id' => $user->id,
                     'phone' => $user->phone,
@@ -26,7 +26,7 @@ class UserController extends RestController
                     'entry_code' => $user->entry_code ? env('APP_URL') . '/login/' . $user->entry_code : '',
                     'role' => (!empty($groupUser)) ? $groupUser->role : '',
                     'status' => (!empty($groupUser)) ? $groupUser->status : '',
-                    'deleted_at' => (!empty($groupUser)) ? $groupUser->deleted_at : '',
+                    'expelled_at' => (!empty($groupUser)) ? $groupUser->expelled_at : '',
                 ];
             });
 
@@ -87,8 +87,8 @@ class UserController extends RestController
             $action = 'удален';
             if ($GroupUser->role == 'disciple' && $GroupUser->attendances()->count() > 0) {
                 $GroupUser->status = 'expelled';
+                $GroupUser->expelled_at = date('Y-m-d H:i:s');
                 $GroupUser->save();
-                $GroupUser->delete();
                 $action = 'отчислен';
             } else {
                 $GroupUser->forceDelete();
@@ -100,7 +100,22 @@ class UserController extends RestController
         } else {
             return $this->ResponseError("Такого пользователя в группе нет.");
         }
+    }
 
+    /**
+     * Восстановить ученика в группе.
+     */
+    public function restoreUserToGroup(Group $group, User $user)
+    {
+        $GroupUser = GroupUser::whereGroupId($group->id)->whereUserId($user->id)->first();
+        if (!empty($GroupUser) && $GroupUser->role == 'disciple') {
+            $GroupUser->status = 'active';
+            $GroupUser->expelled_at = null;
+            $GroupUser->save();
+            $msgOk = "Ученик восстановлен в группе";
+            return $this->index($group, $msgOk);
+        }
+        return $this->ResponseError("Такого ученика в группе не было.");
     }
 
 }
