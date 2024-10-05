@@ -146,17 +146,19 @@ export default {
                 patronymic: this.patronymic,
                 phone: this.phone,
                 roles: this.getRoles.filter(el => el.value).map(el => el.name)
-            }).then(() => {
-                this.search = this.phone.replace(/^8/, 7);
-                this.surname = '';
-                this.name = '';
-                this.patronymic = '';
-                this.phone = '';
-                let roles = this.getRoles();
-                for (const k in roles) {
-                    roles[k].value = false;
+            }).then((res) => {
+                if (res) {
+                    this.search = this.phone.replace(/^8/, 7);
+                    this.surname = '';
+                    this.name = '';
+                    this.patronymic = '';
+                    this.phone = '';
+                    let roles = this.getRoles();
+                    for (const k in roles) {
+                        roles[k].value = false;
+                    }
+                    this.setRoles(roles);
                 }
-                this.setRoles(roles);
             });
         },
         editItem(item) {

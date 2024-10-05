@@ -1,21 +1,36 @@
 <template>
     <v-card>
         <v-card-title>
-            <div class="tw-flex tw-justify-between">
-
+            <div class="md:tw-flex tw-justify-between">
                 <div>Группа "{{ getGroup.name }}". Курс "{{ getCourse.name }}"</div>
+
+                <v-btn
+                    density="comfortable"
+                    variant="outlined"
+                    color="primary"
+                    @click="closeSchoolDay()"
+                    v-if="existsOpenDay"
+                >
+                    Закрыть день
+                </v-btn>
+                <v-btn
+                    density="comfortable"
+                    variant="outlined"
+                    color="primary"
+                    @click="dialogDate = true"
+                    v-else-if="!finishedCourse"
+                >
+                    Добавить день
+                </v-btn>
+                <v-chip
+                    class="ma-2"
+                    color="red"
+                    v-else
+                >
+                    Курс завершен
+                </v-chip>
             </div>
-            <div class="tw-flex tw-justify-between">
-                <v-btn density="compact" variant="plain" color="primary" @click="dialogDate = true">Добавить день
-                </v-btn>
-                <v-btn density="compact" variant="plain" color="primary" @click="closeSchoolDay()">Закрыть день</v-btn>
-                <v-btn density="compact" variant="plain" color="primary" @click="dialogDisciple = true">Добавить
-                    ученика
-                </v-btn>
-                <v-btn density="compact" variant="plain" color="primary" @click="dialogTeacher = true">Добавить
-                    учителя
-                </v-btn>
-            </div>
+
         </v-card-title>
 
         <v-dialog v-model="dialogDisciple">
@@ -70,21 +85,33 @@
             </v-card>
         </v-dialog>
 
-        Учителя:
-        <span v-if="Object.keys(getTeachers).length">
+        <div class="tw-mx-4">
+            Учителя:
+            <v-btn
+                class="ml-5"
+                color="green"
+                icon="mdi-account-plus"
+                @click="dialogTeacher = true"
+                variant="text"
+                density="compact"
+                size="x-large"
+                v-if="!finishedCourse"
+            ></v-btn>
+            <span v-if="Object.keys(getTeachers).length">
             <v-chip
                 v-for="teacher in getTeachers"
                 :key="teacher.id"
                 :model-value="true"
                 class="ma-2"
                 color="teal"
-                closable
+                :closable="!finishedCourse"
                 @click:close="removeTeacher(teacher.id)"
             >
               {{ [teacher.surname, teacher.name, teacher.phone].join(' ') }}
             </v-chip>
         </span>
-        <span v-else>В группе пока нет учителей</span>
+            <span v-else>В группе пока нет учителей</span>
+        </div>
 
         <v-data-table
             :items-per-page="-1"
@@ -97,6 +124,20 @@
             :hide-default-footer="true"
             disable-pagination
         >
+
+            <template v-slot:[`header.name`]="{column}" v-for="(day,index) in headersNotEmpty">
+                УЧЕНИКИ
+                <v-btn
+                    class="ml-5"
+                    color="green"
+                    icon="mdi-account-plus"
+                    @click="dialogDisciple = true"
+                    variant="text"
+                    density="compact"
+                    size="x-large"
+                    v-if="!finishedCourse"
+                ></v-btn>
+            </template>
 
             <template v-slot:[`header.day${day?.id}`]="{column}" v-for="(day,index) in headersNotEmpty">
                 <div :class="{ activeSlot:groupsSchoolDays[day.id]?.status == 'open' }">
@@ -132,7 +173,7 @@
                             density="compact"
                             style="text-align: center"
                             v-model="attendance"
-                            :disabled="gsd.status !== 'open'"
+                            :disabled="gsd.status !== 'open' || item.status == 'expelled'"
                             :value="gsd.id + '_' + item.id"
                             @change="actSetAttendance({groupSchoolDayId: groupsSchoolDays[day.id].id, userId: item.id})"
                         />
@@ -142,18 +183,33 @@
             </template>
 
             <template v-slot:item.name="{item}">
-                {{ item.name }}
+                <div v-if="item.status != 'expelled'">
+                    {{ item.name }}
+                    <v-btn
+                        class="ml-5"
+                        color="red"
+                        icon="mdi-account-remove-outline"
+                        @click="removeDisciple(item.id)"
+                        variant="text"
+                        density="compact"
+                        size="small"
+                        v-if="!finishedCourse"
+                    ></v-btn>
+                </div>
+                <div class="tw-text-gray" v-else>
+                    {{ item.name }}
+                    <v-btn
+                        class="ml-5"
+                        color="green"
+                        icon="mdi-account-plus"
+                        @click="restoreDisciple(item.id)"
+                        variant="text"
+                        density="compact"
+                        size="small"
+                        v-if="!finishedCourse"
+                    ></v-btn>
+                </div>
 
-                <v-btn
-                    class="ml-5"
-                    color="red"
-                    icon="mdi-account-remove-outline"
-                    @click="removeDisciple(item.id)"
-                    variant="text"
-                    density="compact"
-                    v-if="!item.deleted_at"
-                ></v-btn>
-                <span v-else>отчислен</span>
             </template>
         </v-data-table>
     </v-card>
@@ -240,12 +296,32 @@ export default {
             for (const d in this.getDisciples) {
                 let disciple = this.getDisciples[d];
                 let name = (disciple.surname ?? '') + ' ' + (disciple.name ?? '') + ' [' + disciple.phone + ']';
-                disciples.push({id: disciple.id, name, status: disciple.status, deleted_at: disciple.deleted_at});
+                disciples.push({id: disciple.id, name, status: disciple.status, expelled_at: disciple.expelled_at});
             }
             return disciples;
         },
         groupsSchoolDays() {
             return this.getGroup.groups_school_day ?? {};
+        },
+        existsOpenDay() {
+            let res = false;
+            for (const k in this.groupsSchoolDays) {
+                if (this.groupsSchoolDays[k].status == 'open') {
+                    res = true;
+                    break;
+                }
+            }
+            return res;
+        },
+        finishedCourse() {
+            let cnt = 0;
+            for (const k in this.groupsSchoolDays) {
+                if (this.groupsSchoolDays[k].status == 'open') {
+                    break;
+                }
+                cnt++;
+            }
+            return cnt >= Object.keys(this.getSchedule).length;
         },
         attendance: {
             get() {
@@ -262,6 +338,7 @@ export default {
             'actCloseGroupSchoolDay',
             'actRequestGroupUsers',
             'actRemoveUserFromGroup',
+            'actRestoreUserToGroup',
             'actRequestAttendances',
             'actSetAttendance',
             'actReqwestCourse',
@@ -294,13 +371,18 @@ export default {
                 this.actRemoveUserFromGroup({groupId: this.groupId, userId: id});
             }
         },
+        restoreDisciple(id) {
+            if (confirm('Восстановить ученика?')) {
+                this.actRestoreUserToGroup({groupId: this.groupId, userId: id});
+            }
+        },
         expelledDay(user, day) {
-            if (!user.deleted_at) { // не отчислен
+            if (user.status != 'expelled') { // не отчислен
                 return false;
             }
-            let deleted_at = Date.parse(user.deleted_at);
+            let expelled_at = Date.parse(user.expelled_at);
             let gsdTm = Date.parse(this.groupsSchoolDays[day.id].dateOrigin);
-            return gsdTm > deleted_at;
+            return gsdTm > expelled_at;
         },
     },
     created() {
