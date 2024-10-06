@@ -30,19 +30,30 @@
                         disable-pagination
                     >
 
-                        <template v-slot:item.order="{item}">
-                            {{ item.order }}. {{ groupSchoolDay(item.id, 'date') ?? '-' }}
-                        </template>
+                      <template v-slot:item.order="{item}">
+                        <span class="tw-text-[12px]">{{ groupSchoolDay(item.id, 'date') ?? '-' }}</span>
+                      </template>
 
-                        <template v-slot:item.lessons="{item}">
-                            <v-chip
-                                v-for="lesson in item.lessons ?? []"
-                                :key="lesson.id"
-                                @click="$router.push({name: 'TeacherLesson', params: {groupId: group.group.id, lessonId:lesson.id}})"
-                            >
-                                {{ lesson.name }}
-                            </v-chip>
-                        </template>
+<!--                        <template v-slot:item.lessons="{item}">-->
+<!--                            <div-->
+<!--                                v-for="lesson in item.lessons ?? []"-->
+<!--                                :key="lesson.id"-->
+<!--                                @click="$router.push({name: 'TeacherLesson', params: {groupId: group.group.id, lessonId:lesson.id}})"-->
+<!--                            >-->
+<!--                                {{ lesson.name }}-->
+<!--                            </div>-->
+<!--                        </template>-->
+
+                      <template v-slot:item.lessons="{item}">
+                        <div
+                            class="tw-my-1"
+                            v-for="(lesson,index) in item.lessons ?? []"
+                            :key="lesson.id"
+                            @click="$router.push({name: 'TeacherLesson', params: {groupId: group.group.id, lessonId:lesson.id}})"
+                        >
+                          <span class="tw-text-[lightskyblue]" style="border-bottom: 1px dashed lightskyblue;cursor: pointer ">{{ index + 1 }}. {{lesson.name}} </span>
+                        </div>
+                      </template>
 
                         <template v-slot:item.attendance="{item}">
                             <template v-if="groupSchoolDay(item.id, 'date')">
@@ -115,15 +126,15 @@ export default {
                     sortable: false,
                     divider: true
                 },
-                {
-                    title: 'Посещение',
-                    align: 'center',
-                    key: 'attendance',
-                    width: "50px",
-                    fixed: true,
-                    sortable: false,
-                    divider: true
-                },
+                // {
+                //     title: 'Посещение',
+                //     align: 'center',
+                //     key: 'attendance',
+                //     width: "50px",
+                //     fixed: true,
+                //     sortable: false,
+                //     divider: true
+                // },
             ];
             return headers;
         },

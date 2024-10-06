@@ -30,7 +30,7 @@ export default {
 <!--                     style="position: fixed; "-->
 <!--    />-->
 
-    <MdPreview  :editorId="id" :modelValue="lesson?.lesson?.abstract" />
+    <MdPreview   :editorId="id" :modelValue="lesson?.lesson?.abstract" />
 
 
   </div>
