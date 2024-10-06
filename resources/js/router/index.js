@@ -142,11 +142,11 @@ const routes = [
     },
 
 
-    {
-        path: '/profile',
-        name: 'Profile',
-        component: () => import('../pages/Profile.vue'),
-    },
+    // {
+    //     path: '/profile',
+    //     name: 'Profile',
+    //     component: () => import('../pages/Profile.vue'),
+    // },
     {
         path: '/superadmin/users',
         name: 'SuperadminUsers',
