@@ -34,18 +34,9 @@ class UserController extends RestController
         $user = User::create(['phone' => $phone]);
 
         $roles = request()->post('roles');
+        $user->setRoles($roles);
 
-
-        $existsRoles = Role::all()->map(function (Role $role) {
-            return $role->name;
-        })->toArray();
-
-        $roles = array_intersect($roles, $existsRoles);
-        $user->addRoles($roles);
-//        return $this->list();
         return $this->ResponseOk($this->list());
-
-
     }
 
     /**

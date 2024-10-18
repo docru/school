@@ -42,7 +42,7 @@ const actions = {
     async actReqwestHome({state, commit}) {
         return await vuexGet('/home', {}, state, commit, 'setHome');
     },
-    async actReqwestUsers({state, commit}, params) {
+    async actReqwestUsers({state, commit}, params = {}) {
         let url = '/users';
         if (params?.role) {
             url += '/' + params.role;
@@ -59,10 +59,10 @@ const actions = {
         return await vuexPost('/users/auth-link/' + params.uid, {}, state, commit, 'setUsersLink', {showMsg: false});
     },
     async actUserDelete({state, commit}, params) {
-        return await vuexPost('/users/delete/' , {id:params}, state, commit, 'deleteUser', {showMsg: false});
+        return await vuexPost('/users/delete' , {id:params}, state, commit, 'deleteUser', {showMsg: false});
     },
-    async actUserEdite({state, commit}, params) {
-        return await vuexPost('/users/edit/' , params, state, commit, 'editUser', {showMsg: false});
+    async actUserSave({state, commit}, params) {
+        return await vuexPost('/users/save/' +  params.id, params, state, commit, 'editUser', {showMsg: false});
     },
 }
 

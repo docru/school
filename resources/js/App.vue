@@ -92,7 +92,10 @@
                     </h3>
                 </v-app-bar-title>
                 <v-spacer></v-spacer>
-                {{ getProfile?.name[0] }} ({{ getProfile?.name[0] }} {{ getProfile?.surname }} {{ getProfile?.patronymic }})
+
+                <div class="tw-mx-3">
+                    {{ getProfile?.name[0] }} ({{ getProfile?.name[0] }} {{ getProfile?.surname }} {{ getProfile?.patronymic }})
+                </div>
                 <!--        <router-link class="tw-mx-3" :to="{name:'Profile'}">-->
                 <!--        </router-link>-->
 

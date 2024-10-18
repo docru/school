@@ -140,13 +140,20 @@ class UserController extends RestController
             'phone' => $phone,
         ]);
 
-        $existsRoles = Role::all()->map(function (Role $role) {
-            return $role->name;
-        })->toArray();
+        $user->setRole($role);
 
-        $roles = array_intersect($roles, $existsRoles);
-        $user->addRoles($roles);
         return $this->list($role);
+    }
+
+    public function delete(Request $request)
+    {
+        $user = User::whereId($request->post('id'))->first();
+        if (empty($user)) {
+            return $this->ResponseError('Нет такого пользователя');
+        } else {
+            $user->depersonalize();
+            return $this->ResponseOk(['msgOk' => 'Пользователь удален']);
+        }
     }
 
     /**
@@ -266,12 +273,58 @@ class UserController extends RestController
     public function profileSave(Request $request)
     {
         $user = auth()->user();
-        $user->name = $request->name;
-        $user->surname = $request->surname;
-        $user->patronymic = $request->patronymic;
+
+        $name = trim(strip_tags($request->post('name')));
+        $surname = trim(strip_tags($request->post('surname')));
+        $patronymic = trim(strip_tags($request->post('patronymic')));
+        if (empty($name) || empty($surname)) {
+            return $this->ResponseError('Фамилия и отчество обязательны для заполнения');
+        }
+
+        $user->name = $name;
+        $user->surname = $surname;
+        $user->patronymic = $patronymic;
         $user->save();
 
         return $this->profile();
+    }
+
+    /**
+     * Сохранение профиля
+     */
+    public function save(Request $request, User $user)
+    {
+
+        $phone = User::phoneNormalize($request->post('phone'));
+        if (!$phone) {
+            return $this->ResponseError('Не верный формат телефона');
+        }
+        $userF = User::wherePhone($phone)->first();
+        if (!empty($userF) && $userF->id != $user->id) {
+            return $this->ResponseError('Пользователь с таким телефоном уже зарегистрирован');
+        }
+
+        $name = trim(strip_tags($request->post('name')));
+        $surname = trim(strip_tags($request->post('surname')));
+        $patronymic = trim(strip_tags($request->post('patronymic')));
+        if (empty($name) || empty($surname)) {
+            return $this->ResponseError('Фамилия и отчество обязательны для заполнения');
+        }
+
+        $user->phone = $phone;
+        $user->name = $name;
+        $user->surname = $surname;
+        $user->patronymic = $patronymic;
+        $user->deleted_at = null;
+        $user->save();
+
+
+        $roles = $request->post('roles');
+        if (auth()->user()->hasRole('superadmin') && is_array($roles)) {
+            $user->setRoles($roles);
+        }
+
+        return $this->ResponseOk(['msgOk' => 'Сохранено']);
     }
 
 }

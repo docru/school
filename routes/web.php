@@ -32,14 +32,16 @@ Route::namespace('App\Http\Controllers')->group(function () {
             });
 
             // Суперадмин
-            Route::group(['middleware' => ['role:superadmin|administrator']], function () {
+            Route::group(['middleware' => ['role:superadmin']], function () {
                 Route::get('/users/roles', 'roles'); // список всех ролей с описанием (id, name, display_name, description)
                 Route::post('/users/create', 'create'); // создать пользователя ($phone, $roles)
+                Route::post('/users/delete', 'delete'); // удалить пользователя
             });
 
             Route::group(['middleware' => ['role:superadmin|administrator']], function () {
                 Route::post('/users/auth-link/{uid}', 'authLink'); // получить ссылку для пользователя ($uid)
                 Route::get('/users', 'list'); // список всех пользователей
+                Route::post('/users/save/{user}', 'save'); // сохранение пользователя
                 Route::get('/users/{role}', 'list'); // список всех пользователей с указанной ролью
             });
         });
@@ -127,12 +129,17 @@ Route::namespace('App\Http\Controllers')->group(function () {
 
     // страница подключения vue
     Route::fallback(function ($path = '') {
-        if (empty(auth()->user())) {
+        $user = auth()->user();
+        if (empty($user)) {
             if (!empty($path)) {
                 return redirect()->to('/');
             }
             return view('welcome');
         } else {
+            if (!empty($user->deleted_at)) { // если пользователь удален - разавторизовать его
+                auth()->logout();
+                return redirect()->to('/');
+            }
             return view('layout');
         }
     });

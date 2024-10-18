@@ -9,7 +9,7 @@ use Laratrust\Contracts\LaratrustUser;
 use Laratrust\Traits\HasRolesAndPermissions;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property string $phone Телефон
@@ -118,5 +118,49 @@ class User extends Authenticatable implements LaratrustUser
             return $groupUser->role;
         }
         return false;
+    }
+
+    /**
+     * Обезличить пользователя
+     * @return void
+     */
+    public function depersonalize()
+    {
+        $roles = $this->roles()->get();
+        foreach ($roles as $role) {
+            $this->removeRole($role);
+        }
+
+        $permissions = $this->permissions()->get();
+        foreach ($permissions as $permission) {
+            $this->removePermission($permission);
+        }
+
+        $this->name = null;
+        $this->surname = null;
+        $this->patronymic = null;
+        $this->entry_code = null;
+        $this->entry_code_generated_at = null;
+        $this->authorized_at = null;
+        $this->deleted_at = date('Y-m-d H:i:s');
+        $this->save();
+    }
+
+    /**
+     * Установит роли
+     * @param array $roles
+     * @return void
+     */
+    public function setRoles(array $roles)
+    {
+        $existsRoles = Role::all()->map(function (Role $role) {
+            return $role->name;
+        })->toArray();
+
+        $newRoles = collect($roles)->map(function ($role) {
+            return $role['name'];
+        })->intersect($existsRoles)->toArray();
+
+        $this->syncRoles($newRoles);
     }
 }
