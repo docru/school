@@ -24,10 +24,16 @@
             <template v-slot:item.actions="{ item }">
                 <v-icon
                     size="small"
-                    @click.stop="actDeleteGroup(item.id)"
+                    @click.stop="editGroup(item.id)"
                 >
-                    mdi-delete
+                    mdi-pencil
                 </v-icon>
+<!--                <v-icon-->
+<!--                    size="small"-->
+<!--                    @click.stop="actDeleteGroup(item.id)"-->
+<!--                >-->
+<!--                    mdi-edit-->
+<!--                </v-icon>-->
             </template>
             <template v-slot:header.actions>
                 <div style="float: right">
@@ -113,7 +119,7 @@ export default {
         ...mapActions('administrator', [
             'actRequestGroups',
             'actCreateGroup',
-            'actDeleteGroup',
+            // 'actDeleteGroup',
             'actReqwestCourses'
         ]),
         async createGroup() {

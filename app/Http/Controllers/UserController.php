@@ -104,6 +104,9 @@ class UserController extends RestController
         }
         $user = User::wherePhone($phone)->first();
         if (!empty($user)) {
+            if (!!$user->deleted_at) {
+                return $this->ResponseError('Пользователь с таким телефоном удален. Для восстановления обратитесь к администратору.');
+            }
             return $this->ResponseError('Пользователь с таким телефоном уже зарегистрирован');
         }
 
@@ -112,26 +115,26 @@ class UserController extends RestController
         if (empty($roles) && !empty($role)) {
             $roles = [$role];
         }
+        if (!auth()->user()->hasRole('superadmin')) {
+            if (auth()->user()->hasRole('administrator')) {
+                $roles = array_intersect(['disciple', 'teacher'], $roles);
+            } else {
+                return $this->ResponseError('У вас нет прав на добавление пользователя');
+            }
+        }
         if (empty($roles)) {
             return $this->ResponseError('Не заданы роли');
         }
-        $surname = request()->post('surname');
+
+        $surname = trim(strip_tags(request()->post('surname')));
         if (empty($surname)) {
             return $this->ResponseError('Не задана фамилия');
         }
-        $name = request()->post('surname');
+        $name = trim(strip_tags(request()->post('surname')));
         if (empty($name)) {
             return $this->ResponseError('Не задано имя');
         }
-        $patronymic = request()->post('patronymic');
-
-        if (!auth()->user()->hasRole('superadmin')) {
-            if (auth()->user()->hasRole('administrator') && ($roles == ['disciple'] || $roles == ['teacher'])) {
-
-            } else {
-                return $this->ResponseError('У вас не достаточно прав для создания пользователя');
-            }
-        }
+        $patronymic = trim(strip_tags(request()->post('patronymic')));
 
         $user = User::create([
             'surname' => $surname,
@@ -140,7 +143,7 @@ class UserController extends RestController
             'phone' => $phone,
         ]);
 
-        $user->setRole($role);
+        $user->setRoles($roles);
 
         return $this->list($role);
     }
@@ -211,6 +214,7 @@ class UserController extends RestController
                 'name' => $user->name,
                 'patronymic' => $user->patronymic,
                 'entry_code' => $user->entry_code ? env('APP_URL') . '/login/' . $user->entry_code : '',
+                'deleted_at' => $user->deleted_at,
                 'roles' => $user->roles->map(function (Role $role) {
                     return ['name' => $role->name, 'display_name' => $role->display_name];
                 }),
@@ -301,6 +305,9 @@ class UserController extends RestController
         }
         $userF = User::wherePhone($phone)->first();
         if (!empty($userF) && $userF->id != $user->id) {
+            if (!!$user->deleted_at) {
+                return $this->ResponseError('Пользователь с таким телефоном удален. Для восстановления обратитесь к администратору.');
+            }
             return $this->ResponseError('Пользователь с таким телефоном уже зарегистрирован');
         }
 

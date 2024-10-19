@@ -32,7 +32,7 @@ Route::namespace('App\Http\Controllers')->group(function () {
             });
 
             // Суперадмин
-            Route::group(['middleware' => ['role:superadmin']], function () {
+            Route::group(['middleware' => ['role:superadmin|administrator']], function () {
                 Route::get('/users/roles', 'roles'); // список всех ролей с описанием (id, name, display_name, description)
                 Route::post('/users/create', 'create'); // создать пользователя ($phone, $roles)
                 Route::post('/users/delete', 'delete'); // удалить пользователя

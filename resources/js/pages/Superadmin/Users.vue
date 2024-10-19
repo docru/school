@@ -76,6 +76,7 @@
                                 mdi-pencil
                             </v-icon>
                             <v-icon
+                                v-if="!item.deleted_at"
                                 size="small"
                                 @click.stop="openDel=true; currentItem = item">
                                 mdi-delete
@@ -106,11 +107,16 @@
                         {{ item.surname }} {{ item.name }} {{ item.patronymic }}
                     </template>
                     <template v-slot:item.link="{item}">
-                        <Code v-if="item.entry_code" :code="item.entry_code"/>
-                        <div v-else @click="actUserCreateLink({ uid:item.id })">сгенерить ключ</div>
+                        <template v-if="!item.deleted_at">
+                            <Code v-if="item.entry_code" :code="item.entry_code"/>
+                            <div v-else @click="actUserCreateLink({ uid:item.id })">сгенерить ключ</div>
+                        </template>
                     </template>
                     <template v-slot:item.entrance="{item}">
-                        <v-chip :color="item.authorized_at ? 'green': 'grey'">
+                        <v-chip v-if="!!item.deleted_at">
+                            удален
+                        </v-chip>
+                        <v-chip v-else :color="item.authorized_at ? 'green': 'grey'">
                             {{ item.authorized_at ? item.authorized_at : 'не заходил' }}
                         </v-chip>
                     </template>
@@ -321,14 +327,14 @@ export default {
         canCreate() {
             return !!this.getRoles.filter((el) => el.value).length && !!this.phone && !!this.surname && !!this.name;
         },
-        editRoles:{
-            get(){
-                return this.currentItem.roles.map(i=>i.name);
+        editRoles: {
+            get() {
+                return this.currentItem.roles.map(i => i.name);
             },
-            set(val){
+            set(val) {
                 let roles = [];
                 for (const k in this.getRoles) {
-                    if(val.indexOf(this.getRoles[k].name) > -1){
+                    if (val.indexOf(this.getRoles[k].name) > -1) {
                         roles.push(this.getRoles[k]);
                     }
                 }

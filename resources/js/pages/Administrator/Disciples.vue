@@ -33,6 +33,7 @@
                                 mdi-pencil
                             </v-icon>
                             <v-icon
+                                v-if="!item.deleted_at"
                                 size="small"
                                 @click.stop="openDel = true; currentItem = item"
                             >
@@ -61,19 +62,21 @@
                         {{ item.surname }} {{ item.name }} {{ item.patronymic }}
                     </template>
                     <template v-slot:item.link="{item}">
-                        <Code
-                            v-if="item.entry_code"
-                            :code="item.entry_code"
-                        />
-                        <div v-else @click="actUserCreateLink({ uid:item.id })"> сгенерить ключ</div>
+                        <template v-if="!item.deleted_at">
+                            <Code
+                                v-if="item.entry_code"
+                                :code="item.entry_code"
+                            />
+                            <div v-else @click="actUserCreateLink({ uid:item.id })"> сгенерить ключ</div>
+                        </template>
                     </template>
                     <template v-slot:item.entrance="{item}">
-                        <v-tooltip :text="item.authorized_at ? item.authorized_at : 'не заходил'">
+                        <v-chip v-if="!!item.deleted_at">удален</v-chip>
+                        <v-tooltip v-else :text="item.authorized_at ? item.authorized_at : 'не заходил'">
                             <template v-slot:activator="{ props }">
                                 <v-icon v-bind="props" :color="item.authorized_at ? 'green': 'grey'">mdi-circle</v-icon>
                             </template>
                         </v-tooltip>
-
                     </template>
 
                 </v-data-table>
@@ -175,15 +178,15 @@ export default {
         },
         async editUser() {
             let res = await this.actUserSave(this.currentItem);
-            if(res !== false){
+            if (res !== false) {
                 this.openEdit = false;
                 this.currentItem = null;
                 await this.actReqwestUsers({role: 'disciple'});
             }
         },
-        deleteItem() {
-            this.actUserDelete(this.currentItem.id);
-            this.actReqwestUsers({role: 'disciple'});
+        async deleteItem() {
+            await this.actUserDelete(this.currentItem.id).then(() => this.openDel = false);
+            await this.actReqwestUsers({role: 'disciple'});
         },
         ...mapActions('users', ['actReqwestUsers', 'actUserCreateLink', 'actUserDelete', 'actUserSave']),
     },

@@ -157,9 +157,8 @@ class User extends Authenticatable implements LaratrustUser
             return $role->name;
         })->toArray();
 
-        $newRoles = collect($roles)->map(function ($role) {
-            return $role['name'];
-        })->intersect($existsRoles)->toArray();
+//        dd($roles);
+        $newRoles = collect($roles)->intersect($existsRoles)->toArray();
 
         $this->syncRoles($newRoles);
     }
