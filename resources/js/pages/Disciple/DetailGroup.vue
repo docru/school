@@ -29,7 +29,7 @@
               :hide-default-footer="true"
               disable-pagination
           >
-
+            <template #bottom></template>
             <template v-slot:item.order="{item}">
              <span class="tw-text-[12px]">{{ groupSchoolDay(item.id, 'date') ?? '-' }}</span>
             </template>
@@ -191,7 +191,7 @@ export default {
       return this.groupSchoolDays?.[id]?.[field];
     },
     attendance(groupSchoolDayId) {
-      return this.attendances.indexOf(groupSchoolDayId) > -1;
+      return [this.attendances].indexOf(groupSchoolDayId) > -1;
     },
   },
   created() {

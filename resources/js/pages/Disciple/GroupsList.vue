@@ -13,6 +13,7 @@
             :loading="load"
             @click:row="go"
         >
+          <template #bottom></template>
           <template #item="{ item,columns }" v-if="$vuetify.display.name === 'sm'"  >
             <div @click="goFun(item.group.id)" style="border: 1px dashed #c7c7d1; padding: 5px; cursor: pointer;">
                 {{item.group.name}} / {{item.course.name}}

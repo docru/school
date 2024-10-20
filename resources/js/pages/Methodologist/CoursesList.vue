@@ -12,6 +12,7 @@
                       :loading="getLoad"
                       @click:row="goCourse"
         >
+
             <template v-slot:item.actions="{ item }">
                 <v-icon
                     class="me-2"

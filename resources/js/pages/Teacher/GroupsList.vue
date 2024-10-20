@@ -12,6 +12,7 @@
             :loading="load"
             @click:row="go"
         >
+          <template #bottom></template>
             <template v-slot:item.name="{item}">
                 {{ item.group.name }}
             </template>
