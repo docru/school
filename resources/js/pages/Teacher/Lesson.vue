@@ -24,6 +24,7 @@ export default {
 
 <template>
 <div class="">
+  <h1>{{lesson?.lesson?.name}}</h1>
   <v-tabs
       v-model="tab"
       bg-color="primary"

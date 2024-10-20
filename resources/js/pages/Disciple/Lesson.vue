@@ -25,6 +25,7 @@ export default {
 
 <template>
 <!--  {{ $route.params }} {{ lesson }} <br>-->
+  <h1>{{lesson?.lesson?.name}}</h1>
   <div class="tw-flex">
 <!--    <MdCatalog :editorId="id" :scrollElement="scrollElement"-->
 <!--                     style="position: fixed; "-->

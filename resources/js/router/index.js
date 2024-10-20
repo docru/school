@@ -91,7 +91,7 @@ const routes = [
             breadcrumbs:[
                 {title:'Главная',routName:'Home'},
                 {title:'Курсы',routName:'TeacherGroupsList'},
-                {title:'Уроки'},
+                {title:'Уроки',href:'/teacher/group',params:'groupId'},
                 {title:'Урок'},
 
             ]
@@ -134,7 +134,7 @@ const routes = [
             breadcrumbs:[
                 {title:'Главная',routName:'Home'},
                 {title:'Курсы',routName:'DiscipleGroupsList'},
-                {title:'Уроки'},
+                {title:'Уроки',href:'/disciple/group',params:'groupId'},
                 {title:'Урок'},
 
             ]
