@@ -122,9 +122,9 @@
                     </template>
 
                     <template #item="{ item,columns }" v-if="$vuetify.display.name === 'sm'">
-                        <div class="tw-border tw-my-2 tw-rounded-md tw-border-[gray] tw-p-1 tw-w-[248px]">
+                        <div class="tw-border tw-my-3 tw-rounded-md tw-border-[#ada5a57d] tw-p-2 ">
 
-                            <div>
+                            <div class="tw-text-[16px] tw-font-[500]">
                                 {{ item.name }} {{ item.patronymic }} {{ item.surname }}
                             </div>
                             <v-divider></v-divider>
@@ -134,8 +134,9 @@
                                 </div>
 
                             </div>
-                            <div>
-                                <Code v-if="item.entry_code" :code="item.entry_code"/>
+                            <div class="tw-my-2">
+                              <Code v-if="item.entry_code" :code="item.entry_code"/>
+                              <div v-else @click="actUserCreateLink({ uid:item.id })">сгенерить ключ</div>
                             </div>
 
                             <div>

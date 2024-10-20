@@ -1,6 +1,6 @@
 <template>
-    <v-card v-if="getUsers">
-        <v-card-text>
+    <div v-if="getUsers">
+        <div>
             <div
                 class="tw-flex tw-flex-col md:tw-flex-row  tw-gap-[15px] tw-mb-5 tw-justify-center"
             >
@@ -12,11 +12,11 @@
                 </div>
 
                 <v-btn class="tw-mt-2" color="primary" :disabled="!canCreate" @click="create">
-                    Создать нового пользователя
+                    {{$vuetify.display.name === 'sm' ? 'Создать':'Создать нового пользователя'}}
                 </v-btn>
             </div>
             <v-divider class="tw-my-3" color="blue"/>
-            <div v-if="getUsers">
+            <div v-if="getUsers && $vuetify.display.name !== 'sm'">
                 <div class="tw-flex tw-flex-col md:tw-flex-row tw-justify-between">
                     <div class="tw-w-full">
                         <v-text-field
@@ -54,8 +54,8 @@
 
                 </v-data-table>
             </div>
-        </v-card-text>
-    </v-card>
+        </div>
+    </div>
     <Loading v-else/>
 </template>
 
