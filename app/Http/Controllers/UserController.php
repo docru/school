@@ -130,7 +130,7 @@ class UserController extends RestController
         if (empty($surname)) {
             return $this->ResponseError('Не задана фамилия');
         }
-        $name = trim(strip_tags(request()->post('surname')));
+        $name = trim(strip_tags(request()->post('name')));
         if (empty($name)) {
             return $this->ResponseError('Не задано имя');
         }

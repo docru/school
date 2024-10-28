@@ -336,17 +336,17 @@
 
   <v-dialog v-model="dialogDate" width="400">
     <v-card>
-      <v-card-title>
+      <v-card-title class="tw-pb-0">
         <div class="tw-w-full tw-flex tw-justify-between ">
           <h6>Добавить учебный день</h6>
           <v-icon @click="dialogDate=false">mdi-close</v-icon>
         </div>
-        <v-card-text>
+        <v-card-text class="tw-py-0">
           <v-date-picker
               v-model="newDate"
               title=""
               hide-header
-
+              locale="ru"
           />
         </v-card-text>
       </v-card-title>
