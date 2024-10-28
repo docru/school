@@ -147,7 +147,7 @@ class User extends Authenticatable implements LaratrustUser
     }
 
     /**
-     * Установит роли
+     * Установить роли
      * @param array $roles
      * @return void
      */
@@ -157,8 +157,11 @@ class User extends Authenticatable implements LaratrustUser
             return $role->name;
         })->toArray();
 
-//        dd($roles);
-        $newRoles = collect($roles)->intersect($existsRoles)->toArray();
+        $newRoles = collect($roles)
+            ->map(function ($role) {
+                return $role['name'];
+            })
+            ->intersect($existsRoles)->toArray();
 
         $this->syncRoles($newRoles);
     }
