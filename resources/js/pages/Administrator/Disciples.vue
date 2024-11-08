@@ -61,6 +61,24 @@
                     <template v-slot:item.surname="{item}">
                         {{ item.surname }} {{ item.name }} {{ item.patronymic }}
                     </template>
+                    <template v-slot:item.lesson="{item}">
+                        <div class=""
+                             v-for="a in attendance(item.id)"
+                             :key="a.uid + '_' + a.gid"
+                        >
+                            <v-checkbox
+                                color="green"
+                                hide-details
+                                density="compact"
+                                :label="a.lable"
+                                style="text-align: center"
+                                v-model="attendancesAll"
+                                :disabled="a.status_day !== 'open'"
+                                :value="a.uid + '_' + a.gid"
+                                @change="setAttendance({groupSchoolDayId: a.gsd_id, userId: a.uid})"
+                            />
+                        </div>
+                    </template>
                     <template v-slot:item.link="{item}">
                         <template v-if="!item.deleted_at">
                             <Code
@@ -131,7 +149,7 @@ import ICode from "../../components/icon/ICode.vue";
 import IVast from "../../components/icon/IVast.vue";
 import IModeration from "../../components/icon/IModeration.vue";
 import IMore from "../../components/icon/IMore.vue";
-import {th} from "vuetify/locale";
+import {format} from "date-fns";
 
 export default {
     name: "Disciples",
@@ -152,12 +170,24 @@ export default {
                 {title: 'Вход', key: 'entrance'},
                 {title: 'ФИО', key: 'surname'},
                 {title: 'Телефон', key: 'phone'},
+                {title: 'Урок', key: 'lesson'},
                 {title: 'link', sortable: false, key: 'link'},
                 {title: '', align: 'end', sortable: false, key: 'actions'},
             ],
         }
     },
     methods: {
+        attendance(uid) {
+            let res = [];
+            for (const k in this.getAttendancesAll) {
+                let a = this.getAttendancesAll[k];
+                if (a.uid === uid) {
+                    a.lable = a.group_name + '(' + format(new Date(a.date), 'MM.dd') + ')';
+                    res.push(a);
+                }
+            }
+            return res;
+        },
         openEditF(item) {
             if (!item?.id) {
                 alert('Не определен пользователь')
@@ -176,21 +206,49 @@ export default {
             this.openEdit = false
             this.currentItem = null
         },
+        async setAttendance(data) {
+            await this.actSetAttendance(data);
+            await this.actRequestAttendancesAll();
+        },
         async editUser() {
             let res = await this.actUserSave(this.currentItem);
             if (res !== false) {
                 this.openEdit = false;
                 this.currentItem = null;
-                await this.actReqwestUsers({role: 'disciple'});
+                await this.getDisciples();
             }
         },
         async deleteItem() {
             await this.actUserDelete(this.currentItem.id).then(() => this.openDel = false);
-            await this.actReqwestUsers({role: 'disciple'});
+            await this.getDisciples();
         },
-        ...mapActions('users', ['actReqwestUsers', 'actUserCreateLink', 'actUserDelete', 'actUserSave']),
+        async getDisciples() {
+            await this.actReqwestUsers({role: 'disciple'});
+            await this.actRequestAttendancesAll();
+        },
+        ...mapActions('users', [
+            'actReqwestUsers',
+            'actUserCreateLink',
+            'actUserDelete',
+            'actUserSave',
+        ]),
+        ...mapActions('administrator', ['actRequestAttendancesAll', 'actSetAttendance']),
     },
     computed: {
+        attendancesAll: {
+            get() {
+                let res = [];
+                for (const k in this.getAttendancesAll) {
+                    let a = this.getAttendancesAll[k];
+                    if (a.attendance) {
+                        res.push(a.uid + '_' + a.gid);
+                    }
+                }
+                return res;
+            },
+            set() {
+            },
+        },
         searchItems() {
             if (!this.search) {
                 return this.getUsers;
@@ -200,10 +258,11 @@ export default {
                 return el.phone?.search(this.search) > -1 || el.surname?.search(this.search) > -1;
             });
         },
-        ...mapGetters('users', ['getUsers', 'getLoad'])
+        ...mapGetters('users', ['getUsers', 'getLoad']),
+        ...mapGetters('administrator', ['getAttendancesAll']),
     },
     created() {
-        this.actReqwestUsers({role: 'disciple'});
+        this.getDisciples();
     }
 }
 </script>

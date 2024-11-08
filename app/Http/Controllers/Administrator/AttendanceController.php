@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Administrator;
 
+use App\Helpers\DBRequest;
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
 use App\Models\Group;
@@ -41,6 +42,12 @@ class AttendanceController extends Controller
             $attendance->delete();
         }
         return $this->index($group);
+    }
+
+    public function all()
+    {
+        $data = DBRequest::select('disciples_attendances');
+        return $this->ResponseOk($data);
     }
 
 }

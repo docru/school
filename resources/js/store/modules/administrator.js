@@ -8,6 +8,7 @@ const state = {
     teachers: [],
     disciples: [],
     attendances: {},
+    attendancesAll: {},
     load: false,
 }
 const getters = {
@@ -31,6 +32,7 @@ const getters = {
     getTeachers: (state) => state.teachers ?? [],
     getDisciples: (state) => state.disciples ?? [],
     getAttendances: (state) => state.attendances ?? {},
+    getAttendancesAll: (state) => state.attendancesAll ?? {},
     getLoad: (state) => state.load,
 }
 const mutations = {
@@ -47,6 +49,7 @@ const mutations = {
         state.disciples = payload.disciples;
     },
     setAttendances: (state, payload) => state.attendances = payload,
+    setAttendancesAll: (state, payload) => state.attendancesAll = payload,
 }
 
 
@@ -104,6 +107,9 @@ const actions = {
     },
 
     // посещение
+    async actRequestAttendancesAll({state, commit}, params) {
+        return await vuexGet(`/administrator/attendances`, {}, state, commit, 'setAttendancesAll');
+    },
     async actRequestAttendances({state, commit}, params) {
         return await vuexGet(`/administrator/attendance/${params.groupId}`, {}, state, commit, 'setAttendances');
     },

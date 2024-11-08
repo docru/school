@@ -21,6 +21,7 @@
     "@kangc/v-md-editor": "^2.3.18",
     "@mdi/font": "^7.3.67",
     "@vitejs/plugin-vue": "^5.0.4",
+    "date-fns": "^4.1.0",
     "md-editor-v3": "^4.17.0",
     "vue": "^3.4.21",
     "vue-router": "^4.3.0",

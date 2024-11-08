@@ -92,6 +92,7 @@ Route::namespace('App\Http\Controllers')->group(function () {
 
             // посещение
             Route::controller(AdministratorAttendanceController::class)->group(function () {
+                Route::get('/attendances', 'all'); // посещение группы
                 Route::get('/attendance/{group}', 'index'); // посещение группы
                 Route::post('/attendance/{groupSchoolDay}/set/{user}', 'set'); // отметить посещение ученика
             });
