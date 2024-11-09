@@ -349,6 +349,9 @@
                 <v-card-text class="tw-py-0">
                     <v-date-picker
                         v-model="newDate"
+                        show-adjacent-months
+                        :weekdays="[1, 2, 3, 4, 5, 6, 0]"
+                        weeks-in-month="dynamic"
                         title=""
                         hide-header
                         locale="ru"
@@ -374,6 +377,9 @@
                 <v-card-text class="tw-py-0">
                     <v-date-picker
                         v-model="editDate"
+                        show-adjacent-months
+                        :weekdays="[1, 2, 3, 4, 5, 6, 0]"
+                        weeks-in-month="dynamic"
                         title=""
                         hide-header
                         locale="ru"
@@ -645,6 +651,14 @@ export default {
 
 .v-calendar-weekly__day-alldayevents-container {
     min-height: 0;
+}
+
+.v-date-picker-month{
+    padding: 0px 12px !important;
+}
+
+.v-date-picker-month__day{
+    height: 30px !important;
 }
 
 </style>
