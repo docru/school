@@ -105,6 +105,10 @@ const actions = {
         let url = `/administrator/groups/school-day/${params.groupId}/close`;
         return await vuexPost(url, params, state, commit, 'setGroup');
     },
+    async actChangeGroupSchoolDay({state, commit}, params) {
+        let url = `/administrator/groups/school-day/${params.groupId}/${params.dayId}/change`;
+        return await vuexPost(url, params, state, commit, 'setGroup');
+    },
 
     // посещение
     async actRequestAttendancesAll({state, commit}, params) {

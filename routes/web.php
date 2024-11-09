@@ -88,6 +88,7 @@ Route::namespace('App\Http\Controllers')->group(function () {
             Route::controller(AdministratorGroupController::class)->group(function () {
                 Route::post('/groups/school-day/{group}/add', 'addGroupsSchoolDay');
                 Route::post('/groups/school-day/{group}/close', 'closeGroupsSchoolDay');
+                Route::post('/groups/school-day/{group}/{groupSchoolDay}/change', 'changeGroupsSchoolDay');
             });
 
             // посещение

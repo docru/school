@@ -134,4 +134,19 @@ class GroupController extends Controller
         return $this->show($group);
     }
 
+    public function changeGroupsSchoolDay(Request $request, Group $group, GroupSchoolDay $groupSchoolDay)
+    {
+        $date = date('Y-m-d', strtotime($request->post('date')));
+
+        $find = GroupSchoolDay::whereGroupId($group->id)->whereDate('date', $date)->first();
+        if(!empty($find) && $find->id !== $groupSchoolDay->id){
+            return $this->ResponseError('Эта дата уже задана для группы');
+        }
+
+        $groupSchoolDay->date = $date;
+        $groupSchoolDay->save();
+
+        return $this->show($group);
+    }
+
 }
