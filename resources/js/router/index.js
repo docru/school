@@ -19,16 +19,38 @@ const routes = [
         path: '/administrator/disciples',
         name: 'AdministratorDisciples',
         component: () => import('../pages/Administrator/Disciples.vue'),
+        meta:{
+            title: 'Группа',
+            breadcrumbs:[
+                {title:'Главная',routName:'Home'},
+                {title:'Ученики'},
+            ]
+        }
     },
     {
         path: '/administrator/groups',
         name: 'AdministratorGroupsList',
         component: () => import('../pages/Administrator/GroupsList.vue'),
+        meta:{
+            title: 'Группа',
+            breadcrumbs:[
+                {title:'Главная',routName:'Home'},
+                {title:'Группы'},
+            ]
+        }
     },
     {
         path: '/administrator/group/:id',
         name: 'AdministratorDetailGroup',
         component: () => import('../pages/Administrator/DetailGroup.vue'),
+        meta:{
+            title: 'Группа',
+            breadcrumbs:[
+                {title:'Главная',routName:'Home'},
+                {title:'Группы',routName:'AdministratorGroupsList'},
+                {title:'Группа'},
+            ]
+        }
     },
 
     // методист

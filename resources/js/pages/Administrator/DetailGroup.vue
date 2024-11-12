@@ -2,7 +2,8 @@
     <v-card class="tw-p-[5px] md:tw-p-[10px]">
         <div
             class="tw-flex tw-w-[280px] md:tw-w-full tw-flex-col md:tw-flex-row tw-justify-start md:tw-justify-between tw-gap-2 md:tw-gap-0">
-            <div class="tw-text-[18px] tw-font-bold">Группа "{{ getGroup.name }}". <br> Курс "{{ getCourse.name }}"
+            <div class="tw-text-[18px] tw-font-bold">
+                Группа "{{ getGroup.name }}". Курс "{{ getCourse.name }}"
             </div>
 
             <v-btn
@@ -76,7 +77,6 @@
                 v-if="!finishedCourse"
             ></v-btn>
         </div>
-
 
         <v-data-table
             :items-per-page="-1"
@@ -159,64 +159,8 @@
                         </v-expansion-panel-text>
                     </v-expansion-panel>
                 </v-expansion-panels>
-
-                <!--        <div class="tw-my-[10px] tw-border tw-border-[#e3e0e0] tw-p-2 tw-rounded-md tw-border-[1px]" >-->
-                <!--          <div class="tw-flex">-->
-                <!--            <div class="tw-text-[16px] tw-font-[500]">{{ item.name }}</div>-->
-                <!--            <v-btn-->
-                <!--                class="ml-2"-->
-                <!--                color="red"-->
-                <!--                icon="mdi-close"-->
-                <!--                @click="removeDisciple(item.id)"-->
-                <!--                variant="text"-->
-                <!--                density="compact"-->
-                <!--                size="small"-->
-                <!--                v-if="!finishedCourse"-->
-                <!--            ></v-btn>-->
-                <!--          </div>-->
-
-
-                <!--          <div v-for="(day,ind) in headersNotEmpty"   @click="actSetAttendance({groupSchoolDayId: groupsSchoolDays[day.id].id, userId: item.id})">-->
-
-                <!--            <div class="tw-flex tw-gap-1 tw-items-center tw-my-1" :class="{ activeSlot:groupsSchoolDays[day.id]?.status === 'open' }" v-if="day">-->
-                <!--              &lt;!&ndash;                {{day}}&ndash;&gt;-->
-                <!--              <div>{{ columns[ind].title }}</div>-->
-                <!--              <v-tooltip location="top">-->
-                <!--                <template v-slot:activator="{ props }">-->
-                <!--                  <v-icon v-bind="props" color="grey" size="small">mdi-book-open-outline</v-icon>-->
-                <!--                </template>-->
-                <!--                <span v-html="lessons(day.lessons)"></span>-->
-                <!--              </v-tooltip>-->
-                <!--              <div-->
-                <!--                  v-if="groupsSchoolDays[day.id]?.date"-->
-                <!--                  :style="{ color: groupsSchoolDays[day.id].status !== 'open' ? 'grey' :'black', }"-->
-                <!--              >-->
-                <!--                {{ groupsSchoolDays[day.id].date }}-->
-                <!--              </div>-->
-                <!--              <div v-else>?</div>-->
-
-                <!--              <div v-if="(gsd=groupsSchoolDays[day.id])">-->
-                <!--                <div-->
-                <!--                    :class="{ activeSlot:gsd?.status === 'open' }"-->
-                <!--                    v-if="!expelledDay(item, day)"-->
-                <!--                >-->
-                <!--                  <v-checkbox-->
-                <!--                      color="green"-->
-                <!--                      hide-details-->
-                <!--                      density="compact"-->
-                <!--                      style="text-align: center"-->
-                <!--                      v-model="attendance"-->
-                <!--                      :disabled="gsd.status !== 'open' || item.status == 'expelled'"-->
-                <!--                      :value="gsd.id + '_' + item.id"-->
-                <!--                      @change="actSetAttendance({groupSchoolDayId: groupsSchoolDays[day.id].id, userId: item.id})"-->
-                <!--                  />-->
-                <!--                </div>-->
-                <!--                <div v-else>-</div>-->
-                <!--              </div>-->
-                <!--            </div>-->
-                <!--          </div>-->
-                <!--        </div>-->
             </template>
+
             <template v-slot:headers v-if="$vuetify.display.name === 'sm'"></template>
 
             <template v-slot:[`header.name`]="{column}" v-for="(day,index) in headersNotEmpty"
@@ -281,32 +225,50 @@
                 </template>
             </template>
 
-            <template v-slot:item.name="{item}">
-                <div v-if="item.status != 'expelled'">
-                    {{ item.name }}
-                    <v-btn
-                        class="ml-5"
-                        color="red"
-                        icon="mdi-account-remove-outline"
-                        @click="removeDisciple(item.id)"
-                        variant="text"
-                        density="compact"
-                        size="small"
-                        v-if="!finishedCourse"
-                    ></v-btn>
+            <template v-slot:item.name="{item, index}">
+                <div v-if="item.status != 'expelled'" class="tw-flex tw-place-content-between tw-items-center">
+                    <div class="tw-justify-self-start tw-text-left">
+                        {{ index + 1 }}. {{ item.name }}
+                        <Code
+                            v-if="item.phone"
+                            :code="'+' + item.phone"
+                            density="compact"
+                        />
+                    </div>
+                    <div class="tw-justify-self-end tw-mr-4">
+                        <v-btn
+                            class="ml-5"
+                            color="red"
+                            icon="mdi-account-remove-outline"
+                            @click="removeDisciple(item.id)"
+                            variant="text"
+                            density="compact"
+                            size="small"
+                            v-if="!finishedCourse"
+                        ></v-btn>
+                    </div>
                 </div>
-                <div class="tw-text-gray" v-else>
-                    {{ item.name }}
-                    <v-btn
-                        class="ml-5"
-                        color="green"
-                        icon="mdi-account-plus"
-                        @click="restoreDisciple(item.id)"
-                        variant="text"
-                        density="compact"
-                        size="small"
-                        v-if="!finishedCourse"
-                    ></v-btn>
+                <div class="tw-text-gray tw-flex tw-place-content-between tw-items-center" v-else>
+                    <div class="tw-justify-self-start tw-text-left">
+                        {{ index + 1 }}. {{ item.name }}
+                        <Code
+                            v-if="item.phone"
+                            :code="'+' + item.phone"
+                            density="compact"
+                        />
+                    </div>
+                    <div class="tw-justify-self-end tw-mr-4">
+                        <v-btn
+                            class="ml-5"
+                            color="green"
+                            icon="mdi-account-plus"
+                            @click="restoreDisciple(item.id)"
+                            variant="text"
+                            density="compact"
+                            size="small"
+                            v-if="!finishedCourse"
+                        ></v-btn>
+                    </div>
                 </div>
 
             </template>
@@ -399,10 +361,11 @@
 <script>
 import {mapActions, mapGetters} from "vuex";
 import UserChoose from './UserChoose.vue';
+import Code from "../../components/Code.vue";
 
 export default {
     name: "DetailGroup",
-    components: {UserChoose,},
+    components: {Code, UserChoose,},
     data() {
         return {
             dialogDisciple: false,
@@ -477,8 +440,14 @@ export default {
             let disciples = [];
             for (const d in this.getDisciples) {
                 let disciple = this.getDisciples[d];
-                let name = (disciple.surname ?? '') + ' ' + (disciple.name ?? '') + ' [' + disciple.phone + ']';
-                disciples.push({id: disciple.id, name, status: disciple.status, expelled_at: disciple.expelled_at});
+                let name = (disciple.surname ?? '') + ' ' + (disciple.name ?? '');
+                disciples.push({
+                    id: disciple.id,
+                    name,
+                    phone: disciple.phone,
+                    status: disciple.status,
+                    expelled_at: disciple.expelled_at,
+                });
             }
             return disciples;
         },
@@ -653,23 +622,12 @@ export default {
     min-height: 0;
 }
 
-.v-date-picker-month{
+.v-date-picker-month {
     padding: 0px 12px !important;
 }
 
-.v-date-picker-month__day{
+.v-date-picker-month__day {
     height: 30px !important;
 }
 
 </style>
-
-<!--
-// Добавить очередной день
-// Список уроков в дне
-// Добавить учителя
-// Отобразиь список учителей
-// Удалить учителя
-// Отметить посещение
-//Удалить/отчислить ученика из группы (если посетил хоть один урок)
-отображение отчисленного ученика
--->
