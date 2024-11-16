@@ -85,6 +85,7 @@
             fixed-header
             density="compact"
             :items="disciples"
+            items-per-page="100"
             :headers="headers"
             :hide-default-footer="true"
             disable-pagination

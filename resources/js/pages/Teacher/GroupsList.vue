@@ -9,10 +9,11 @@
             v-if="groups.length"
             :headers="headers"
             :items="groups || []"
+            items-per-page="100"
             :loading="load"
             @click:row="go"
         >
-          <template #bottom></template>
+            <template #bottom></template>
             <template v-slot:item.name="{item}">
                 {{ item.group.name }}
             </template>

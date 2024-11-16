@@ -81,12 +81,16 @@ class GroupController extends Controller
         }
 
         // посещаемость (присутствовал/отсутствовал/?)
-        $gsd = $groupsSchoolDay->keys()->toArray();
+        $csd = $groupsSchoolDay->map(function ($item) {
+            return $item['id'];
+        })->toArray();
+
+
         $attendances = Attendance::whereUserId(auth()->user()->id)->get('group_school_day_id')
-            ->filter(function ($item) use ($gsd) {
-                return in_array($item->group_school_day_id, $gsd);
+            ->filter(function ($item) use ($csd) {
+                return in_array($item->group_school_day_id, $csd);
             })
-            ->map(function ($item) {
+            ->map(function (Attendance $item) {
                 return $item->group_school_day_id;
             })
             ->toArray();

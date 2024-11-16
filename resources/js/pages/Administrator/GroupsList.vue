@@ -10,6 +10,7 @@
             v-if="courses.length"
             :headers="headers"
             :items="groups || []"
+            items-per-page="100"
             :loading="load"
             @click:row="go"
         >
