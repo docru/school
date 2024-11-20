@@ -153,7 +153,7 @@ export default {
                             Не выбран урок
                         </v-card-text>
                     </v-card>
-                    <v-card v-else hover elevation="2" style="padding: 5px 10px; margin: 15px 0">
+                    <v-card v-else hover elevation="2" style="padding: 5px 10px;">
                         <v-card-title>
                             <div class="tw-flex">
                                 <div>{{ curLesson.name }}</div>
@@ -162,6 +162,7 @@ export default {
                         <v-tabs
                             v-model="tab"
                             bg-color="primary"
+                            density="compact"
                         >
                             <v-tab value="methodical">План урока</v-tab>
                             <v-tab value="abstract">Конспект</v-tab>

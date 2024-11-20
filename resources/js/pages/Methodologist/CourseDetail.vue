@@ -29,7 +29,7 @@
                 </v-tabs>
 
             </v-card-title>
-            <v-divider></v-divider>
+            <v-divider class="tw-my-0" />
             <v-card-text>
 
                 <v-window v-model="tab">

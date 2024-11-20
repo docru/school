@@ -210,7 +210,6 @@ export default {
                                             <div class="lesson" :data-lesson-id="element.id">
                                                 <div class="tw-flex tw-justify-between">
                                                     <div>{{ parseInt(element.school_day_order) + 1 }} урок: {{ element.name }}</div>
-                                                    {{element}}
                                                     <v-icon
                                                         size="small"
                                                         color="grey"
