@@ -209,7 +209,7 @@
                     <div
                         :class="{ activeSlot:gsd?.status === 'open' }"
                         v-if="!expelledDay(item, day)"
-
+                        @dblclick="changeOld({groupSchoolDayId: groupsSchoolDays[day.id].id, userId: item.id})"
                     >
                         <v-checkbox
                             color="green"
@@ -504,6 +504,11 @@ export default {
             'actSetAttendance',
             'actReqwestCourse',
         ]),
+        changeOld(data) {
+            if (confirm('Изменить посещение за прошедшую дату?')) {
+                this.actSetAttendance(data);
+            }
+        },
         async addSchoolDay() {
             this.dialogDateAdd = false;
             await this.actAddGroupSchoolDay({groupId: this.getGroup.id, date: this.newDate});

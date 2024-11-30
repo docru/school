@@ -48,10 +48,10 @@
 
                                     <template v-if="groupSchoolDay(item.id, 'date')">
                                         <span v-if="attendance(item.id)" class="tw-text-[12px]">
-                                          Присутствовал
+                                          Присутств.
                                         </span>
                                         <span v-else class="tw-text-[12px]">
-                                          Отсутствовал
+                                          Отсутств.
                                         </span>
                                     </template>
                                 </div>
@@ -98,10 +98,10 @@
                         <template v-slot:item.attendance="{item}">
                             <template v-if="groupSchoolDay(item.id, 'date')">
                                 <v-chip v-if="attendance(item.id)" color="secondary" density="compact">
-                                    Присутствовал
+                                    Присутств.
                                 </v-chip>
                                 <v-chip v-else color="red" density="compact">
-                                    Отсутствовал
+                                    Отсутств.
                                 </v-chip>
                             </template>
                         </template>

@@ -12,22 +12,12 @@
                 </div>
 
                 <v-btn class="tw-mt-2" color="primary" :disabled="!canCreate" @click="create">
-                    {{$vuetify.display.name === 'sm' ? 'Создать':'Создать нового пользователя'}}
+                    {{ $vuetify.display.name === 'sm' ? 'Создать' : 'Создать нового пользователя' }}
                 </v-btn>
             </div>
             <v-divider class="tw-my-3" color="blue"/>
-            <div v-if="getUsers && $vuetify.display.name !== 'sm'">
-                <div class="tw-flex tw-flex-col md:tw-flex-row tw-justify-between">
-                    <div class="tw-w-full">
-                        <v-text-field
-                            clearable
-                            persistent-clear
-                            label="Поиск по фамилии/телефону"
-                            v-model="search"
-                        ></v-text-field>
-                    </div>
-                </div>
 
+            <div v-if="getUsers">
                 <v-data-table
                     @click:row="dialog=!dialog"
                     :headers="usersHeaders"
@@ -64,6 +54,7 @@ import {mapActions, mapGetters} from "vuex";
 import Code from "../../components/Code.vue";
 import Loading from "../../components/Loading.vue";
 import ICode from "../../components/icon/ICode.vue";
+import normalize from "../../utils/normalize.js";
 
 export default {
     name: "UserChoose",
@@ -83,30 +74,31 @@ export default {
             name: '',
             patronymic: '',
             phone: '',
-            usersHeaders: [
-                {title: 'ФИО', key: 'name'},
-                {title: 'Телефон', key: 'phone'},
-                {title: 'link', sortable: false, key: 'link'},
-            ],
         }
     },
     methods: {
         ...mapActions('users', ['actUserCreateLink', 'actReqwestUsers', 'actUserCreate']),
         ...mapActions('administrator', ['actJoinUserToGroup', 'actRequestGroupUsers']),
         create() {
+            this.phone = normalize.phone(this.phone);
             this.actUserCreate({
-                surname: this.surname,
-                name: this.name,
-                patronymic: this.patronymic,
+                surname: normalize.name(this.surname),
+                name: normalize.name(this.name),
+                patronymic: normalize.name(this.patronymic),
                 phone: this.phone,
                 role: this.role
             }).then((res) => {
-                if (res) {
-                    this.search = this.phone.replace(/^8/, 7);
-                    this.surname = '';
-                    this.name = '';
-                    this.patronymic = '';
-                    this.phone = '';
+                if (res?.users) {
+                    for (const i in res.users) {
+                        let user = res.users[i];
+                        if (user.phone == this.phone) {
+                            this.surname = '';
+                            this.name = '';
+                            this.patronymic = '';
+                            this.phone = '';
+                            this.choose(user.id);
+                        }
+                    }
                 }
             });
         },
@@ -118,16 +110,43 @@ export default {
     computed: {
         ...mapGetters('users', ['getUsers', 'getLoad']),
         searchItems() {
-            if (!this.search) {
+            let surname = this.surname.trim().toLowerCase();
+            let phone = normalize.phone(this.phone);
+            if (surname && phone) {
+                return this.getUsers.filter((el) => {
+                    return el.phone?.search(phone) > -1 && el.surname?.toLowerCase().search(surname) > -1;
+                });
+            } else if (phone) {
+                return this.getUsers.filter((el) => {
+                    return el.phone?.search(phone) > -1;
+                });
+            } else if (surname) {
+                return this.getUsers.filter((el) => {
+                    return el.surname?.toLowerCase().search(surname) > -1;
+                });
+            } else {
                 return this.getUsers;
             }
-
-            return this.getUsers.filter((el) => {
-                return el.phone?.search(this.search) > -1 || el.surname?.search(this.search) > -1;
-            });
+        },
+        usersHeaders() {
+            if (this.$vuetify.display.name !== 'sm') {
+                return [
+                    {title: 'ФИО', key: 'name'},
+                    {title: 'Телефон', key: 'phone'},
+                    {title: 'link', sortable: false, key: 'link'},
+                ];
+            } else {
+                return [
+                    {title: 'ФИО', key: 'name'},
+                    {title: 'Телефон', key: 'phone'},
+                ];
+            }
         },
         canCreate() {
-            return !!this.phone && !!this.surname && !!this.name;
+            let phone = normalize.phone(this.phone);
+            let surname = this.surname.trim();
+            let name = normalize.phone(this.phone);
+            return phone.length === 11 && surname.length > 3 && name.length > 1 && this.searchItems.length === 0;
         },
     },
     created() {
