@@ -328,6 +328,9 @@ class UserController extends RestController
 
         $roles = $request->post('roles');
         if (auth()->user()->hasRole('superadmin') && is_array($roles)) {
+            $roles = collect(request()->post('roles'))->map(function ($item) {
+                return $item['name'];
+            })->toArray();
             $user->setRoles($roles);
         }
 
