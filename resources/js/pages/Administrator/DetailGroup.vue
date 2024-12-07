@@ -209,7 +209,7 @@
                     <div
                         :class="{ activeSlot:gsd?.status === 'open' }"
                         v-if="!expelledDay(item, day)"
-                        @dblclick="changeOld({groupSchoolDayId: groupsSchoolDays[day.id].id, userId: item.id})"
+                        @click="changeOld({groupSchoolDayId: groupsSchoolDays[day.id].id, userId: item.id})"
                     >
                         <v-checkbox
                             color="green"
