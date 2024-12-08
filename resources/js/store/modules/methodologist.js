@@ -44,10 +44,12 @@ const getters = {
 const mutations = {
     setCourses: (state, data) => state.courses = data,
     setCourse: (state, data) => {
-        state.course = data.course;
-        state.studyProgram = data.studyProgram;
-        state.schedule = data.schedule;
-        state.hash = hashParams(state);
+        if (state.hash !== hashParams(state)) {
+            state.course = data.course;
+            state.studyProgram = data.studyProgram;
+            state.schedule = data.schedule;
+            state.hash = hashParams(state);
+        }
     },
     setStudyProgram: (state, data) => state.studyProgram = data,
     setLesson: (state, data) => {
@@ -90,6 +92,7 @@ const actions = {
     },
     async actSaveCourse({state, commit}) {
         if (state.hash !== hashParams(state)) {
+            state.hash = hashParams(state);
             return await vuexPut('/methodologist/courses/' + state.course.id, listParams(state), state, commit, 'setCourse', {msgOk: 'Курс сохранен'});
         }
     },
