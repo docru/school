@@ -122,6 +122,16 @@ class Telegram
         return $this->http::post(self::url . $this->bot . '/editMessageText', $data);
     }
 
+    public function deleteMessages($chatId, $messageIds): Response
+    {
+        $data = [
+            'chat_id' => $chatId,
+            'message_ids' => (array) $messageIds,
+        ];
+        return $this->http::post(self::url . $this->bot . '/deleteMessages', $data);
+    }
+
+
 
     public function getUserProfilePhotos($id)
     {
