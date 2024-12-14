@@ -16,6 +16,14 @@ use App\Http\Controllers\Disciple\GroupController as DiscipleGroupController;
 use App\Http\Controllers\Disciple\LessonController as DiscipleLessonController;
 use Illuminate\Support\Facades\Route;
 
+// Если нужен тестовый путь помещай его в файл test_media.php
+// Тестоый контроллер будет AATestController
+// Эти файлы не будут под гитом и не попадут в продакшн
+try {
+    require_once 'test.php';
+} catch (Exception $e) {
+}
+
 Route::namespace('App\Http\Controllers')->group(function () {
 
     // авторизация по коду
@@ -145,11 +153,4 @@ Route::namespace('App\Http\Controllers')->group(function () {
             return view('layout');
         }
     });
-
-
-    if (class_exists(\App\Http\Controllers\AAController::class)) {
-        Route::get('/dev/', 'AAController@test');
-        Route::any('/convert/', 'AAController@convert');
-    }
-
 });
