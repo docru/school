@@ -2,6 +2,7 @@
 
 namespace App\Helpers\Telegram;
 
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 
@@ -25,9 +26,9 @@ class Telegram
 
 
     /**
-     * @return \Illuminate\Http\Client\Response
+     * @return Response
      */
-    public function getWebhook()
+    public function getWebhook(): Response
     {
         return $this->http::get(self::url . $this->bot . '/getWebhookInfo');
     }
@@ -35,18 +36,18 @@ class Telegram
 
     /**
      * @param $route
-     * @return \Illuminate\Http\Client\Response
+     * @return Response
      */
-    public function setWebhook($route)
+    public function setWebhook($route): Response
     {
         return $this->http::get(self::url . $this->bot . '/setWebhook?url=' . $route);
     }
 
 
     /**
-     * @return \Illuminate\Http\Client\Response
+     * @return Response
      */
-    public function deleteWebhook()
+    public function deleteWebhook(): Response
     {
         return $this->http::get(self::url . $this->bot . '/deleteWebhook');
     }
@@ -74,9 +75,9 @@ class Telegram
     /**
      * @param $chatId
      * @param $message
-     * @return \Illuminate\Http\Client\Response
+     * @return Response
      */
-    public function sendMessage($chatId, $message, $buttons = null)
+    public function sendMessage($chatId, $message, $buttons = null): Response
     {
 
         $message = $this->prepareMsg($message);
@@ -100,9 +101,9 @@ class Telegram
      * @param $message
      * @param $messageId
      * @param $buttons
-     * @return \Illuminate\Http\Client\Response
+     * @return Response
      */
-    public function editMessage($chatId, $message, $messageId, $buttons = null)
+    public function editMessage($chatId, $message, $messageId, $buttons = null): Response
     {
 
         $message = $this->prepareMsg($message);
@@ -143,7 +144,7 @@ class Telegram
     }
 
 
-    public function getFile($id)
+    public function getFile($id): string|Response
     {
         $data = [
             'file_id' => $id,
@@ -164,9 +165,9 @@ class Telegram
      * @param $chatId
      * @param $file
      * @param $text
-     * @return \Illuminate\Http\Client\Response
+     * @return Response
      */
-    public function sendDocument($chatId, $file, $text, $local = false)
+    public function sendDocument($chatId, $file, $text, $local = false): Response
     {
         $data = [
             'chat_id' => $chatId,
@@ -183,7 +184,7 @@ class Telegram
     }
 
 
-    public function sendChatAction($chatId)
+    public function sendChatAction($chatId): Response
     {
         $data = [
             'chat_id' => $chatId,
