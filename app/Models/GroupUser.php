@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- *
+ * 
  *
  * @property int $id
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -16,8 +16,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $group_id Группа
  * @property string $role Роль в группе
  * @property string $status Статус
- * @property-read \App\Models\Group $group
- * @property-read \App\Models\User $user
+ * @property-read Group $group
+ * @property-read User $user
  * @method static \Illuminate\Database\Eloquent\Builder|GroupUser newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|GroupUser newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|GroupUser query()
