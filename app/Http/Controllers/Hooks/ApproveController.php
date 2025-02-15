@@ -109,18 +109,18 @@ class ApproveController extends Controller
 
             $config = config('telegram.logicBot.' . $telegramQuery['data']);
 
-            $telegramObject = [
-                'telegram' => $Telegram,
-                'user' => $user,
-                'update' => $update_id,
-            ];
-            $msgObject = [
-                'text' => $telegramQueryData,
-                'id' => null,
-                'file' => $file,
-                'typing' => null,
-            ];
-            $res = $this->configActions($telegramObject, $config, $msgObject);
+//            $telegramObject = [
+//                'telegram' => $Telegram,
+//                'user' => $user,
+//                'update' => $update_id,
+//            ];
+//            $msgObject = [
+//                'text' => $telegramQueryData,
+//                'id' => null,
+//                'file' => $file,
+//                'typing' => null,
+//            ];
+//            $res = $this->configActions($telegramObject, $config, $msgObject);
         } else {
             $res = false;
         }
@@ -133,31 +133,31 @@ class ApproveController extends Controller
         $telegramUserId = $telegramQuery['from']['id'];
         $user = User::whereTgId($telegramUserId)->first();
 
-        if ($user) {
-            $telegramQueryData = $telegramQuery['data'];
-            $message = $telegramQuery['message'];
-            $btnReply = $message['reply_markup'];
-
-            $btnReply = $this->checkBtnClick($btnReply, $telegramQueryData);
-            $resEdit = $Telegram->editMessage($telegramUserId, $message['text'], $message['message_id'], json_encode($btnReply));
-
-            $config = config('telegram.logicBot.' . $telegramQuery['data']);
-
-            $telegramObject = [
-                'telegram' => $Telegram,
-                'user' => $user,
-                'update' => $update_id,
-            ];
-            $msgObject = [
-                'text' => $telegramQueryData,
-                'id' => null,
-                'file' => $file,
-                'typing' => null,
-            ];
-            $res = $this->configActions($telegramObject, $config, $msgObject);
-        } else {
-            $res = false;
-        }
+//        if ($user) {
+//            $telegramQueryData = $telegramQuery['data'];
+//            $message = $telegramQuery['message'];
+//            $btnReply = $message['reply_markup'];
+//
+//            $btnReply = $this->checkBtnClick($btnReply, $telegramQueryData);
+//            $resEdit = $Telegram->editMessage($telegramUserId, $message['text'], $message['message_id'], json_encode($btnReply));
+//
+//            $config = config('telegram.logicBot.' . $telegramQuery['data']);
+//
+//            $telegramObject = [
+//                'telegram' => $Telegram,
+//                'user' => $user,
+//                'update' => $update_id,
+//            ];
+//            $msgObject = [
+//                'text' => $telegramQueryData,
+//                'id' => null,
+//                'file' => $file,
+//                'typing' => null,
+//            ];
+//            $res = $this->configActions($telegramObject, $config, $msgObject);
+//        } else {
+//            $res = false;
+//        }
     }
 
 
