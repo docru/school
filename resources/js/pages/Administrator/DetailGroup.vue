@@ -97,17 +97,34 @@
                     <v-expansion-panel class="tw-my-1 tw-border tw-border-[rgba(221,218,218,0.49)]" elevation="0">
                         <v-expansion-panel-title expand-icon="mdi-menu-down">
                             <div class="tw-flex tw-justify-start tw-items-center">
-                                <v-btn
-                                    class="tw-mr-2"
-                                    color="red"
-                                    icon="mdi-close"
-                                    @click="removeDisciple(item.id)"
-                                    variant="text"
-                                    density="compact"
-                                    size="small"
-                                    v-if="!finishedCourse"
-                                ></v-btn>
-                                <div class="tw-text-[16px] tw-font-[500]">{{ item.name }}</div>
+
+                                <template v-if="item.status != 'expelled'">
+                                    <v-btn
+                                        class="tw-mr-2"
+                                        color="red"
+                                        icon="mdi-close"
+                                        @click="removeDisciple(item.id)"
+                                        variant="text"
+                                        density="compact"
+                                        size="small"
+                                        v-if="!finishedCourse"
+                                    ></v-btn>
+                                    <div class="tw-text-[16px] tw-font-[500]">{{ item.name }}</div>
+                                </template>
+
+                                <template v-else>
+                                    <v-btn
+                                        class="tw-mr-2"
+                                        color="green"
+                                        icon="mdi-account-plus"
+                                        @click="restoreDisciple(item.id)"
+                                        variant="text"
+                                        density="compact"
+                                        size="small"
+                                        v-if="!finishedCourse"
+                                    ></v-btn>
+                                    <div class="tw-text-[16px] tw-font-[500] tw-text-gray">{{ item.name }}</div>
+                                </template>
 
                             </div>
                         </v-expansion-panel-title>
