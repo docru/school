@@ -46,6 +46,10 @@ class GroupController extends Controller
      */
     public function show(Group $group)
     {
+        if (empty(GroupUser::whereGroupId($group->id)->whereUserId(auth()->user()->id)->first())) {
+            return $this->ResponseError('Это не ваша группа');
+        }
+
         $course = $group->course;
         $groupsSchoolDay = $group->groupsSchoolDay->mapWithKeys(function (GroupSchoolDay $item) {
             return [$item->course_school_day_id => [

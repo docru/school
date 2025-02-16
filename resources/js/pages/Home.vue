@@ -25,7 +25,7 @@ export default {
       :color="dis.status === 'active' ? '#1867c0' : 'grey'"
       :title="dis.course.name"
       :subtitle="dis.group.name"
-      :to="{name:'DiscipleDetailGroup',params:{id:dis.course.id}}"
+      :to="{name:'DiscipleDetailGroup',params:{id:dis.group.id}}"
   >
     <v-icon style="position: absolute; top:5px; right: 5px;">mdi-account-school</v-icon>
   </v-card>

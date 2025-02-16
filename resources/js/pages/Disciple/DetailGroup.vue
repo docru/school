@@ -61,7 +61,7 @@
                                     <template v-if="groupSchoolDay(item.id, 'status') === 'close'">
                                         <router-link
                                             style="border-bottom: 1px dashed lightskyblue;"
-                                            :to="{path:`/disciple/lesson/${group?.course?.id}/${les.id}`}">
+                                            :to="{path:`/disciple/lesson/${group?.group?.id}/${les.id}`}">
                                             {{ les.name }}
                                         </router-link>
                                     </template>
