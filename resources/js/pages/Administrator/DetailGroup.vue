@@ -56,7 +56,6 @@
             </div>
         </div>
 
-        {{ getGroup.status }}
         <div>
             Учителя:
             <v-btn

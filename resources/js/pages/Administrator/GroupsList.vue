@@ -17,7 +17,6 @@
                     ></v-select>
                 </div>
 
-
                 <v-btn color="primary" @click="dialog = true">Создать группу</v-btn>
             </div>
         </v-card-title>
