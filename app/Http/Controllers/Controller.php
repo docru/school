@@ -5,26 +5,28 @@ namespace App\Http\Controllers;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
+use Illuminate\Http\JsonResponse;
 
 abstract class Controller
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
     /**
      * @param array $data
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
-    public function ResponseOk(array $data = [])
+    public function ResponseOk(array $data = []): JsonResponse
     {
-        return response()->json(['result' => 'ok', 'data' => $data], 200);
+        return response()->json(['result' => 'ok', 'data' => $data]);
     }
 
 
     /**
      * @param string $message
-     * @param $code
-     * @return \Illuminate\Http\JsonResponse
+     * @param array $data
+     * @param int $code
+     * @return JsonResponse
      */
-    public function ResponseError(string $message, array $data = [], $code = 200)
+    public function ResponseError(string $message, array $data = [], int $code = 200): JsonResponse
     {
         return response()->json(['result' => 'error', 'data' => $data, 'message' => $message], $code);
     }

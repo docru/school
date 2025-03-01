@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Administrator;
 use App\Http\Controllers\Controller;
 use App\Models\Group;
 use App\Models\GroupSchoolDay;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class GroupController extends Controller
@@ -12,7 +13,7 @@ class GroupController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): JsonResponse
     {
         return $this->ResponseOk($this->_groupList());
     }
@@ -20,7 +21,7 @@ class GroupController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         if (empty($request->course_id)) {
             return $this->ResponseError('Не указана группа');
@@ -41,9 +42,9 @@ class GroupController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Group $group)
+    public function show(Group $group): JsonResponse
     {
-        $groupsSchoolDay = $group->groupsSchoolDay->mapWithKeys(function (GroupSchoolDay $day){
+        $groupsSchoolDay = $group->groupsSchoolDay->mapWithKeys(function (GroupSchoolDay $day) {
             return [$day->course_school_day_id => [
                 'id' => $day->id,
                 'date' => date('d.m', strtotime($day->date)),
@@ -59,7 +60,7 @@ class GroupController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Group $group)
+    public function update(Request $request, Group $group): JsonResponse
     {
         $group->update($request->all());
         return $this->ResponseOk($group->toArray());
@@ -68,13 +69,13 @@ class GroupController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Group $group)
+    public function destroy(Group $group): JsonResponse
     {
         $group->delete();
         return $this->ResponseOk($this->_groupList());
     }
 
-    private function _groupList()
+    private function _groupList(): array
     {
         return Group::all()->toArray();
     }
@@ -83,17 +84,16 @@ class GroupController extends Controller
     /**
      * Список пользователей группы
      * @param Group $group
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
-    public function users(Group $group)
+    public function users(Group $group): JsonResponse
     {
         $users = $group->users;
         return $this->ResponseOk($users->toArray());
     }
 
 
-
-    public function addGroupsSchoolDay(Request $request, Group $group)
+    public function addGroupsSchoolDay(Request $request, Group $group): JsonResponse
     {
         $date = $request->post('date');
         if (empty($date)) {
@@ -109,11 +109,11 @@ class GroupController extends Controller
 
         $nextCourseSchoolDays = $group->course
             ->course_school_days()
-            ->where('order', '>' , $lastOrder)
+            ->where('order', '>', $lastOrder)
             ->orderBy('order')
             ->first();
 
-        if(empty($nextCourseSchoolDays)){
+        if (empty($nextCourseSchoolDays)) {
             return $this->ResponseError('В курсе больше нет учебных дней');
         } else {
             $newGroupSchoolDays = new GroupSchoolDay();
@@ -128,23 +128,35 @@ class GroupController extends Controller
     }
 
 
-    public function closeGroupsSchoolDay(Request $request, Group $group)
+    public function closeGroupsSchoolDay(Request $request, Group $group): JsonResponse
     {
         $group->groupsSchoolDay()->whereStatus('open')->update(['status' => 'close']);
         return $this->show($group);
     }
 
-    public function changeGroupsSchoolDay(Request $request, Group $group, GroupSchoolDay $groupSchoolDay)
+    public function changeGroupsSchoolDay(Request $request, Group $group, GroupSchoolDay $groupSchoolDay): JsonResponse
     {
         $date = date('Y-m-d', strtotime($request->post('date')));
 
         $find = GroupSchoolDay::whereGroupId($group->id)->whereDate('date', $date)->first();
-        if(!empty($find) && $find->id !== $groupSchoolDay->id){
+        if (!empty($find) && $find->id !== $groupSchoolDay->id) {
             return $this->ResponseError('Эта дата уже задана для группы');
         }
 
         $groupSchoolDay->date = $date;
         $groupSchoolDay->save();
+
+        return $this->show($group);
+    }
+
+    public function setStatusGroup(Request $request, Group $group, string $status): JsonResponse
+    {
+        if (!in_array($status, ['open', 'archived'])) {
+            return $this->ResponseError('Не верный новый статус группы');
+        }
+
+        $group->status = $status;
+        $group->save();
 
         return $this->show($group);
     }

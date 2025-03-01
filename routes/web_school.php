@@ -92,11 +92,13 @@ Route::namespace('App\Http\Controllers')->group(function () {
                 Route::post('/group/{group}/restore-user/{user}', 'restoreUserToGroup'); // восстановить ученика в группе
             });
 
-            // Добавить новый учебный день группы
             Route::controller(AdministratorGroupController::class)->group(function () {
+                // Учебный день группы
                 Route::post('/groups/school-day/{group}/add', 'addGroupsSchoolDay');
                 Route::post('/groups/school-day/{group}/close', 'closeGroupsSchoolDay');
                 Route::post('/groups/school-day/{group}/{groupSchoolDay}/change', 'changeGroupsSchoolDay');
+                // Статус группы
+                Route::post('/groups/set-status/{group}/{status}', 'setStatusGroup');
             });
 
             // посещение

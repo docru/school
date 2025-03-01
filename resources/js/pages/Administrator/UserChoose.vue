@@ -146,7 +146,7 @@ export default {
             let phone = normalize.phone(this.phone);
             let surname = this.surname.trim();
             let name = normalize.phone(this.phone);
-            return phone.length === 11 && surname.length > 3 && name.length > 1 && this.searchItems.length === 0;
+            return phone.length === 11 && surname.length > 1 && name.length > 1 && this.searchItems.length === 0;
         },
     },
     created() {

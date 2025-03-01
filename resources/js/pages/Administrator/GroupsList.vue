@@ -3,6 +3,21 @@
         <v-card-title>
             <div class="tw-flex tw-justify-between">
                 <div>Группы</div>
+
+                <div>
+                    <v-select
+                        label="Фильтр"
+                        class="tw-w-max"
+                        :items="filterItems"
+                        v-model="filterItemSelected"
+                        item-title="title"
+                        item-value="val"
+                        variant="outlined"
+                        density="compact"
+                    ></v-select>
+                </div>
+
+
                 <v-btn color="primary" @click="dialog = true">Создать группу</v-btn>
             </div>
         </v-card-title>
@@ -18,23 +33,22 @@
                 {{ courses.filter(el => el.id === item.course_id)[0].name }}
             </template>
             <template v-slot:item.status="{item}">
-                <v-chip :color="item.status === 'new' ? 'green' :'grey'">
+                <v-chip :color="item.status === 'open' ? 'green' :'grey'">
                     {{ item.status }}
                 </v-chip>
             </template>
             <template v-slot:item.actions="{ item }">
                 <v-icon
                     size="small"
-                    @click.stop="editGroup(item.id)"
                 >
                     mdi-pencil
                 </v-icon>
-<!--                <v-icon-->
-<!--                    size="small"-->
-<!--                    @click.stop="actDeleteGroup(item.id)"-->
-<!--                >-->
-<!--                    mdi-edit-->
-<!--                </v-icon>-->
+                <!--                <v-icon-->
+                <!--                    size="small"-->
+                <!--                    @click.stop="actDeleteGroup(item.id)"-->
+                <!--                >-->
+                <!--                    mdi-edit-->
+                <!--                </v-icon>-->
             </template>
             <template v-slot:header.actions>
                 <div style="float: right">
@@ -99,15 +113,26 @@ export default {
                 {title: 'Курс', key: 'course'},
                 {title: '', align: 'end', sortable: false, key: 'actions'},
             ],
+            filterItems: [
+                {val: 'open', title: 'Активные'},
+                {val: 'archived', title: 'Архивные'},
+                {val: 'all', title: 'Все'},
+            ],
+            filterItemSelected: 'open',
             dialog: false,
         }
     },
     computed: {
         ...mapGetters('administrator', {
-            groups: 'getGroups',
+            getGroups: 'getGroups',
             courses: 'getCourses',
             load: 'getLoad'
-        })
+        }),
+        groups() {
+            return this.getGroups.filter((i) => {
+                return (this.filterItemSelected === 'all') || i.status === this.filterItemSelected;
+            });
+        },
     },
     methods: {
         go(item, row) {

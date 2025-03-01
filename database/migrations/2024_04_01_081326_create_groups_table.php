@@ -17,7 +17,7 @@ return new class extends Migration
             $table->timestamps();
             $table->string('name')->comment('Имя группы');
             $table->bigInteger('course_id')->unsigned()->comment('Курс');
-            $table->string('status')->default('new')->comment('Статус группы');
+            $table->string('status')->default('open')->comment('Статус группы');
 
             $table->foreign('course_id')->references('id')->on('courses')
                 ->cascadeOnUpdate()->cascadeOnDelete();

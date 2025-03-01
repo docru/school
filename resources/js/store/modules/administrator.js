@@ -67,6 +67,9 @@ const actions = {
     async actRequestGroup({state, commit}, groupId) {
         return await vuexGet('/administrator/groups/' + groupId, {}, state, commit, 'setGroup');
     },
+    async actSetGroupStatus({state, commit}, params = {}) {
+        await vuexPost(`/administrator/groups/set-status/${params.groupId}/${params.status}`, params, state, commit, 'setGroup');
+    },
 
     // курсы
     async actReqwestCourses({state, commit}, params = {}) {

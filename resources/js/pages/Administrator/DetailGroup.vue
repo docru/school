@@ -26,15 +26,37 @@
             >
                 Добавить день
             </v-btn>
-            <v-chip
-                color="red"
-                v-else
-            >
-                Курс завершен
-            </v-chip>
+            <div v-else>
+                <v-chip color="red">Курс завершен</v-chip>
+
+                <v-btn
+                    class="tw-ml-2"
+                    :class="{'tw-my-2':$vuetify.display.name === 'sm'}"
+                    density="comfortable"
+                    variant="outlined"
+                    color="success"
+                    @click="toArchive()"
+                    v-if="getGroup.status !== 'archived'"
+                >
+                    Отправить в архив
+                </v-btn>
+
+                <v-btn
+                    class="tw-ml-2"
+                    :class="{'tw-my-2':$vuetify.display.name === 'sm'}"
+                    density="comfortable"
+                    variant="outlined"
+                    color=""
+                    @click="fromArcive()"
+                    v-else
+                >
+                    Вернуть из архива
+                </v-btn>
+
+            </div>
         </div>
 
-
+        {{ getGroup.status }}
         <div>
             Учителя:
             <v-btn
@@ -484,7 +506,7 @@ export default {
         existsOpenDay() {
             let res = false;
             for (const k in this.groupsSchoolDays) {
-                if (this.groupsSchoolDays[k].status == 'open') {
+                if (this.groupsSchoolDays[k].status === 'open') {
                     res = true;
                     break;
                 }
@@ -494,7 +516,7 @@ export default {
         finishedCourse() {
             let cnt = 0;
             for (const k in this.groupsSchoolDays) {
-                if (this.groupsSchoolDays[k].status == 'open') {
+                if (this.groupsSchoolDays[k].status === 'open') {
                     break;
                 }
                 cnt++;
@@ -521,6 +543,7 @@ export default {
             'actRequestAttendances',
             'actSetAttendance',
             'actReqwestCourse',
+            'actSetGroupStatus',
         ]),
         changeOld(data) {
             if (confirm('Изменить посещение за прошедшую дату?')) {
@@ -582,6 +605,12 @@ export default {
             let expelled_at = Date.parse(user.expelled_at);
             let gsdTm = Date.parse(this.groupsSchoolDays[day.id].dateOrigin);
             return gsdTm > expelled_at;
+        },
+        toArchive() {
+            this.actSetGroupStatus({groupId: this.getGroup.id, status: 'archived'});
+        },
+        fromArchive() {
+            this.actSetGroupStatus({groupId: this.getGroup.id, status: 'open'});
         },
     },
     created() {

@@ -19,5 +19,5 @@ FROM users U
          LEFT JOIN attendances A ON A.group_school_day_id = GGSD.id AND U.id = A.user_id
 WHERE GU.role = 'disciple'
   AND GU.status = 'active'
-  AND G.status = 'new'
+  AND G.status = 'open'
 GROUP BY U.id, G.id, GGSD.date;
