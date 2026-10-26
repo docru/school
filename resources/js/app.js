@@ -27,19 +27,71 @@ VMdEditor.use(vuepressTheme, {
 VMdEditor.lang.use('ru-RU', ruRU);
 
 
+// Темы Vuetify на токенах дизайн-системы Blueprint (см. resources/css/tokens.css).
+// Именованные цвета red/green/blue/grey/teal оставлены для совместимости с color="..." в компонентах.
 const adfLight = {
     dark: false,
     colors: {
-        background: '#F9FBFF',
-        surface: '#FFF',
+        background: '#fbf6f1',          // surface-page
+        surface: '#ffffff',             // surface-card
+        'surface-variant': '#f6eee6',   // surface-muted
+        'on-surface-variant': '#1f1d1a',
+        'on-surface': '#1f1d1a',        // text-primary
+        'on-background': '#1f1d1a',
+        primary: '#8b5e3c',             // accent (walnut)
+        'on-primary': '#ffffff',
+        secondary: '#6b7280',           // neutral-500
+        ink: '#1f1d1a',                 // surface-inverse
+        'on-ink': '#ffffff',
+        muted: '#6b5e52',               // text-muted
+        border: '#efe5db',
+        success: '#22c55e',
+        error: '#ef4444',
+        warning: '#f59e0b',
+        info: '#3b82f6',
+        red: '#ef4444',
+        green: '#22c55e',
+        blue: '#8b5e3c',
+        teal: '#8b5e3c',
+        grey: '#6b7280',
+    },
+    variables: {
+        'border-color': '#efe5db',
+        'border-opacity': 1,
+        'medium-emphasis-opacity': 1,
     },
 }
 
 const adfDark = {
     dark: true,
     colors: {
-        background: '#1A1C21',
-        surface: '#252830',
+        background: '#171411',
+        surface: '#211d19',
+        'surface-variant': '#2a2520',
+        'on-surface-variant': '#f3ece3',
+        'on-surface': '#f3ece3',
+        'on-background': '#f3ece3',
+        primary: '#c4936a',
+        'on-primary': '#1f1d1a',
+        secondary: '#6b7280',
+        ink: '#f3ece3',
+        'on-ink': '#1f1d1a',
+        muted: '#b5a99c',
+        border: '#3a332c',
+        success: '#22c55e',
+        error: '#ef4444',
+        warning: '#f59e0b',
+        info: '#3b82f6',
+        red: '#ef4444',
+        green: '#22c55e',
+        blue: '#c4936a',
+        teal: '#c4936a',
+        grey: '#6b7280',
+    },
+    variables: {
+        'border-color': '#3a332c',
+        'border-opacity': 1,
+        'medium-emphasis-opacity': 1,
     },
 }
 
@@ -75,16 +127,27 @@ const vuetify = createVuetify({
             hideDetails:true,
             class:'tw-my-2'
         },
+        VSelect:{
+            variant:'outlined',
+            density:'compact',
+            hideDetails:true,
+            class:'tw-my-2'
+        },
         VDivider:{
             class:'tw-my-2',
-            color:'blue'
         },
         VTabs:{
-            background:'red',
-            color:'grey',
-            VBtn:{
-                color:'white'
-            }
+            color:'primary',
+        },
+        VChip:{
+            variant:'tonal',
+        },
+        VCard:{
+            variant:'flat',
+            VBtn: {
+                variant:'flat',
+                color:'primary'
+            },
         },
         VDataTable:{
             density: "comfortable",
@@ -105,12 +168,6 @@ const vuetify = createVuetify({
             hideDetails:true,
             class:'tw-my-2'
         },
-        VCard:{
-            VBtn: {
-                variant:'flat',
-                color:'primary'
-            },
-        }
     },
     directives,
     display: {

@@ -36,7 +36,7 @@
                     </div>
                 </v-card-text>
             </v-card>
-            <v-divider class="tw-my-3" color="blue"/>
+            <v-divider class="tw-my-3"/>
             <div v-if="getUsers">
                 <div class="tw-flex tw-flex-col md:tw-flex-row tw-justify-between">
                     <div class="tw-w-full md:tw-w-1/3">

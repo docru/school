@@ -15,7 +15,7 @@
                     {{ $vuetify.display.name === 'sm' ? 'Создать' : 'Создать нового пользователя' }}
                 </v-btn>
             </div>
-            <v-divider class="tw-my-3" color="blue"/>
+            <v-divider class="tw-my-3"/>
 
             <div v-if="getUsers">
                 <v-data-table

@@ -81,19 +81,21 @@
             </v-navigation-drawer>
             <v-app-bar
                 app
-                color="primary"
+                color="surface"
+                flat
+                class="bp-app-bar"
                 v-if="!showFormNicName"
             >
                 <v-app-bar-nav-icon @click="drawer = !drawer">
                 </v-app-bar-nav-icon>
                 <v-app-bar-title>
-                    <h3 class="white--text">
+                    <h3 class="bp-app-title">
                         {{ $vuetify.display.name === 'sm' ? 'Школа' : 'ЦХМ школа' }}
                     </h3>
                 </v-app-bar-title>
                 <v-spacer></v-spacer>
 
-                <div class="tw-mx-3">
+                <div class="tw-mx-3 tw-text-sm tw-text-text-muted dark:tw-text-dark-text-muted">
                     {{ getProfile?.name[0] }} ({{ getProfile?.name[0] }} {{ getProfile?.surname }}
                     {{ getProfile?.patronymic }})
                 </div>
@@ -108,8 +110,8 @@
 
                 <v-breadcrumbs
                     :items="breadcrumbs"
-                    class="tw-w-full"
-                    style="position: fixed; background-color: white; z-index: 100;"
+                    class="tw-w-full bp-breadcrumbs"
+                    style="position: fixed; z-index: 100;"
                 />
 
 

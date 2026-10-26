@@ -5,7 +5,7 @@
                 {{ code }}
             </code>
             <transition name="fade">
-                <div class="tw-mx-2" style="font-size:10px; color:#a5a4a4" v-if="show">скопировано в буфер обмена</div>
+                <div class="tw-mx-2" style="font-size:10px; color:var(--bp-text-muted)" v-if="show">скопировано в буфер обмена</div>
             </transition>
         </div>
         <div class="tw-flex tw-items-center">
@@ -86,7 +86,7 @@ export default {
     tw-flex
     tw-items-center
     tw-px-3
-    tw-min-h-[40px] tw-bg-[#EFF6FF] tw-p-1 tw-rounded-md tw-my-2;
+    tw-min-h-[40px] tw-bg-surface-muted dark:tw-bg-dark-surface-muted tw-p-1 tw-rounded-md tw-my-2;
 }
 .density_compact{
     @apply tw-min-h-[25px] tw-my-0;
