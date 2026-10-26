@@ -20,7 +20,7 @@
             >
 
                 <template v-if="getProfile.roles.includes('disciple')">
-                    <v-list-subheader>Учебный процесс</v-list-subheader>
+                    <v-list-subheader :class="{'bp-subheader--active': section?.key === 'disciple'}">Учебный процесс</v-list-subheader>
                     <v-list-item
                         v-for="item in menu_disciple"
                         :key="item"
@@ -32,7 +32,7 @@
                 </template>
 
                 <template v-if="getProfile.roles.includes('teacher')">
-                    <v-list-subheader>Учитель</v-list-subheader>
+                    <v-list-subheader :class="{'bp-subheader--active': section?.key === 'teacher'}">Учитель</v-list-subheader>
                     <v-list-item
                         v-for="item in menu_teacher"
                         :key="item"
@@ -45,7 +45,7 @@
 
                 <template v-if="getProfile.roles.includes('administrator')">
                     <v-divider></v-divider>
-                    <v-list-subheader>Администрирование</v-list-subheader>
+                    <v-list-subheader :class="{'bp-subheader--active': section?.key === 'administrator'}">Администрирование</v-list-subheader>
                     <v-list-item
                         v-for="item in menu_admin"
                         :key="item"
@@ -57,7 +57,7 @@
 
                 <template v-if="getProfile.roles.includes('methodologist')">
                     <v-divider></v-divider>
-                    <v-list-subheader>Методология</v-list-subheader>
+                    <v-list-subheader :class="{'bp-subheader--active': section?.key === 'methodologist'}">Методология</v-list-subheader>
                     <v-list-item
                         v-for="item in menu_methodologist"
                         :key="item"
@@ -69,7 +69,7 @@
 
                 <template v-if="getProfile.roles.includes('superadmin')">
                     <v-divider></v-divider>
-                    <v-list-subheader>СуперАдминистрирование</v-list-subheader>
+                    <v-list-subheader :class="{'bp-subheader--active': section?.key === 'superadmin'}">СуперАдминистрирование</v-list-subheader>
                     <v-list-item
                         v-for="item in  menu_superadmin"
                         :key="item"
@@ -93,10 +93,12 @@
                     <h3 class="bp-app-title">
                         {{ $vuetify.display.name === 'sm' ? 'Школа' : 'ЦХМ школа' }}
                     </h3>
+                    <!-- Текущий раздел системы: видно, в какой его части находишься -->
+                    <div v-if="section" class="bp-app-section">{{ section.title }}</div>
                 </v-app-bar-title>
-                <v-spacer></v-spacer>
 
-                <div class="tw-mx-3 tw-text-sm tw-text-text-muted dark:tw-text-dark-text-muted">
+                <!-- Имя не должно отжимать название с подписью раздела: ограничиваем ширину и обрезаем -->
+                <div class="tw-mx-3 tw-text-sm tw-text-text-muted dark:tw-text-dark-text-muted tw-truncate tw-shrink-0 tw-max-w-[35%] md:tw-max-w-none">
                     {{ getProfile?.name[0] }} ({{ getProfile?.name[0] }} {{ getProfile?.surname }}
                     {{ getProfile?.patronymic }})
                 </div>
@@ -134,6 +136,14 @@ export default {
     components: {SnackBar, ConfirmDialog},
     data: () => ({
         drawer: false,
+        // Разделы по префиксу пути маршрута
+        sections: [
+            {key: 'disciple', title: 'Учебный процесс'},
+            {key: 'teacher', title: 'Учитель'},
+            {key: 'administrator', title: 'Администрирование'},
+            {key: 'methodologist', title: 'Методология'},
+            {key: 'superadmin', title: 'Суперадминистрирование'},
+        ],
         menu_disciple: [
             {
                 name: 'Главная ',
@@ -195,6 +205,10 @@ export default {
         ...mapActions('profile', ['actResetProfile'])
     },
     computed: {
+        section() {
+            const first = this.$route?.path.split('/')[1];
+            return this.sections.find(el => el.key === first) ?? null;
+        },
         breadcrumbs() {
             if (!this.$route?.meta || !this.$route?.meta?.breadcrumbs?.length) return []
             return this.$route?.meta?.breadcrumbs.map(el => {

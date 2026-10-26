@@ -75,7 +75,16 @@ h2 {
 
 .bp-app-title {
   font-size: 24px;
-  line-height: 32px;
+  line-height: 28px;
+}
+
+/* Подпись текущего раздела под названием в шапке */
+.bp-app-section {
+  font-size: 9px;
+  line-height: 12px;
+  letter-spacing: .3px;
+  text-transform: uppercase;
+  color: var(--bp-text-muted);
 }
 
 /* Надзаголовок (overline) из bundle.css дизайн-системы */
@@ -176,6 +185,11 @@ h2 {
   @media (min-width: 768px) {
     padding-top: 60px;
   }
+}
+
+/* Заголовок активного раздела в боковом меню */
+.v-navigation-drawer .v-list-subheader.bp-subheader--active {
+  color: var(--bp-accent);
 }
 
 .bp-breadcrumbs.v-breadcrumbs {
