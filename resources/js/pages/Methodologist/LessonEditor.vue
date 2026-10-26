@@ -223,19 +223,6 @@ export default {
     padding: 0;
 }
 
-/* Обе библиотеки ставят word-break: break-all — это для иероглифов,
-   а русский текст рвётся по слогам посреди слова */
-.lesson-editor :deep(.md-editor-preview),
-.lesson-editor :deep(.md-editor-preview h1),
-.lesson-editor :deep(.md-editor-preview h2),
-.lesson-editor :deep(.md-editor-preview h3),
-.lesson-editor :deep(.md-editor-preview h4),
-.lesson-editor :deep(.v-md-textarea-editor pre),
-.lesson-editor :deep(.v-md-textarea-editor textarea) {
-    word-break: normal;
-    overflow-wrap: anywhere;
-}
-
 /* Четыре вкладки должны поместиться в 390px без стрелок прокрутки */
 .lesson-editor--fill :deep(.v-tab) {
     min-width: 0;

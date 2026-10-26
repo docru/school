@@ -311,6 +311,23 @@ h2 {
   padding: 20px 20px 16px;
 }
 
+/* md-editor-v3 и @kangc/v-md-editor ставят word-break: break-all — это правило для
+   иероглифов, а русский текст оно рвёт по слогам посреди слова. Правим глобально:
+   просмотр урока открывают и методист, и учитель, и ученик.
+   Класс продублирован ради специфичности: app.scss подключается в layout.blade.php
+   раньше, чем стили библиотек из app.js, и при равном весе выигрывали бы они. */
+.md-editor-preview.md-editor-preview,
+.md-editor-preview.md-editor-preview h1,
+.md-editor-preview.md-editor-preview h2,
+.md-editor-preview.md-editor-preview h3,
+.md-editor-preview.md-editor-preview h4,
+.md-editor-preview.md-editor-preview h5,
+.v-md-textarea-editor.v-md-textarea-editor pre,
+.v-md-textarea-editor.v-md-textarea-editor textarea {
+  word-break: normal;
+  overflow-wrap: break-word;
+}
+
 /* Чипы и вкладки */
 .v-chip {
   border-radius: var(--bp-radius-sm) !important;

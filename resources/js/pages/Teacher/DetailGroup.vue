@@ -1,133 +1,105 @@
 <template>
-    <v-card>
-        <v-card-title>
-            <div class="tw-flex tw-justify-between">
-                <div>Группа "{{ group?.group?.name }}". <br>Курс "{{ group?.course?.name }}"</div>
+    <div class="teacher-group">
+        <!-- Шапка: на мобильном в крошках только «Уроки», название группы нужно здесь -->
+        <div class="tw-flex tw-items-start tw-justify-between tw-gap-3 tw-mb-3">
+            <div class="tw-min-w-0">
+                <h1 class="adf-heading tw-text-xl md:tw-text-2xl tw-leading-7 md:tw-leading-8 tw-m-0 tw-truncate">
+                    {{ group?.group?.name || 'Группа' }}
+                </h1>
+                <div class="tw-text-sm tw-text-text-muted dark:tw-text-dark-text-muted tw-truncate">
+                    {{ subtitle }}
+                </div>
             </div>
-            <v-tabs
-                v-model="tab"
-                bg-color=""
-            >
+        </div>
+
+        <v-progress-linear v-if="!group?.group" indeterminate color="primary"/>
+
+        <v-card v-else>
+            <v-tabs v-model="tab" :grow="isMobile" color="primary">
                 <v-tab value="lessons">Уроки</v-tab>
                 <v-tab value="group">Группа</v-tab>
             </v-tabs>
-        </v-card-title>
+            <v-divider/>
 
-        <v-divider></v-divider>
-        <v-card-text>
-
-            <v-window v-model="tab">
+            <!-- touch: свайп переключал бы вкладку при обычной прокрутке списка -->
+            <v-window v-model="tab" :touch="false">
                 <v-window-item value="lessons">
-                    <v-data-table
-                        class="table-sh"
-                        height="800"
-                        fixed-header
-                        density="compact"
-                        :items="courseSchoolDays"
-                        items-per-page="100"
-                        :headers="headers"
-                        disable-pagination
-                    >
-                        <template #bottom></template>
-                        <template v-slot:headers v-if="$vuetify.display.sm"></template>
-                        <template v-slot:item="{item, columns}" v-if="$vuetify.display.sm">
-                            <div class="tw-border tw-rounded tw-border-[rgba(221,218,218,0.49)] tw-mt-2 tw-p-2">
-                                <div class="tw-flex tw-justify-between">
-                                    {{ item.order }}. {{ groupSchoolDay(item.id, 'date') ?? '-' }}
+                    <div class="tw-p-3 md:tw-p-4">
+                        <div v-if="!days.length" class="tw-p-8 tw-text-center">
+                            <v-icon size="40" color="muted">mdi-calendar-blank-outline</v-icon>
+                            <div class="tw-text-sm tw-text-text-muted dark:tw-text-dark-text-muted tw-mt-2">
+                                Учебных дней пока нет
+                            </div>
+                        </div>
 
-                                    <template v-if="groupSchoolDay(item.id, 'date')">
-
-                                    </template>
-                                </div>
-                                <div v-for="les in item.lessons" :key="les.id"
-                                     style="color: lightskyblue; margin: 5px 0;">
-                                    <div
-                                        style="display:inline-block;border-bottom: 1px dashed lightskyblue;"
-                                        @click="$router.push({name: 'TeacherLesson', params: {groupId: group.group.id, lessonId:les.id}})">
-                                        {{ les.name }}
+                        <div v-for="day in days" :key="day.id" class="day-card">
+                            <div class="day-card__header">
+                                <div class="tw-min-w-0 tw-flex-1">
+                                    <div class="tw-text-sm tw-font-medium">
+                                        {{ day.order }}. {{ day.date ? fmtDate(day.date) : 'дата не назначена' }}
+                                    </div>
+                                    <div class="tw-text-xs tw-text-text-muted dark:tw-text-dark-text-muted">
+                                        {{ day.lessons.length }} {{ plural(day.lessons.length, ['урок', 'урока', 'уроков']) }}
                                     </div>
                                 </div>
+                                <span v-if="day.status === 'open'" class="day-badge day-badge--open">идёт</span>
+                                <span v-else-if="day.date" class="day-badge">проведён</span>
                             </div>
-                        </template>
 
-                        <template v-slot:item.order="{item}">
-                            <span class="tw-text-[12px]">{{ item.order }}. {{
-                                    groupSchoolDay(item.id, 'date') ?? '-'
-                                }}</span>
-                        </template>
-
-                        <!--                        <template v-slot:item.lessons="{item}">-->
-                        <!--                            <div-->
-                        <!--                                v-for="lesson in item.lessons ?? []"-->
-                        <!--                                :key="lesson.id"-->
-                        <!--                                @click="$router.push({name: 'TeacherLesson', params: {groupId: group.group.id, lessonId:lesson.id}})"-->
-                        <!--                            >-->
-                        <!--                                {{ lesson.name }}-->
-                        <!--                            </div>-->
-                        <!--                        </template>-->
-
-                        <template v-slot:item.lessons="{item}">
                             <div
-                                class="tw-my-1"
-                                v-for="(lesson,index) in item.lessons ?? []"
+                                v-for="(lesson, index) in day.lessons"
                                 :key="lesson.id"
-                                @click="$router.push({name: 'TeacherLesson', params: {groupId: group.group.id, lessonId:lesson.id}})"
+                                class="lesson-row"
+                                @click="openLesson(lesson)"
                             >
-                <span class="tw-text-[lightskyblue]" style="border-bottom: 1px dashed lightskyblue;cursor: pointer ">
-                    {{ index + 1 }}. {{ lesson.name }}
-                </span>
+                                <span class="lesson-row__num">{{ index + 1 }}</span>
+                                <div class="tw-min-w-0 tw-flex-1 tw-text-sm">{{ lesson.name }}</div>
+                                <v-icon size="20" color="muted" class="tw-shrink-0">mdi-chevron-right</v-icon>
                             </div>
-                        </template>
 
-                        <template v-slot:item.attendance="{item}">
-                            <template v-if="groupSchoolDay(item.id, 'date')">
-                                <v-chip v-if="attendance(item.id)" color="secondary" density="compact">
-                                    Присутств.
-                                </v-chip>
-                                <v-chip v-else color="red" density="compact">
-                                    Отсутств.
-                                </v-chip>
-                            </template>
-                        </template>
-
-                    </v-data-table>
+                            <div v-if="!day.lessons.length" class="tw-px-3 tw-py-2 tw-text-xs tw-text-text-muted dark:tw-text-dark-text-muted">
+                                Уроков на этот день нет
+                            </div>
+                        </div>
+                    </div>
                 </v-window-item>
-
 
                 <v-window-item value="group">
-                    <h2>Учителя</h2>
-                    <div v-if="getTeachers.length">
-                        <div v-for="teacher in getTeachers" :key="teacher.id">
-                            - {{ teacher.name }}
-                            {{ teacher.patronymic }}
-                            {{ teacher.surname }}
+                    <div class="tw-p-3 md:tw-p-4">
+                        <div class="bp-overline tw-mb-2">Учителя</div>
+                        <div v-if="getTeachers.length" class="tw-mb-5">
+                            <div v-for="teacher in getTeachers" :key="teacher.id" class="person-row">
+                                {{ fio(teacher) }}
+                            </div>
+                        </div>
+                        <div v-else class="tw-text-sm tw-text-text-muted dark:tw-text-dark-text-muted tw-mb-5">
+                            Учителей нет
+                        </div>
+
+                        <div class="bp-overline tw-mb-2">
+                            Ученики
+                            <span class="tw-ml-1">{{ getDisciples.length || '' }}</span>
+                        </div>
+                        <div v-if="getDisciples.length">
+                            <div v-for="disciple in getDisciples" :key="disciple.id" class="person-row">
+                                {{ fio(disciple) }}
+                            </div>
+                        </div>
+                        <div v-else class="tw-text-sm tw-text-text-muted dark:tw-text-dark-text-muted">
+                            Учеников нет
                         </div>
                     </div>
-                    <div v-else>Нет учителей</div>
-                    <h2>Ученики</h2>
-                    <div v-if="getDisciples.length">
-                        <div v-for="dis in getDisciples">
-                            - {{ dis.name }}
-                            {{ dis.patronymic }}
-                            {{ dis.surname }}
-                        </div>
-                    </div>
-                    <div v-else>Нет учеников</div>
                 </v-window-item>
             </v-window>
-
-        </v-card-text>
-    </v-card>
+        </v-card>
+    </div>
 </template>
 
 <script>
 import {mapActions, mapGetters} from "vuex";
-import StudyProgram from "../Methodologist/StudyProgram.vue";
-import CourseSchedule from "../Methodologist/CourseSchedule.vue";
 
 export default {
     name: "DetailGroup",
-    components: {CourseSchedule, StudyProgram},
     data() {
         return {
             tab: 'lessons',
@@ -140,73 +112,52 @@ export default {
             groupSchoolDays: 'getGroupSchoolDay',
             getDisciples: 'getDisciples',
             getTeachers: 'getTeachers',
-            attendances: 'getAttendances',
         }),
-        headers() {
-            let headers = [
-                {
-                    title: '',
-                    align: 'left',
-                    key: 'order',
-                    width: "100px",
-                    fixed: true,
-                    sortable: false,
-                    divider: true
-                },
-                {
-                    title: 'Уроки',
-                    align: 'left',
-                    key: 'lessons',
-                    // width: "300px",
-                    fixed: true,
-                    sortable: false,
-                    divider: true
-                },
-                // {
-                //     title: 'Посещение',
-                //     align: 'center',
-                //     key: 'attendance',
-                //     width: "50px",
-                //     fixed: true,
-                //     sortable: false,
-                //     divider: true
-                // },
-            ];
-            return headers;
+        isMobile() {
+            return this.$vuetify.display.name === 'sm';
         },
-        teachers() {
-            let items = [];
-            for (const k in this.getTeachers) {
-                items.push({title: this.getTeachers[k].name ?? '-'})
-            }
-            return items;
+        subtitle() {
+            const course = this.group?.course?.name;
+            if (!course) return 'курс не указан';
+            return `${course} · ${this.getDisciples.length} ${this.plural(this.getDisciples.length, ['ученик', 'ученика', 'учеников'])}`;
         },
-        disciples() {
-            let items = [];
-            for (const k in this.getDisciples) {
-                items.push({title: this.getDisciples[k].name ?? '-'})
-            }
-            return items;
+        // День курса и назначенный ему день группы — в одном объекте
+        days() {
+            return (this.courseSchoolDays ?? []).map(day => {
+                const groupDay = this.groupSchoolDays?.[day.id] ?? {};
+                return {
+                    id: day.id,
+                    order: day.order,
+                    lessons: day.lessons ?? [],
+                    date: groupDay.date ?? null,
+                    status: groupDay.status ?? null,
+                };
+            });
         },
     },
     methods: {
-        ...mapActions('teacher', ['actRequestGroup',]),
-        lessons(lessons) {
-            if (!lessons) {
-                return '';
-            } else {
-                let res = [];
-                for (const i in lessons) {
-                    res.push((1 + parseInt(i)) + '. ' + lessons[i].name)
-                }
-                return res.join('; ')
-            }
+        ...mapActions('teacher', ['actRequestGroup']),
+        fio(user) {
+            return [user.surname, user.name, user.patronymic].filter(Boolean).join(' ') || 'без имени';
         },
-        groupSchoolDay(id, field) {
-            return this.groupSchoolDays?.[id]?.[field];
+        fmtDate(value) {
+            if (!value) return '—';
+            const [y, m, d] = String(value).slice(0, 10).split('-');
+            return `${d}.${m}.${y}`;
         },
-        attendance(groupSchoolDayId) {
-            return this.attendances.indexOf(groupSchoolDayId) > -1;
+        plural(n, forms) {
+            const abs = Math.abs(n) % 100;
+            const last = abs % 10;
+            if (abs > 10 && abs < 20) return forms[2];
+            if (last > 1 && last < 5) return forms[1];
+            if (last === 1) return forms[0];
+            return forms[2];
+        },
+        openLesson(lesson) {
+            this.$router.push({
+                name: 'TeacherLesson',
+                params: {groupId: this.group.group.id, lessonId: lesson.id},
+            });
         },
     },
     created() {
@@ -215,51 +166,64 @@ export default {
 }
 </script>
 
-<style lang="scss">
-.activeSlot {
-    background-color: rgba(66, 209, 197, 0.18) !important;
+<style scoped lang="scss">
+.day-card {
+    border: 1px solid var(--bp-border);
+    border-radius: var(--bp-radius-md, 8px);
+    margin-bottom: 8px;
+    overflow: hidden;
 }
 
-.table-sh {
-    .v-selection-control {
-        align-items: center;
-        contain: layout;
-        display: flex;
-        flex: 1 0;
-        grid-area: control;
-        position: relative;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        user-select: none;
-        justify-content: center;
+.day-card__header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    background: var(--bp-surface-muted);
+}
+
+.day-badge {
+    flex: 0 0 auto;
+    font-size: 12px;
+    line-height: 16px;
+    padding: 0 8px;
+    border-radius: 999px;
+    background: var(--bp-surface-card);
+    color: var(--bp-text-muted);
+
+    &--open {
+        color: var(--bp-accent);
     }
+}
 
-    table thead th {
-        padding: 3px !important;
-        margin: 3px !important;
+.lesson-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 48px;
+    padding: 6px 8px 6px 10px;
+    border-top: 1px solid var(--bp-border);
+    cursor: pointer;
 
-        &:hover {
-            background-color: rgba(194, 229, 234, 0.13) !important;
-        }
+    &:active {
+        background: var(--bp-surface-muted);
     }
+}
 
-    table tbody td {
-        padding: 0 !important;
-        margin: 2px !important;
+.lesson-row__num {
+    flex: 0 0 auto;
+    min-width: 20px;
+    font-size: 12px;
+    color: var(--bp-text-muted);
+}
 
-        &:hover {
-            background-color: rgba(139, 208, 218, 0.13) !important;
-        }
+.person-row {
+    padding: 8px 2px;
+    font-size: 14px;
+    border-bottom: 1px solid var(--bp-border);
+
+    &:last-child {
+        border-bottom: 0;
     }
-
 }
-
-.v-calendar-month__days > .v-calendar-month__day {
-    min-height: auto !important;
-}
-
-.v-calendar-weekly__day-alldayevents-container {
-    min-height: 0;
-}
-
 </style>
