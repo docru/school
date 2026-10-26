@@ -1,15 +1,20 @@
 <template>
+    <!-- На мобильном статус и курс вынесены из карточки и прилипают под хлебными крошками при прокрутке -->
+    <div class="group-sticky tw-flex tw-items-center tw-gap-2 tw-min-w-0 tw-text-sm tw-text-text-muted dark:tw-text-dark-text-muted" v-if="isMobile">
+        <v-chip size="small" label :color="statusColor" class="tw-shrink-0">{{ statusTitle }}</v-chip>
+        <span class="tw-truncate" v-if="getCourse.name">Курс «{{ getCourse.name }}»</span>
+    </div>
+
     <!-- Сводка по группе -->
     <v-card class="group-section tw-mb-4">
         <div class="tw-flex tw-flex-col md:tw-flex-row md:tw-items-start md:tw-justify-between tw-gap-3">
-            <div class="tw-min-w-0">
-                <!-- Название только на десктопе: на мобильном оно уже выведено в хлебных крошках -->
-                <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2" v-if="!isMobile">
+            <!-- Название только на десктопе: на мобильном оно уже выведено в хлебных крошках -->
+            <div class="tw-min-w-0" v-if="!isMobile">
+                <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
                     <h1 class="adf-heading tw-text-2xl tw-leading-8 tw-m-0 tw-break-words">{{ getGroup.name }}</h1>
                     <v-chip size="small" label :color="statusColor">{{ statusTitle }}</v-chip>
                 </div>
-                <div class="tw-flex tw-items-center tw-gap-2 tw-min-w-0 md:tw-mt-1 tw-text-sm tw-text-text-muted dark:tw-text-dark-text-muted">
-                    <v-chip v-if="isMobile" size="small" label :color="statusColor" class="tw-shrink-0">{{ statusTitle }}</v-chip>
+                <div class="tw-flex tw-items-center tw-gap-2 tw-min-w-0 tw-mt-1 tw-text-sm tw-text-text-muted dark:tw-text-dark-text-muted">
                     <span class="tw-truncate" v-if="getCourse.name">Курс «{{ getCourse.name }}»</span>
                 </div>
             </div>
@@ -461,30 +466,26 @@
         </v-card>
     </v-bottom-sheet>
 
-    <v-dialog v-model="dialogDisciple">
-        <v-card>
-            <v-card-title>
-                <div class="tw-w-full tw-flex tw-justify-between ">
-                    <h6>Добавить ученика</h6>
-                    <v-icon @click="dialogDisciple=false">mdi-close</v-icon>
-                </div>
-                <v-card-text>
-                    <UserChoose @choosedUser="dialogDisciple = false; loadUsers()" :group="getGroup"/>
-                </v-card-text>
-            </v-card-title>
+    <v-dialog v-model="dialogDisciple" :fullscreen="isMobile" scrollable>
+        <v-card class="choose-dialog" :class="{'choose-dialog--full': isMobile}">
+            <div class="tw-flex tw-items-center tw-justify-between tw-gap-2 tw-px-4 tw-pt-3 tw-pb-2 tw-shrink-0">
+                <div class="adf-heading tw-text-xl tw-leading-7">Добавить ученика</div>
+                <v-btn icon="mdi-close" size="small" density="comfortable" variant="text" color="muted" class="tw--mr-1" @click="dialogDisciple = false"/>
+            </div>
+            <v-card-text class="tw-px-4 tw-pt-0 tw-pb-4">
+                <UserChoose @choosedUser="dialogDisciple = false; loadUsers()" :group="getGroup"/>
+            </v-card-text>
         </v-card>
     </v-dialog>
-    <v-dialog v-model="dialogTeacher">
-        <v-card>
-            <v-card-title>
-                <div class="tw-w-full tw-flex tw-justify-between ">
-                    <h6>Добавить учителя</h6>
-                    <v-icon @click="dialogTeacher=false">mdi-close</v-icon>
-                </div>
-                <v-card-text>
-                    <UserChoose @choosedUser="dialogTeacher = false; loadUsers()" role="teacher" :group="getGroup"/>
-                </v-card-text>
-            </v-card-title>
+    <v-dialog v-model="dialogTeacher" :fullscreen="isMobile" scrollable>
+        <v-card class="choose-dialog" :class="{'choose-dialog--full': isMobile}">
+            <div class="tw-flex tw-items-center tw-justify-between tw-gap-2 tw-px-4 tw-pt-3 tw-pb-2 tw-shrink-0">
+                <div class="adf-heading tw-text-xl tw-leading-7">Добавить учителя</div>
+                <v-btn icon="mdi-close" size="small" density="comfortable" variant="text" color="muted" class="tw--mr-1" @click="dialogTeacher = false"/>
+            </div>
+            <v-card-text class="tw-px-4 tw-pt-0 tw-pb-4">
+                <UserChoose @choosedUser="dialogTeacher = false; loadUsers()" role="teacher" :group="getGroup"/>
+            </v-card-text>
         </v-card>
     </v-dialog>
 
@@ -923,6 +924,22 @@ export default {
 <style lang="scss">
 .activeSlot {
     background-color: rgba(139, 94, 60, 0.12) !important;
+}
+
+/* Строка «статус · курс» на мобильном: прилипает под фиксированными крошками (шапка 64px + крошки 40px).
+   Верхние 8px уходят под крошки, поэтому текст в прилипшем состоянии начинается ровно под ними */
+.group-sticky {
+    position: sticky;
+    top: 96px;
+    z-index: 5;
+    margin-top: -8px;
+    padding: 8px 0;
+    background: var(--bp-surface-page);
+}
+
+/* Диалог выбора пользователя: на мобильном во весь экран без скругления */
+.choose-dialog.choose-dialog--full {
+    border-radius: 0 !important;
 }
 
 .group-section.v-card {

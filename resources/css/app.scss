@@ -171,6 +171,7 @@ h2 {
 /* Отступ контента под фиксированными хлебными крошками: на телефоне плотнее */
 .bp-page.v-card {
   padding-top: 52px;
+  overflow: visible; /* иначе position: sticky у блоков внутри страницы не цепляется за окно */
 
   @media (min-width: 768px) {
     padding-top: 60px;
