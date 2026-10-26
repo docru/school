@@ -264,6 +264,7 @@ h2 {
   .v-card-title {
     font-size: 20px;
     line-height: 28px;
+    white-space: normal; /* иначе содержимое заголовка вылезает за край на узких экранах */
   }
 
   .v-card-subtitle {

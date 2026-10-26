@@ -1,13 +1,14 @@
 <template>
     <v-card>
         <v-card-title>
-            <div class="tw-flex tw-justify-between">
+            <!-- На мобильной ширине элементы переносятся, кнопка занимает всю строку -->
+            <div class="tw-flex tw-flex-wrap tw-items-center tw-justify-between tw-gap-2">
                 <div>Группы</div>
 
-                <div>
+                <div class="tw-w-full md:tw-w-auto md:tw-order-none tw-order-1">
                     <v-select
                         label="Фильтр"
-                        class="tw-w-max"
+                        class="tw-w-full md:tw-w-max"
                         :items="filterItems"
                         v-model="filterItemSelected"
                         item-title="title"
@@ -17,7 +18,7 @@
                     ></v-select>
                 </div>
 
-                <v-btn color="primary" @click="dialog = true">Создать группу</v-btn>
+                <v-btn color="primary" class="tw-w-full md:tw-w-auto tw-order-2 md:tw-order-none" @click="dialog = true">Создать группу</v-btn>
             </div>
         </v-card-title>
         <v-data-table
