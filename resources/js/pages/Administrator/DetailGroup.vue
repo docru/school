@@ -570,10 +570,12 @@
 
 <script>
 import {mapActions, mapGetters} from "vuex";
+import swipeSheet from "../../mixins/swipeSheet.js";
 import UserChoose from './UserChoose.vue';
 import Code from "../../components/Code.vue";
 
 export default {
+    mixins: [swipeSheet],
     name: "DetailGroup",
     components: {Code, UserChoose,},
     data() {
@@ -587,7 +589,6 @@ export default {
             sheetDisciple: false,
             selectedDiscipleId: null,
             // Состояние свайпа по окну ученика
-            sheetDrag: {startY: null, dy: 0, close: null},
         }
     },
     computed: {
@@ -758,13 +759,6 @@ export default {
         attendanceSet() {
             return new Set(Object.values(this.attendance).map(String));
         },
-        sheetStyle() {
-            const dragging = this.sheetDrag.startY !== null;
-            return {
-                transform: this.sheetDrag.dy ? `translateY(${this.sheetDrag.dy}px)` : '',
-                transition: dragging ? 'none' : 'transform .2s',
-            };
-        },
         // Дни курса, по которым у группы уже назначена дата (для мобильной раскладки)
         conductedDays() {
             return this.headersNotEmpty.filter(day => day && this.groupsSchoolDays[day.id]);
@@ -852,47 +846,10 @@ export default {
         hasWarning(item) {
             return item.status !== 'expelled' && this.missedCount(item) > 3;
         },
-        openDialog(name) {
-            this.sheetDrag = {startY: null, dy: 0, close: null};
-            this[name] = true;
-        },
         openDisciple(item) {
             this.selectedDiscipleId = item.id;
             this.sheetDrag = {startY: null, dy: 0, close: null};
             this.sheetDisciple = true;
-        },
-        // Свайп вниз закрывает любое окно с data-swipe-close="<имя флага>" (окно ученика, диалоги добавления)
-        sheetTouchStart(e) {
-            const scroller = e.currentTarget.querySelector('.swipe-scroll');
-            // Жест внутри прокрученной области — это скролл, а не закрытие
-            if (!this.isMobile || (scroller && scroller.contains(e.target) && scroller.scrollTop > 0)) {
-                this.sheetDrag.startY = null;
-                return;
-            }
-            this.sheetDrag.close = e.currentTarget.dataset.swipeClose;
-            this.sheetDrag.startY = e.touches[0].clientY;
-            this.sheetDrag.dy = 0;
-        },
-        sheetTouchMove(e) {
-            if (this.sheetDrag.startY === null) return;
-            const dy = e.touches[0].clientY - this.sheetDrag.startY;
-            if (dy <= 0) {
-                this.sheetDrag.dy = 0;
-                return;
-            }
-            e.preventDefault(); // пока тянем окно вниз, список под пальцем не прокручиваем
-            this.sheetDrag.dy = dy;
-        },
-        sheetTouchEnd() {
-            if (this.sheetDrag.startY === null) return;
-            const close = this.sheetDrag.dy > 80;
-            this.sheetDrag.startY = null;
-            // При закрытии смещение не сбрасываем: окно уезжает вниз анимацией Vuetify с текущего места
-            if (close) {
-                this[this.sheetDrag.close] = false;
-            } else {
-                this.sheetDrag.dy = 0;
-            }
         },
         rowProps({item}) {
             return {
@@ -1073,16 +1030,6 @@ export default {
 /* Отдельными правилами: &__days внутри .disciple-sheet.v-card склеился бы в .v-card__days */
 .disciple-sheet__days {
     overflow-y: auto;
-}
-
-/* Ручка для свайпа */
-.sheet-handle {
-    width: 36px;
-    height: 4px;
-    margin: 8px auto 4px;
-    border-radius: 2px;
-    background: var(--bp-border-control);
-    flex-shrink: 0;
 }
 
 .day-row {

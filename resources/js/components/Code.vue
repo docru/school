@@ -27,6 +27,8 @@
 
 </template>
 <script>
+import {copyText} from "../utils/clipboard.js";
+
 export default {
     name: 'Code',
     data() {
@@ -53,7 +55,7 @@ export default {
             this.fill = '#8b5e3c'
         },
         saveBuffer() {
-            navigator.clipboard.writeText(this.code);
+            copyText(this.code);
             this.show = true
             setTimeout(() => {
                 this.show = false

@@ -318,3 +318,14 @@ h2 {
 .v-selection-control .v-icon {
   border-radius: var(--bp-radius-sm);
 }
+
+/* ---------- Нижние окна на телефоне ---------- */
+/* Ручка для свайпа вниз (см. mixins/swipeSheet.js) */
+.sheet-handle {
+  width: 36px;
+  height: 4px;
+  margin: 8px auto 4px;
+  border-radius: 2px;
+  background: var(--bp-border-control);
+  flex-shrink: 0;
+}
