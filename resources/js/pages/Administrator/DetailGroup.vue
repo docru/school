@@ -134,7 +134,7 @@
                     color="primary"
                     title="Добавить учителя"
                     class="tw--my-1 tw--mr-1"
-                    @click="dialogTeacher = true"
+                    @click="openDialog('dialogTeacher')"
                     v-if="!finishedCourse"
                 />
             </div>
@@ -190,7 +190,7 @@
                 color="primary"
                 title="Добавить ученика"
                 class="tw--my-1 tw--mr-1"
-                @click="dialogDisciple = true"
+                @click="openDialog('dialogDisciple')"
                 v-if="!finishedCourse"
             />
         </div>
@@ -332,14 +332,14 @@
         <v-card
             class="disciple-sheet"
             v-if="selectedDisciple"
-            ref="sheet"
+            data-swipe-close="sheetDisciple"
             :style="sheetStyle"
             @touchstart.passive="sheetTouchStart"
             @touchmove="sheetTouchMove"
             @touchend="sheetTouchEnd"
             @touchcancel="sheetTouchEnd"
         >
-            <div class="disciple-sheet__handle"></div>
+            <div class="sheet-handle"></div>
             <div class="tw-flex tw-items-start tw-justify-between tw-gap-2 tw-px-4 tw-pt-1 tw-pb-2">
                 <div class="tw-min-w-0">
                     <div class="adf-heading tw-text-xl tw-leading-7 tw-truncate">{{ selectedDisciple.name }}</div>
@@ -402,7 +402,7 @@
             </div>
 
             <!-- Занятия: дата, темы уроков и цветной чекбокс посещения -->
-            <div class="disciple-sheet__days tw-px-4 tw-pb-4">
+            <div class="disciple-sheet__days swipe-scroll tw-px-4 tw-pb-4">
                 <div
                     v-for="day in conductedDays"
                     :key="day.id"
@@ -467,23 +467,43 @@
     </v-bottom-sheet>
 
     <v-dialog v-model="dialogDisciple" :fullscreen="isMobile" scrollable>
-        <v-card class="choose-dialog" :class="{'choose-dialog--full': isMobile}">
-            <div class="tw-flex tw-items-center tw-justify-between tw-gap-2 tw-px-4 tw-pt-3 tw-pb-2 tw-shrink-0">
+        <v-card
+            class="choose-dialog"
+            :class="{'choose-dialog--full': isMobile}"
+            data-swipe-close="dialogDisciple"
+            :style="isMobile ? sheetStyle : null"
+            @touchstart.passive="sheetTouchStart"
+            @touchmove="sheetTouchMove"
+            @touchend="sheetTouchEnd"
+            @touchcancel="sheetTouchEnd"
+        >
+            <div class="sheet-handle" v-if="isMobile"></div>
+            <div class="tw-flex tw-items-center tw-justify-between tw-gap-2 tw-px-4 tw-pt-1 tw-pb-2 tw-shrink-0">
                 <div class="adf-heading tw-text-xl tw-leading-7">Добавить ученика</div>
                 <v-btn icon="mdi-close" size="small" density="comfortable" variant="text" color="muted" class="tw--mr-1" @click="dialogDisciple = false"/>
             </div>
-            <v-card-text class="tw-px-4 tw-pt-0 tw-pb-4">
+            <v-card-text class="swipe-scroll tw-px-4 tw-pt-0 tw-pb-4">
                 <UserChoose @choosedUser="dialogDisciple = false; loadUsers()" :group="getGroup"/>
             </v-card-text>
         </v-card>
     </v-dialog>
     <v-dialog v-model="dialogTeacher" :fullscreen="isMobile" scrollable>
-        <v-card class="choose-dialog" :class="{'choose-dialog--full': isMobile}">
-            <div class="tw-flex tw-items-center tw-justify-between tw-gap-2 tw-px-4 tw-pt-3 tw-pb-2 tw-shrink-0">
+        <v-card
+            class="choose-dialog"
+            :class="{'choose-dialog--full': isMobile}"
+            data-swipe-close="dialogTeacher"
+            :style="isMobile ? sheetStyle : null"
+            @touchstart.passive="sheetTouchStart"
+            @touchmove="sheetTouchMove"
+            @touchend="sheetTouchEnd"
+            @touchcancel="sheetTouchEnd"
+        >
+            <div class="sheet-handle" v-if="isMobile"></div>
+            <div class="tw-flex tw-items-center tw-justify-between tw-gap-2 tw-px-4 tw-pt-1 tw-pb-2 tw-shrink-0">
                 <div class="adf-heading tw-text-xl tw-leading-7">Добавить учителя</div>
                 <v-btn icon="mdi-close" size="small" density="comfortable" variant="text" color="muted" class="tw--mr-1" @click="dialogTeacher = false"/>
             </div>
-            <v-card-text class="tw-px-4 tw-pt-0 tw-pb-4">
+            <v-card-text class="swipe-scroll tw-px-4 tw-pt-0 tw-pb-4">
                 <UserChoose @choosedUser="dialogTeacher = false; loadUsers()" role="teacher" :group="getGroup"/>
             </v-card-text>
         </v-card>
@@ -565,7 +585,7 @@ export default {
             sheetDisciple: false,
             selectedDiscipleId: null,
             // Состояние свайпа по окну ученика
-            sheetDrag: {startY: null, dy: 0},
+            sheetDrag: {startY: null, dy: 0, close: null},
         }
     },
     computed: {
@@ -826,18 +846,24 @@ export default {
         hasWarning(item) {
             return item.status !== 'expelled' && this.missedCount(item) > 3;
         },
+        openDialog(name) {
+            this.sheetDrag = {startY: null, dy: 0, close: null};
+            this[name] = true;
+        },
         openDisciple(item) {
             this.selectedDiscipleId = item.id;
-            this.sheetDrag = {startY: null, dy: 0};
+            this.sheetDrag = {startY: null, dy: 0, close: null};
             this.sheetDisciple = true;
         },
+        // Свайп вниз закрывает любое окно с data-swipe-close="<имя флага>" (окно ученика, диалоги добавления)
         sheetTouchStart(e) {
-            const days = this.$refs.sheet?.$el?.querySelector('.disciple-sheet__days');
-            // Жест внутри прокрученного списка занятий — это скролл, а не закрытие
-            if (days && days.contains(e.target) && days.scrollTop > 0) {
+            const scroller = e.currentTarget.querySelector('.swipe-scroll');
+            // Жест внутри прокрученной области — это скролл, а не закрытие
+            if (!this.isMobile || (scroller && scroller.contains(e.target) && scroller.scrollTop > 0)) {
                 this.sheetDrag.startY = null;
                 return;
             }
+            this.sheetDrag.close = e.currentTarget.dataset.swipeClose;
             this.sheetDrag.startY = e.touches[0].clientY;
             this.sheetDrag.dy = 0;
         },
@@ -857,7 +883,7 @@ export default {
             this.sheetDrag.startY = null;
             // При закрытии смещение не сбрасываем: окно уезжает вниз анимацией Vuetify с текущего места
             if (close) {
-                this.sheetDisciple = false;
+                this[this.sheetDrag.close] = false;
             } else {
                 this.sheetDrag.dy = 0;
             }
@@ -1044,7 +1070,7 @@ export default {
 }
 
 /* Ручка для свайпа */
-.disciple-sheet__handle {
+.sheet-handle {
     width: 36px;
     height: 4px;
     margin: 8px auto 4px;
