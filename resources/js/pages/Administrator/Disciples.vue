@@ -77,6 +77,10 @@
                     <span v-if="item.groupNames">{{ item.groupNames }}</span>
                     <span v-else class="tw-text-text-muted dark:tw-text-dark-text-muted">без группы</span>
                 </template>
+                <template v-slot:item.home_group_leader="{item}">
+                    <span v-if="item.home_group_leader">{{ item.home_group_leader }}</span>
+                    <span v-else class="tw-text-text-muted dark:tw-text-dark-text-muted">без лидера</span>
+                </template>
                 <template v-slot:item.lesson="{item}">
                     <div v-for="a in openLessons(item)" :key="a.gsd_id" class="tw-flex tw-items-center tw-gap-1">
                         <v-checkbox
@@ -134,6 +138,7 @@
                         <span v-if="item.phone">{{ fmtPhone(item.phone) }}</span>
                         <span v-else>телефон не указан</span>
                         <span> · {{ item.groupNames || 'без группы' }}</span>
+                        <span> · {{ item.home_group_leader || 'без лидера' }}</span>
                     </div>
                 </div>
                 <v-icon size="20" color="muted" class="tw-shrink-0">mdi-chevron-right</v-icon>
@@ -211,6 +216,13 @@
                         />
                     </div>
 
+                    <!-- Лидер домашней группы -->
+                    <div class="sheet-block tw-mt-3">
+                        <div class="bp-overline tw-mb-1">Лидер домашней группы</div>
+                        <div class="tw-text-sm" v-if="selected.home_group_leader">{{ selected.home_group_leader }}</div>
+                        <div class="tw-text-sm tw-text-text-muted dark:tw-text-dark-text-muted" v-else>не прикреплён</div>
+                    </div>
+
                     <!-- Открытое занятие: отметка посещения -->
                     <div v-for="a in openLessons(selected)" :key="a.gsd_id" class="sheet-block tw-mt-3">
                         <div class="bp-overline">Занятие {{ fmtDate(a.date) }} · {{ a.group_name }}</div>
@@ -255,6 +267,15 @@
                 <v-text-field v-model="form.name" label="Имя"/>
                 <v-text-field v-model="form.patronymic" label="Отчество"/>
                 <v-text-field v-model="form.phone" label="Телефон" type="tel" placeholder="+7 900 000-00-00"/>
+                <v-autocomplete
+                    v-model="form.home_group_leader_id"
+                    :items="leaderItems"
+                    item-title="fio"
+                    item-value="id"
+                    label="Лидер домашней группы"
+                    clearable
+                    no-data-text="Лидеров пока нет"
+                />
                 <div class="tw-text-xs tw-text-text-muted dark:tw-text-dark-text-muted tw-mt-1 tw-min-h-[16px]">{{ formHint }}</div>
                 <div class="tw-flex tw-justify-end tw-gap-2 tw-mt-4">
                     <v-btn variant="text" color="muted" @click="editDialog = false">Отмена</v-btn>
@@ -286,17 +307,18 @@ export default {
                 {title: 'Все', val: 'all'},
                 {title: 'В группе', val: 'inGroup'},
                 {title: 'Без группы', val: 'noGroup'},
+                {title: 'Без лидера', val: 'noLeader'},
             ],
             sortBy: [{key: 'fio', order: 'asc'}],
             // Сортирует computed filtered (до среза для автоподгрузки); таблице самой сортировать нельзя
-            noSort: {fio: () => 0, groupNames: () => 0, authorized_at: () => 0},
+            noSort: {fio: () => 0, groupNames: () => 0, authorized_at: () => 0, home_group_leader: () => 0},
             shown: PAGE,
             observer: null,
             sheet: false,
             selectedId: null,
             editDialog: false,
             saving: false,
-            form: {id: null, surname: '', name: '', patronymic: '', phone: ''},
+            form: {id: null, surname: '', name: '', patronymic: '', phone: '', home_group_leader_id: null},
         }
     },
     watch: {
@@ -306,7 +328,7 @@ export default {
         sortBy() { this.resetShown(); },
     },
     computed: {
-        ...mapGetters('users', ['getUsers', 'getLoad']),
+        ...mapGetters('users', ['getUsers', 'getLeaders', 'getLoad']),
         ...mapGetters('administrator', ['getAttendancesAll']),
         // Строки отметок по ученику: открытые группы, где он активен
         attendanceByUid() {
@@ -328,11 +350,18 @@ export default {
                 };
             });
         },
+        // Лидеры для выпадающего списка, по алфавиту
+        leaderItems() {
+            return this.getLeaders
+                .map(l => ({id: l.id, fio: [l.surname, l.name, l.patronymic].filter(Boolean).join(' ')}))
+                .sort((a, b) => a.fio.localeCompare(b.fio, 'ru'));
+        },
         counts() {
             return {
                 all: this.users.length,
                 inGroup: this.users.filter(u => u.groups.length).length,
                 noGroup: this.users.filter(u => !u.groups.length).length,
+                noLeader: this.users.filter(u => !u.home_group_leader_id).length,
             };
         },
         subtitle() {
@@ -344,6 +373,7 @@ export default {
             let list = this.users;
             if (this.filter === 'inGroup') list = list.filter(u => u.groups.length);
             if (this.filter === 'noGroup') list = list.filter(u => !u.groups.length);
+            if (this.filter === 'noLeader') list = list.filter(u => !u.home_group_leader_id);
 
             const q = (this.search ?? '').trim().toLowerCase();
             const digits = q.replace(/\D/g, '');
@@ -373,6 +403,7 @@ export default {
                 {title: 'ФИО', key: 'fio'},
                 {title: 'Телефон', key: 'phone', sortable: false, width: 190},
                 {title: 'Группа', key: 'groupNames', width: 200},
+                {title: 'Лидер', key: 'home_group_leader', width: 180},
                 // Колонка с отметками нужна только когда у кого-то идёт занятие
                 ...(this.hasOpenLessons ? [{title: 'Занятие', key: 'lesson', sortable: false, width: 160}] : []),
                 {title: 'Ссылка для входа', key: 'link', sortable: false, width: 170},
@@ -419,10 +450,11 @@ export default {
         },
     },
     methods: {
-        ...mapActions('users', ['actReqwestUsers', 'actUserCreateLink', 'actUserDelete', 'actUserSave', 'actUserCreate']),
+        ...mapActions('users', ['actReqwestUsers', 'actReqwestLeaders', 'actUserCreateLink', 'actUserDelete', 'actUserSave', 'actUserCreate']),
         ...mapActions('administrator', ['actRequestAttendancesAll', 'actSetAttendance']),
         async loadAll() {
             await this.actReqwestUsers({role: 'disciple'});
+            await this.actReqwestLeaders();
             await this.actRequestAttendancesAll();
         },
         resetShown() {
@@ -450,7 +482,7 @@ export default {
             this.openDialog('sheet');
         },
         openCreate() {
-            this.form = {id: null, surname: '', name: '', patronymic: '', phone: ''};
+            this.form = {id: null, surname: '', name: '', patronymic: '', phone: '', home_group_leader_id: null};
             this.editDialog = true;
         },
         openEdit(item) {
@@ -460,6 +492,7 @@ export default {
                 name: item.name ?? '',
                 patronymic: item.patronymic ?? '',
                 phone: item.phone ? this.fmtPhone(item.phone) : '',
+                home_group_leader_id: item.home_group_leader_id ?? null,
             };
             this.editDialog = true;
         },
@@ -471,6 +504,7 @@ export default {
                     name: normalize.name(this.form.name),
                     patronymic: normalize.name(this.form.patronymic),
                     phone: this.formPhone,
+                    home_group_leader_id: this.form.home_group_leader_id,
                 };
                 let res;
                 if (this.form.id) {
@@ -605,13 +639,20 @@ export default {
     border-color: var(--bp-border-control) !important;
     border-radius: var(--bp-radius-sm, 4px) !important;
 
+    /* Четыре фильтра в строку на телефон не помещаются — переносим по два */
+    @media (max-width: 767px) {
+        flex-wrap: wrap;
+        height: auto !important;
+    }
+
     :deep(.v-btn) {
         border-color: var(--bp-border-control) !important;
         border-radius: 0 !important;
         color: var(--bp-text-muted);
 
         @media (max-width: 767px) {
-            flex: 1 1 0;
+            flex: 1 1 50%;
+            max-width: 50%;
             min-width: 0;
             padding: 0 4px;
             font-size: 12px;

@@ -145,6 +145,16 @@ class UserController extends RestController
 
         $user->setRoles($roles);
 
+        // Лидер домашней группы можно задать сразу при создании ученика
+        $leaderId = request()->post('home_group_leader_id');
+        if (!empty($leaderId)) {
+            $leader = User::find($leaderId);
+            if (!empty($leader) && $leader->hasRole('home_group_leader')) {
+                $user->home_group_leader_id = $leader->id;
+                $user->save();
+            }
+        }
+
         return $this->list($role);
     }
 
@@ -192,7 +202,7 @@ class UserController extends RestController
         if (
             !empty(auth()->user())
             && (auth()->user()->hasRole('superadmin')
-                || (auth()->user()->hasRole('administrator') && in_array($role, ['disciple', 'teacher'])))
+                || (auth()->user()->hasRole('administrator') && in_array($role, ['disciple', 'teacher', 'home_group_leader'])))
         ) {
 
         } else {
@@ -200,9 +210,9 @@ class UserController extends RestController
         }
 
         if (!empty($role)) {
-            $users = User::whereHasRole($role)->orderBy('id')->get();
+            $users = User::whereHasRole($role)->with('homeGroupLeader')->orderBy('id')->get();
         } else {
-            $users = User::orderBy('id')->get();
+            $users = User::with('homeGroupLeader')->orderBy('id')->get();
         }
 
         $users = $users->map(function (User $user) {
@@ -215,6 +225,10 @@ class UserController extends RestController
                 'patronymic' => $user->patronymic,
                 'entry_code' => $user->entry_code ? env('APP_URL') . '/login/' . $user->entry_code : '',
                 'deleted_at' => $user->deleted_at,
+                'home_group_leader_id' => $user->home_group_leader_id,
+                'home_group_leader' => $user->homeGroupLeader
+                    ? trim($user->homeGroupLeader->surname . ' ' . $user->homeGroupLeader->name)
+                    : null,
                 'roles' => $user->roles->map(function (Role $role) {
                     return ['name' => $role->name, 'display_name' => $role->display_name];
                 }),
@@ -332,6 +346,25 @@ class UserController extends RestController
                 return $item['name'];
             })->toArray();
             $user->setRoles($roles);
+        }
+
+        // Прикрепление к лидеру домашней группы. Ключ может не приходить —
+        // тогда текущая привязка не трогается; пустое значение открепляет.
+        if ($request->has('home_group_leader_id')) {
+            $leaderId = $request->post('home_group_leader_id');
+            if (empty($leaderId)) {
+                $user->home_group_leader_id = null;
+            } else {
+                $leader = User::find($leaderId);
+                if (empty($leader) || !$leader->hasRole('home_group_leader')) {
+                    return $this->ResponseError('Выбранный пользователь не лидер домашней группы');
+                }
+                if ($leader->id == $user->id) {
+                    return $this->ResponseError('Нельзя прикрепить пользователя к самому себе');
+                }
+                $user->home_group_leader_id = $leader->id;
+            }
+            $user->save();
         }
 
         return $this->ResponseOk(['msgOk' => 'Сохранено']);

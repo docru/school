@@ -94,6 +94,22 @@ class User extends Authenticatable implements LaratrustUser
         return $this->hasMany(GroupUser::class);
     }
 
+    /**
+     * Лидер домашней группы, к которому прикреплён ученик.
+     */
+    public function homeGroupLeader()
+    {
+        return $this->belongsTo(User::class, 'home_group_leader_id');
+    }
+
+    /**
+     * Ученики, прикреплённые к этому лидеру.
+     */
+    public function homeGroupDisciples()
+    {
+        return $this->hasMany(User::class, 'home_group_leader_id');
+    }
+
 
     /**
      * @param string $phone
