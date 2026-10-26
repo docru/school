@@ -214,7 +214,15 @@
                 >
                     <div class="tw-min-w-0 tw-flex-1">
                         <div class="tw-text-[15px] tw-font-medium tw-truncate">{{ index + 1 }}. {{ item.name }}</div>
-                        <div class="tw-text-xs tw-text-text-muted dark:tw-text-dark-text-muted tw-mt-0.5">{{ discipleNote(item) }}</div>
+                        <div class="tw-text-xs tw-mt-0.5">
+                            <span class="tw-text-text-muted dark:tw-text-dark-text-muted" v-if="item.status === 'expelled'">
+                                отчислен{{ item.expelled_at ? ' ' + fmtDate(item.expelled_at) : '' }}
+                            </span>
+                            <template v-else>
+                                <span>посещено {{ attendedCount(item) }} из {{ closedDaysCount }}</span>
+                                <span class="tw-text-warning tw-font-medium" v-if="hasWarning(item)"> · пропусков {{ missedCount(item) }}</span>
+                            </template>
+                        </div>
                     </div>
                     <v-icon color="muted" size="small">mdi-chevron-right</v-icon>
                 </div>
@@ -315,12 +323,29 @@
     </v-card>
     <!-- Карточка ученика на мобильном: телефон, действия и отметки по занятиям -->
     <v-bottom-sheet v-model="sheetDisciple">
-        <v-card class="disciple-sheet" v-if="selectedDisciple">
-            <div class="tw-flex tw-items-start tw-justify-between tw-gap-2 tw-px-4 tw-pt-4 tw-pb-2">
+        <!-- Окно можно закрыть свайпом вниз: тянется за пальцем, после 80px закрывается -->
+        <v-card
+            class="disciple-sheet"
+            v-if="selectedDisciple"
+            ref="sheet"
+            :style="sheetStyle"
+            @touchstart.passive="sheetTouchStart"
+            @touchmove="sheetTouchMove"
+            @touchend="sheetTouchEnd"
+            @touchcancel="sheetTouchEnd"
+        >
+            <div class="disciple-sheet__handle"></div>
+            <div class="tw-flex tw-items-start tw-justify-between tw-gap-2 tw-px-4 tw-pt-1 tw-pb-2">
                 <div class="tw-min-w-0">
                     <div class="adf-heading tw-text-xl tw-leading-7 tw-truncate">{{ selectedDisciple.name }}</div>
-                    <div class="tw-text-xs tw-mt-0.5 tw-text-text-muted dark:tw-text-dark-text-muted">
-                        {{ discipleNote(selectedDisciple) }}
+                    <div class="tw-text-xs tw-mt-0.5">
+                        <span class="tw-text-text-muted dark:tw-text-dark-text-muted" v-if="selectedDisciple.status === 'expelled'">
+                            отчислен{{ selectedDisciple.expelled_at ? ' ' + fmtDate(selectedDisciple.expelled_at) : '' }}
+                        </span>
+                        <template v-else>
+                            <span>посещено {{ attendedCount(selectedDisciple) }} из {{ closedDaysCount }}</span>
+                            <span class="tw-text-warning tw-font-medium" v-if="hasWarning(selectedDisciple)"> · пропусков {{ missedCount(selectedDisciple) }}</span>
+                        </template>
                     </div>
                 </div>
                 <v-btn
@@ -371,6 +396,7 @@
                 </div>
             </div>
 
+            <!-- Занятия: дата, темы уроков и цветной чекбокс посещения -->
             <div class="disciple-sheet__days tw-px-4 tw-pb-4">
                 <div
                     v-for="day in conductedDays"
@@ -378,37 +404,51 @@
                     class="day-row"
                     :class="{'day-row--open': groupsSchoolDays[day.id]?.status === 'open'}"
                 >
-                    <div class="tw-flex tw-items-center tw-gap-2 tw-min-w-0">
-                        <span class="day-row__num">{{ day.title }}</span>
-                        <span class="tw-text-sm">{{ groupsSchoolDays[day.id].date }}</span>
-                        <span class="tw-text-xs tw-text-accent dark:tw-text-dark-accent" v-if="groupsSchoolDays[day.id].status === 'open'">открыт</span>
-                        <v-menu location="top">
-                            <template v-slot:activator="{ props }">
-                                <v-icon v-bind="props" color="muted" size="small">mdi-book-open-outline</v-icon>
-                            </template>
-                            <v-card class="tw-p-3 tw-text-sm tw-max-w-[300px]">
-                                <span v-html="lessons(day.lessons)"></span>
-                            </v-card>
-                        </v-menu>
-                    </div>
+                    <v-menu location="top" :disabled="!day.lessons?.length">
+                        <template v-slot:activator="{ props }">
+                            <div class="tw-flex tw-items-center tw-gap-2 tw-min-w-0 tw-flex-1" v-bind="props">
+                                <span class="day-row__num">{{ day.title }}</span>
+                                <div class="tw-min-w-0">
+                                    <div class="tw-text-sm">
+                                        {{ groupsSchoolDays[day.id].date }}
+                                        <span class="tw-text-xs tw-text-accent dark:tw-text-dark-accent tw-ml-1" v-if="groupsSchoolDays[day.id].status === 'open'">открыт</span>
+                                    </div>
+                                    <div class="tw-text-xs tw-text-text-muted dark:tw-text-dark-text-muted tw-truncate" v-if="day.lessons?.length">
+                                        {{ day.lessons.join(', ') }}
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                        <v-card class="tw-p-3 tw-text-sm tw-max-w-[300px]">
+                            <span v-html="lessons(day.lessons)"></span>
+                        </v-card>
+                    </v-menu>
 
-                    <div v-if="(gsd=groupsSchoolDays[day.id])">
-                        <div
-                            v-if="!expelledDay(selectedDisciple, day)"
-                            @click="changeOld({groupSchoolDayId: gsd.id, userId: selectedDisciple.id})"
-                        >
+                    <!-- Чекбокс: зелёный — был, янтарный — пропуск; у прошедших дней меняется через подтверждение -->
+                    <div class="tw-shrink-0 tw-w-10 tw-text-center" v-if="(gsd=groupsSchoolDays[day.id])">
+                        <span v-if="expelledDay(selectedDisciple, day)" class="tw-text-text-muted dark:tw-text-dark-text-muted tw-leading-10">—</span>
+                        <v-checkbox
+                            v-else-if="gsd.status === 'open'"
+                            color="primary"
+                            hide-details
+                            density="compact"
+                            class="day-check"
+                            v-model="attendance"
+                            :disabled="selectedDisciple.status == 'expelled'"
+                            :value="gsd.id + '_' + selectedDisciple.id"
+                            @change="actSetAttendance({groupSchoolDayId: gsd.id, userId: selectedDisciple.id})"
+                        />
+                        <div v-else @click="selectedDisciple.status == 'expelled' || changeOld({groupSchoolDayId: gsd.id, userId: selectedDisciple.id})">
                             <v-checkbox
-                                color="primary"
                                 hide-details
                                 density="compact"
-                                v-model="attendance"
-                                :disabled="gsd.status !== 'open' || selectedDisciple.status == 'expelled'"
-                                :value="gsd.id + '_' + selectedDisciple.id"
-                                @change="actSetAttendance({groupSchoolDayId: gsd.id, userId: selectedDisciple.id})"
+                                readonly
+                                class="day-check"
+                                :class="attended(gsd, selectedDisciple) ? 'day-check--yes' : 'day-check--no'"
+                                :model-value="attended(gsd, selectedDisciple)"
+                                :disabled="selectedDisciple.status == 'expelled'"
                             />
                         </div>
-                        <!-- Прочерк той же ширины, что чекбокс, чтобы стоять с ним в одной колонке -->
-                        <span v-else class="tw-inline-block tw-w-10 tw-text-center tw-leading-10 tw-text-text-muted dark:tw-text-dark-text-muted">—</span>
                     </div>
                 </div>
                 <div class="tw-text-xs tw-text-text-muted dark:tw-text-dark-text-muted tw-mt-2" v-if="remainingDaysCount">
@@ -523,6 +563,8 @@ export default {
             editDay: null,
             sheetDisciple: false,
             selectedDiscipleId: null,
+            // Состояние свайпа по окну ученика
+            sheetDrag: {startY: null, dy: 0},
         }
     },
     computed: {
@@ -599,8 +641,10 @@ export default {
                     expelled_at: disciple.expelled_at,
                 });
             }
-            // Отчисленные — в конец списка, порядок внутри групп сохраняется (sort стабильный)
-            return disciples.sort((a, b) => Number(a.status === 'expelled') - Number(b.status === 'expelled'));
+            // Порядок: сначала с замечанием по пропускам, затем остальные активные, отчисленные в конце.
+            // Внутри групп исходный порядок сохраняется (sort стабильный)
+            const rank = d => d.status === 'expelled' ? 2 : (this.hasWarning(d) ? 0 : 1);
+            return disciples.sort((a, b) => rank(a) - rank(b));
         },
         groupsSchoolDays() {
             return this.getGroup.groups_school_day ?? {};
@@ -687,6 +731,17 @@ export default {
         selectedDisciple() {
             return this.disciples.find(d => d.id === this.selectedDiscipleId) ?? null;
         },
+        // Отметки посещения как множество «gsdId_userId» (в ответе API бывают дубли)
+        attendanceSet() {
+            return new Set(Object.values(this.attendance).map(String));
+        },
+        sheetStyle() {
+            const dragging = this.sheetDrag.startY !== null;
+            return {
+                transform: this.sheetDrag.dy ? `translateY(${this.sheetDrag.dy}px)` : '',
+                transition: dragging ? 'none' : 'transform .2s',
+            };
+        },
         // Дни курса, по которым у группы уже назначена дата (для мобильной раскладки)
         conductedDays() {
             return this.headersNotEmpty.filter(day => day && this.groupsSchoolDays[day.id]);
@@ -748,37 +803,63 @@ export default {
             if (last === 1) return forms[0];
             return forms[2];
         },
-        // Сколько занятий посетил ученик (в ответе API бывают дубли отметок, поэтому считаем уникальные)
+        // Был ли ученик на занятии
+        attended(gsd, item) {
+            return this.attendanceSet.has(gsd.id + '_' + item.id);
+        },
+        // Сколько занятий посетил ученик
         attendedCount(item) {
             const suffix = '_' + item.id;
-            return new Set(Object.values(this.attendance).map(String).filter(a => a.endsWith(suffix))).size;
+            return [...this.attendanceSet].filter(a => a.endsWith(suffix)).length;
         },
         // Сколько закрытых занятий ученик пропустил (дни после отчисления не считаются)
         missedCount(item) {
-            const marks = new Set(Object.values(this.attendance).map(String));
             return this.conductedDays.filter(day => {
                 const gsd = this.groupsSchoolDays[day.id];
                 return gsd.status === 'close'
                     && !this.expelledDay(item, day)
-                    && !marks.has(gsd.id + '_' + item.id);
+                    && !this.attended(gsd, item);
             }).length;
         },
         // Замечание: активный ученик пропустил больше трёх занятий
         hasWarning(item) {
             return item.status !== 'expelled' && this.missedCount(item) > 3;
         },
-        // Подпись под именем: статус отчисления или посещаемость с замечанием
-        discipleNote(item) {
-            if (item.status === 'expelled') {
-                return 'отчислен' + (item.expelled_at ? ' ' + this.fmtDate(item.expelled_at) : '');
-            }
-            let note = `посещено ${this.attendedCount(item)} из ${this.closedDaysCount}`;
-            if (this.hasWarning(item)) note += ` · пропусков ${this.missedCount(item)}`;
-            return note;
-        },
         openDisciple(item) {
             this.selectedDiscipleId = item.id;
+            this.sheetDrag = {startY: null, dy: 0};
             this.sheetDisciple = true;
+        },
+        sheetTouchStart(e) {
+            const days = this.$refs.sheet?.$el?.querySelector('.disciple-sheet__days');
+            // Жест внутри прокрученного списка занятий — это скролл, а не закрытие
+            if (days && days.contains(e.target) && days.scrollTop > 0) {
+                this.sheetDrag.startY = null;
+                return;
+            }
+            this.sheetDrag.startY = e.touches[0].clientY;
+            this.sheetDrag.dy = 0;
+        },
+        sheetTouchMove(e) {
+            if (this.sheetDrag.startY === null) return;
+            const dy = e.touches[0].clientY - this.sheetDrag.startY;
+            if (dy <= 0) {
+                this.sheetDrag.dy = 0;
+                return;
+            }
+            e.preventDefault(); // пока тянем окно вниз, список под пальцем не прокручиваем
+            this.sheetDrag.dy = dy;
+        },
+        sheetTouchEnd() {
+            if (this.sheetDrag.startY === null) return;
+            const close = this.sheetDrag.dy > 80;
+            this.sheetDrag.startY = null;
+            // При закрытии смещение не сбрасываем: окно уезжает вниз анимацией Vuetify с текущего места
+            if (close) {
+                this.sheetDisciple = false;
+            } else {
+                this.sheetDrag.dy = 0;
+            }
         },
         rowProps({item}) {
             return {
@@ -929,10 +1010,6 @@ export default {
     &--warning {
         border-left: 3px solid var(--bp-warning);
         padding-left: 10px;
-
-        .tw-text-text-muted {
-            color: var(--bp-warning);
-        }
     }
 }
 
@@ -944,9 +1021,19 @@ export default {
     border-radius: var(--bp-radius-md, 8px) var(--bp-radius-md, 8px) 0 0 !important;
 }
 
-/* Отдельным правилом: &__days внутри .disciple-sheet.v-card склеился бы в .v-card__days */
+/* Отдельными правилами: &__days внутри .disciple-sheet.v-card склеился бы в .v-card__days */
 .disciple-sheet__days {
     overflow-y: auto;
+}
+
+/* Ручка для свайпа */
+.disciple-sheet__handle {
+    width: 36px;
+    height: 4px;
+    margin: 8px auto 4px;
+    border-radius: 2px;
+    background: var(--bp-border-control);
+    flex-shrink: 0;
 }
 
 .day-row {
@@ -954,8 +1041,8 @@ export default {
     align-items: center;
     justify-content: space-between;
     gap: 8px;
-    min-height: 40px;
-    padding: 0 4px 0 8px;
+    min-height: 44px;
+    padding: 4px 4px 4px 8px;
     border-top: 1px solid var(--bp-border);
 
     &--open {
@@ -968,6 +1055,28 @@ export default {
         font-size: 12px;
         font-weight: 500;
         color: var(--bp-text-muted);
+    }
+}
+
+/* Чекбокс посещения в окне ученика: отмечен — зелёный, пропуск — янтарный.
+   Классы с двойной специфичностью, чтобы перебить служебные цвета Vuetify */
+.day-check.v-checkbox {
+    display: inline-flex;
+
+    .v-selection-control {
+        min-height: 40px;
+    }
+
+    .v-selection-control__input > .v-icon {
+        opacity: 1;
+    }
+
+    &.day-check--yes .v-selection-control__input > .v-icon {
+        color: #15803d !important;
+    }
+
+    &.day-check--no .v-selection-control__input > .v-icon {
+        color: #d97706 !important;
     }
 }
 
