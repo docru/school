@@ -196,9 +196,11 @@ export default {
         breadcrumbs() {
             if (!this.$route?.meta || !this.$route?.meta?.breadcrumbs?.length) return []
             return this.$route?.meta?.breadcrumbs.map(el => {
-                if (el.params) return {...el, href: el.href + '/' + this.$route.params[el.params], disabled: false}
-                if (el.routName) return {...el, to: {name: el.routName}, disabled: false}
-                return {...el, disabled: true}
+                // Крошка может брать заголовок из стора (например, название открытой группы)
+                const title = el.getter ? (this.$store.getters[el.getter]?.[el.field] || el.title) : el.title
+                if (el.params) return {...el, title, href: el.href + '/' + this.$route.params[el.params], disabled: false}
+                if (el.routName) return {...el, title, to: {name: el.routName}, disabled: false}
+                return {...el, title, disabled: true}
             })
         },
         validProfile() {

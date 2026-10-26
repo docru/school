@@ -3,12 +3,14 @@
     <v-card class="group-section tw-mb-4">
         <div class="tw-flex tw-flex-col md:tw-flex-row md:tw-items-start md:tw-justify-between tw-gap-3">
             <div class="tw-min-w-0">
-                <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
+                <!-- Название только на десктопе: на мобильном оно уже выведено в хлебных крошках -->
+                <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2" v-if="!isMobile">
                     <h1 class="adf-heading tw-text-2xl tw-leading-8 tw-m-0 tw-break-words">{{ getGroup.name }}</h1>
                     <v-chip size="small" label :color="statusColor">{{ statusTitle }}</v-chip>
                 </div>
-                <div class="tw-text-sm tw-text-text-muted dark:tw-text-dark-text-muted tw-mt-1" v-if="getCourse.name">
-                    Курс «{{ getCourse.name }}»
+                <div class="tw-flex tw-items-center tw-gap-2 tw-min-w-0 md:tw-mt-1 tw-text-sm tw-text-text-muted dark:tw-text-dark-text-muted">
+                    <v-chip v-if="isMobile" size="small" label :color="statusColor" class="tw-shrink-0">{{ statusTitle }}</v-chip>
+                    <span class="tw-truncate" v-if="getCourse.name">Курс «{{ getCourse.name }}»</span>
                 </div>
             </div>
 
@@ -50,8 +52,39 @@
             </div>
         </div>
 
-        <!-- Ключевые показатели -->
-        <div class="tw-grid tw-grid-cols-2 md:tw-grid-cols-4 tw-gap-3 tw-mt-4">
+        <!-- Ключевые показатели: на мобильном компактно, как в карточке списка -->
+        <div class="tw-mt-4 tw-flex tw-flex-col tw-gap-3" v-if="isMobile">
+            <div>
+                <div class="tw-flex tw-justify-between tw-items-baseline tw-mb-1">
+                    <span class="bp-overline">Занятия</span>
+                    <span class="tw-text-sm">
+                        <span class="tw-font-medium">{{ closedDaysCount }}</span>
+                        <span class="tw-text-text-muted dark:tw-text-dark-text-muted"> из {{ totalDaysCount }}</span>
+                    </span>
+                </div>
+                <v-progress-linear :model-value="progress" height="4" rounded color="primary" bg-color="border" bg-opacity="1"/>
+            </div>
+            <div class="tw-grid tw-grid-cols-3 tw-gap-3">
+                <div>
+                    <div class="bp-overline">Ученики</div>
+                    <div class="tw-text-sm tw-mt-0.5">
+                        <span class="tw-font-medium">{{ activeDisciplesCount }}</span>
+                        <span class="tw-text-text-muted dark:tw-text-dark-text-muted" v-if="expelledDisciplesCount">
+                            · отчисл. {{ expelledDisciplesCount }}
+                        </span>
+                    </div>
+                </div>
+                <div>
+                    <div class="bp-overline">Старт</div>
+                    <div class="tw-text-sm tw-mt-0.5">{{ firstDayDate }}</div>
+                </div>
+                <div>
+                    <div class="bp-overline">{{ existsOpenDay ? 'Текущее' : 'Последнее' }}</div>
+                    <div class="tw-text-sm tw-mt-0.5">{{ lastDayDate }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="tw-grid tw-grid-cols-4 tw-gap-3 tw-mt-4" v-else>
             <div class="group-stat">
                 <div class="bp-overline">Ученики</div>
                 <div class="group-stat__value">
@@ -93,6 +126,7 @@
                     variant="text"
                     color="primary"
                     prepend-icon="mdi-account-plus-outline"
+                    class="tw--mr-3"
                     @click="dialogTeacher = true"
                     v-if="!finishedCourse"
                 >
@@ -134,6 +168,7 @@
                 variant="text"
                 color="primary"
                 prepend-icon="mdi-account-plus-outline"
+                class="tw--mr-3"
                 @click="dialogDisciple = true"
                 v-if="!finishedCourse"
             >
@@ -566,6 +601,10 @@ export default {
             set() {
             },
         },
+        // Мобильная ширина по порогам Vuetify (< 768px)
+        isMobile() {
+            return this.$vuetify.display.name === 'sm';
+        },
         statusTitle() {
             return this.getGroup.status === 'archived' ? 'В архиве' : 'Идёт';
         },
@@ -734,11 +773,23 @@ export default {
         padding: 20px;
     }
 
-    &--table {
+    /* &--table здесь склеился бы в .v-card--table, поэтому класс указан явно */
+    &.group-section--table {
         padding: 12px;
 
         @media (min-width: 768px) {
             padding: 16px;
+        }
+
+        /* На мобильном список учеников — панели, а не таблица: убираем паддинги и пустую шапку */
+        @media (max-width: 767px) {
+            .table-sh.v-table {
+                padding: 0 !important;
+
+                thead {
+                    display: none;
+                }
+            }
         }
     }
 }

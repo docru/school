@@ -184,7 +184,7 @@
         <v-card v-else-if="!load">
             <div class="tw-p-8 tw-text-center">
                 <v-icon size="40" color="muted">mdi-account-group-outline</v-icon>
-                <div class="adf-heading tw-text-lg tw-mt-2">{{ emptyTitle }}</div>
+                <div class="adf-heading tw-text-lg tw-mt-2 tw-mb-1">{{ emptyTitle }}</div>
                 <div class="tw-text-sm tw-text-text-muted dark:tw-text-dark-text-muted tw-mt-1" v-if="filterItemSelected !== 'archived'">
                     Создайте группу и назначьте в неё учителей и учеников
                 </div>

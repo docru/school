@@ -48,7 +48,8 @@ const routes = [
             breadcrumbs:[
                 {title:'Главная',routName:'Home'},
                 {title:'Группы',routName:'AdministratorGroupsList'},
-                {title:'Группа'},
+                // название группы подставляется из стора (см. breadcrumbs в App.vue)
+                {title:'Группа', getter:'administrator/getGroup', field:'name'},
             ]
         }
     },

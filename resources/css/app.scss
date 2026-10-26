@@ -67,10 +67,9 @@ h2 {
   margin: var(--bp-space-3) var(--bp-space-3) var(--bp-space-3) var(--bp-space-3);
 }
 
+/* Размер и отступы .adf-heading задаются утилитами на месте: app.scss подключается после tailwind,
+   и любые значения здесь перебили бы tw-text-* / tw-m-* в компонентах */
 .adf-heading {
-  font-size: 24px;
-  line-height: 32px;
-  margin-bottom: var(--bp-space-6);
   transition: color .2s;
 }
 
