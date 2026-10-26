@@ -192,4 +192,6 @@ app.use(vuetify);
 app.use(router)
 app.use(store)
 app.use(VMdEditor);
+// this.$confirm({title, text, okText, cancelText, color}) -> Promise<boolean>; вместо системного confirm()
+app.config.globalProperties.$confirm = (options) => store.dispatch('app/actConfirm', options);
 app.mount('#appVue');

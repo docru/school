@@ -8,6 +8,7 @@
         <template v-else>
 
             <snack-bar/>
+            <confirm-dialog/>
             <v-navigation-drawer
                 v-if="!showFormNicName"
                 app
@@ -126,10 +127,11 @@
 <script>
 import {mapActions, mapGetters} from "vuex";
 import SnackBar from "./components/Snackbar.vue";
+import ConfirmDialog from "./components/ConfirmDialog.vue";
 
 export default {
     name: 'App',
-    components: {SnackBar},
+    components: {SnackBar, ConfirmDialog},
     data: () => ({
         drawer: false,
         menu_disciple: [

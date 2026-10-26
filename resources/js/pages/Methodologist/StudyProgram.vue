@@ -46,7 +46,7 @@ export default {
             this.dialogCreateModule = false;
         },
         async deleteModule(module) {
-            if (confirm(`Вы уверены, что хотите удалить модуль "${module.name}"?`)) {
+            if (await this.$confirm({title: 'Удалить модуль?', text: `«${module.name}» будет удалён из программы.`, okText: 'Удалить', color: 'error'})) {
                 await this.actDeleteModule(module);
             }
         },
@@ -64,7 +64,7 @@ export default {
             this.dialogCreateLesson = false;
         },
         async deleteLesson(lesson) {
-            if (confirm(`Вы уверены, что хотите удалить урок "${lesson.name}"?`)) {
+            if (await this.$confirm({title: 'Удалить урок?', text: `«${lesson.name}» будет удалён из программы.`, okText: 'Удалить', color: 'error'})) {
                 await this.actDeleteLesson(lesson);
                 if (lesson.id === this.curLesson.id) {
                     delete this.curLesson;

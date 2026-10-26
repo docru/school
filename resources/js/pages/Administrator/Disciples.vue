@@ -190,7 +190,7 @@ export default {
         },
         openEditF(item) {
             if (!item?.id) {
-                alert('Не определен пользователь')
+                this.$store.commit('app/setSnackBar', {text: 'Не определён пользователь', color: 'error'})
             } else {
                 this.openEdit = true;
                 this.currentItem = {

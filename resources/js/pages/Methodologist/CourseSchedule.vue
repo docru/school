@@ -81,7 +81,7 @@ export default {
             this.actCreateCourseSchoolDay({course_id: this.courseId});
         },
         async deleteCourseSchoolDay(day) {
-            if (confirm('Вы уверены, что хотите удалить учебный день?')) {
+            if (await this.$confirm({title: 'Удалить учебный день?', text: 'Уроки этого дня останутся в программе без даты.', okText: 'Удалить', color: 'error'})) {
                 await this.actDeleteCourseSchoolDay(day);
             }
         },

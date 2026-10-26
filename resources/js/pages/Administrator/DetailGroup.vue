@@ -788,8 +788,8 @@ export default {
             'actReqwestCourse',
             'actSetGroupStatus',
         ]),
-        changeOld(data) {
-            if (confirm('Изменить посещение за прошедшую дату?')) {
+        async changeOld(data) {
+            if (await this.$confirm({title: 'Изменить посещение?', text: 'Отметка за прошедшую дату будет переключена.', okText: 'Изменить'})) {
                 this.actSetAttendance(data);
             }
         },
@@ -912,18 +912,18 @@ export default {
         loadUsers() {
             this.actRequestGroupUsers({groupId: this.groupId});
         },
-        removeTeacher(id) {
-            if (confirm('Удалить учителя?')) {
+        async removeTeacher(id) {
+            if (await this.$confirm({title: 'Удалить учителя из группы?', okText: 'Удалить', color: 'error'})) {
                 this.actRemoveUserFromGroup({groupId: this.groupId, userId: id});
             }
         },
-        removeDisciple(id) {
-            if (confirm('Отчислить ученика?')) {
+        async removeDisciple(id) {
+            if (await this.$confirm({title: 'Отчислить ученика?', text: 'Ученика можно будет восстановить позже.', okText: 'Отчислить', color: 'error'})) {
                 this.actRemoveUserFromGroup({groupId: this.groupId, userId: id});
             }
         },
-        restoreDisciple(id) {
-            if (confirm('Восстановить ученика?')) {
+        async restoreDisciple(id) {
+            if (await this.$confirm({title: 'Восстановить ученика в группе?', okText: 'Восстановить'})) {
                 this.actRestoreUserToGroup({groupId: this.groupId, userId: id});
             }
         },
