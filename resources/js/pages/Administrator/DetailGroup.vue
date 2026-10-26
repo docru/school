@@ -403,8 +403,12 @@
 
             <!-- Занятия: дата, темы уроков и цветной чекбокс посещения -->
             <div class="disciple-sheet__days swipe-scroll tw-px-4 tw-pb-4">
+                <!-- Свежее занятие сверху, старые ниже; перед ним — сколько занятий ещё впереди -->
+                <div class="tw-text-xs tw-text-text-muted dark:tw-text-dark-text-muted tw-pb-2 tw-pl-1" v-if="remainingDaysCount">
+                    Впереди ещё {{ remainingDaysCount }} {{ plural(remainingDaysCount, ['занятие', 'занятия', 'занятий']) }}
+                </div>
                 <div
-                    v-for="day in conductedDays"
+                    v-for="day in recentDaysFirst"
                     :key="day.id"
                     class="day-row"
                     :class="{'day-row--open': groupsSchoolDays[day.id]?.status === 'open'}"
@@ -456,9 +460,6 @@
                             />
                         </div>
                     </div>
-                </div>
-                <div class="tw-text-xs tw-text-text-muted dark:tw-text-dark-text-muted tw-mt-2" v-if="remainingDaysCount">
-                    Впереди ещё {{ remainingDaysCount }} {{ plural(remainingDaysCount, ['занятие', 'занятия', 'занятий']) }}
                 </div>
                 <div class="tw-text-xs tw-text-text-muted dark:tw-text-dark-text-muted" v-if="!conductedDays.length">
                     Занятий ещё не было
@@ -767,6 +768,10 @@ export default {
         // Дни курса, по которым у группы уже назначена дата (для мобильной раскладки)
         conductedDays() {
             return this.headersNotEmpty.filter(day => day && this.groupsSchoolDays[day.id]);
+        },
+        // Для окна ученика: последнее занятие сверху
+        recentDaysFirst() {
+            return [...this.conductedDays].reverse();
         },
     },
     methods: {
