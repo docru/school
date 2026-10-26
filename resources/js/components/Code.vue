@@ -31,7 +31,7 @@ export default {
     name: 'Code',
     data() {
         return {
-            fill: '#CFD3DB',
+            fill: '#b9a48f',
             show: false
         }
     },
@@ -47,10 +47,10 @@ export default {
     },
     methods: {
         mleave() {
-            this.fill = '#CFD3DB'
+            this.fill = '#b9a48f'
         },
         mover() {
-            this.fill = '#8B9CBE'
+            this.fill = '#8b5e3c'
         },
         saveBuffer() {
             navigator.clipboard.writeText(this.code);
@@ -85,6 +85,7 @@ export default {
     tw-justify-between
     tw-flex
     tw-items-center
+    tw-gap-2
     tw-px-3
     tw-min-h-[40px] tw-bg-surface-muted dark:tw-bg-dark-surface-muted tw-p-1 tw-rounded-md tw-my-2;
 }

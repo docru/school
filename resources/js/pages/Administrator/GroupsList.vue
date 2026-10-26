@@ -1,162 +1,241 @@
 <template>
-    <v-card>
-        <v-card-title>
-            <!-- На мобильной ширине элементы переносятся, кнопка занимает всю строку -->
-            <div class="tw-flex tw-flex-wrap tw-items-center tw-justify-between tw-gap-2">
-                <div>Группы</div>
-
-                <div class="tw-w-full md:tw-w-auto md:tw-order-none tw-order-1">
-                    <v-select
-                        label="Фильтр"
-                        class="tw-w-full md:tw-w-max"
-                        :items="filterItems"
-                        v-model="filterItemSelected"
-                        item-title="title"
-                        item-value="val"
-                        variant="outlined"
-                        density="compact"
-                    ></v-select>
+    <div class="groups-page">
+        <!-- Шапка раздела -->
+        <div class="tw-flex tw-flex-col md:tw-flex-row md:tw-items-end md:tw-justify-between tw-gap-3 tw-mb-4">
+            <div>
+                <h1 class="adf-heading tw-text-2xl tw-leading-8 tw-m-0">Группы</h1>
+                <div class="tw-text-sm tw-text-text-muted dark:tw-text-dark-text-muted tw-mt-1">
+                    {{ subtitle }}
                 </div>
-
-                <v-btn color="primary" class="tw-w-full md:tw-w-auto tw-order-2 md:tw-order-none" @click="dialog = true">Создать группу</v-btn>
             </div>
-        </v-card-title>
-        <v-data-table
-            v-if="courses.length"
-            :headers="headers"
-            :items="groups || []"
-            items-per-page="100"
-            :loading="load"
-            @click:row="go"
+            <div class="tw-flex tw-items-center tw-gap-2">
+                <v-btn
+                    icon="mdi-refresh"
+                    variant="text"
+                    color="muted"
+                    :loading="load"
+                    title="Обновить список"
+                    @click="actRequestGroups"
+                />
+                <v-btn color="primary" class="tw-flex-1 md:tw-flex-none" prepend-icon="mdi-plus" @click="dialog = true">
+                    Создать группу
+                </v-btn>
+            </div>
+        </div>
+
+        <!-- Фильтр по статусу -->
+        <v-btn-toggle
+            v-model="filterItemSelected"
+            mandatory
+            density="comfortable"
+            variant="outlined"
+            divided
+            class="status-filter tw-mb-4 tw-w-full md:tw-w-auto"
         >
-            <template v-slot:item.course="{item}">
-                {{ courses.filter(el => el.id === item.course_id)[0].name }}
-            </template>
-            <template v-slot:item.status="{item}">
-                <v-chip :color="item.status === 'open' ? 'green' :'grey'">
-                    {{ item.status }}
-                </v-chip>
-            </template>
-            <template v-slot:item.actions="{ item }">
-                <v-icon
-                    size="small"
-                >
-                    mdi-pencil
-                </v-icon>
-                <!--                <v-icon-->
-                <!--                    size="small"-->
-                <!--                    @click.stop="actDeleteGroup(item.id)"-->
-                <!--                >-->
-                <!--                    mdi-edit-->
-                <!--                </v-icon>-->
-            </template>
-            <template v-slot:header.actions>
-                <div style="float: right">
-                    <svg class="tw-cursor-pointer" @click.stop="actRequestGroups" width="17" height="16"
-                         viewBox="0 0 17 16"
-                         fill="none"
-                         xmlns="http://www.w3.org/2000/svg">
-                        <path fill-rule="evenodd" clip-rule="evenodd"
-                              d="M1.59964 3.45737C3.80628 0.250428 8.08538 -0.94687 11.6901 0.811276C15.6603 2.74768 17.3091 7.53595 15.3727 11.5062C13.4363 15.4764 8.64798 17.1251 4.67776 15.1887C3.08138 14.4101 1.81733 13.1467 1.03718 11.5918C0.839085 11.197 0.998557 10.7163 1.39337 10.5182C1.78819 10.3201 2.26884 10.4796 2.46694 10.8744C3.09113 12.1184 4.10063 13.1275 5.379 13.751C8.55518 15.3001 12.3858 13.9811 13.9349 10.8049C15.484 7.62876 14.1651 3.79815 10.9889 2.24902C7.94449 0.764172 4.29884 1.91436 2.63736 4.80937H3.99909C4.44082 4.80937 4.79891 5.16746 4.79891 5.60918C4.79891 6.05091 4.44082 6.409 3.99909 6.409H0.799819C0.358091 6.409 0 6.05091 0 5.60918V2.40991C0 1.96818 0.358091 1.61009 0.799819 1.61009C1.24155 1.61009 1.59964 1.96818 1.59964 2.40991V3.45737Z"
-                              fill="#B0BACD"/>
-                    </svg>
+            <v-btn v-for="f in filterItems" :key="f.val" :value="f.val" class="tw-flex-1 md:tw-flex-none">
+                {{ f.title }}
+                <span class="tab-count">{{ counts[f.val] }}</span>
+            </v-btn>
+        </v-btn-toggle>
+
+        <v-progress-linear v-if="load && !groups.length" indeterminate color="primary" class="tw-mb-4"/>
+
+        <!-- Карточки групп -->
+        <div v-if="groups.length" class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 xl:tw-grid-cols-3 tw-gap-4">
+            <v-card
+                v-for="g in groups"
+                :key="g.id"
+                class="group-card"
+                :to="{name: 'AdministratorDetailGroup', params: {id: g.id}}"
+            >
+                <div class="tw-p-4 tw-flex tw-flex-col tw-gap-4 tw-h-full">
+                    <!-- Название, курс, статус -->
+                    <div class="tw-flex tw-items-start tw-justify-between tw-gap-3">
+                        <div class="tw-min-w-0">
+                            <div class="adf-heading tw-text-xl tw-leading-7 tw-truncate">{{ g.name }}</div>
+                            <div class="tw-text-sm tw-text-text-muted dark:tw-text-dark-text-muted tw-truncate">
+                                {{ g.course_name || 'Курс не задан' }}
+                            </div>
+                        </div>
+                        <v-chip size="small" label :color="statusColor(g)" class="tw-shrink-0">
+                            {{ statusTitle(g) }}
+                        </v-chip>
+                    </div>
+
+                    <!-- Прогресс по учебным дням -->
+                    <div>
+                        <div class="tw-flex tw-justify-between tw-items-baseline tw-mb-1">
+                            <span class="bp-overline">Занятия</span>
+                            <span class="tw-text-sm">
+                                <span class="tw-font-medium">{{ g.days_closed }}</span>
+                                <span class="tw-text-text-muted dark:tw-text-dark-text-muted"> из {{ g.days_total }}</span>
+                            </span>
+                        </div>
+                        <v-progress-linear
+                            :model-value="progress(g)"
+                            height="4"
+                            rounded
+                            color="primary"
+                            bg-color="border"
+                            bg-opacity="1"
+                        />
+                    </div>
+
+                    <!-- Показатели -->
+                    <div class="tw-grid tw-grid-cols-3 tw-gap-3">
+                        <div>
+                            <div class="bp-overline">Ученики</div>
+                            <div class="tw-text-sm tw-mt-0.5">
+                                <span class="tw-font-medium">{{ g.disciples_active }}</span>
+                                <span v-if="g.disciples_expelled" class="tw-text-text-muted dark:tw-text-dark-text-muted">
+                                    · отчисл. {{ g.disciples_expelled }}
+                                </span>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="bp-overline">Старт</div>
+                            <div class="tw-text-sm tw-mt-0.5">{{ fmtDate(g.first_day) }}</div>
+                        </div>
+                        <div>
+                            <div class="bp-overline">{{ g.open_day ? 'Текущее' : 'Последнее' }}</div>
+                            <div class="tw-text-sm tw-mt-0.5">{{ fmtDate(g.open_day || g.last_day) }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Учителя -->
+                    <div class="tw-mt-auto tw-pt-3 tw-border-t tw-border-border dark:tw-border-dark-border">
+                        <div class="bp-overline">Учителя</div>
+                        <div class="tw-text-sm tw-mt-0.5" v-if="g.teachers.length">{{ g.teachers.join(', ') }}</div>
+                        <div class="tw-text-sm tw-mt-0.5 tw-text-text-muted dark:tw-text-dark-text-muted" v-else>
+                            не назначены
+                        </div>
+                    </div>
                 </div>
+            </v-card>
+        </div>
 
-            </template>
-
-        </v-data-table>
-
-    </v-card>
-    <v-dialog v-model="dialog" width="500">
-        <v-card>
-            <v-card-title>
-                <div class="tw-w-full tw-flex tw-justify-between ">
-                    <h6> Создание группы</h6>
-                    <v-icon @click="dialog=false">mdi-close</v-icon>
+        <!-- Пустое состояние -->
+        <v-card v-else-if="!load">
+            <div class="tw-p-8 tw-text-center">
+                <v-icon size="40" color="muted">mdi-account-group-outline</v-icon>
+                <div class="adf-heading tw-text-lg tw-mt-2">{{ emptyTitle }}</div>
+                <div class="tw-text-sm tw-text-text-muted dark:tw-text-dark-text-muted tw-mt-1" v-if="filterItemSelected !== 'archived'">
+                    Создайте группу и назначьте в неё учителей и учеников
                 </div>
+            </div>
+        </v-card>
+
+        <!-- Диалог создания группы -->
+        <v-dialog v-model="dialog" width="480">
+            <v-card>
+                <v-card-title class="tw-flex tw-items-center tw-justify-between">
+                    <span>Новая группа</span>
+                    <v-btn icon="mdi-close" variant="text" color="muted" size="small" @click="dialog = false"/>
+                </v-card-title>
                 <v-card-text>
-                    <v-text-field label="Название группы" v-model="nameGroup" autofocus/>
+                    <v-text-field label="Название группы" v-model="newGroup.name" autofocus/>
                     <v-autocomplete
-                        item-title="name"
-                        item-value="id"
-                        hide-details
-                        v-model="course"
-                        clearable
-                        persistent-clear
                         label="Курс"
                         :items="courses"
-                    ></v-autocomplete>
-                    <v-btn block @click="createGroup"
-                           :disabled="!course||!nameGroup">Создать группу
-                    </v-btn>
+                        item-title="name"
+                        item-value="id"
+                        v-model="newGroup.course_id"
+                    />
                 </v-card-text>
-
-            </v-card-title>
-
-        </v-card>
-    </v-dialog>
-
+                <v-card-actions class="tw-px-6 tw-pb-4">
+                    <v-spacer/>
+                    <v-btn variant="text" color="muted" @click="dialog = false">Отмена</v-btn>
+                    <v-btn color="primary" :disabled="!newGroup.name || !newGroup.course_id" @click="createGroup">
+                        Создать
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+    </div>
 </template>
+
 <script>
-import {mapActions, mapGetters, mapMutations} from "vuex";
+import {mapActions, mapGetters} from "vuex";
 
 export default {
-    name: 'CoursesList',
+    name: 'GroupsList',
     data() {
         return {
-            nameGroup: '',
-            course: null,
-            headers: [
-                {title: 'id', key: 'id'},
-                {title: '', key: 'status'},
-                {title: 'Название', key: 'name'},
-                {title: 'Курс', key: 'course'},
-                {title: '', align: 'end', sortable: false, key: 'actions'},
-            ],
+            dialog: false,
+            newGroup: {name: '', course_id: null},
             filterItems: [
-                {val: 'open', title: 'Активные'},
-                {val: 'archived', title: 'Архивные'},
-                {val: 'all', title: 'Все'},
+                {title: 'Открытые', val: 'open'},
+                {title: 'Архив', val: 'archived'},
+                {title: 'Все', val: 'all'},
             ],
             filterItemSelected: 'open',
-            dialog: false,
         }
     },
     computed: {
         ...mapGetters('administrator', {
             getGroups: 'getGroups',
             courses: 'getCourses',
-            load: 'getLoad'
+            load: 'getLoad',
         }),
         groups() {
-            return this.getGroups.filter((i) => {
-                return (this.filterItemSelected === 'all') || i.status === this.filterItemSelected;
+            return this.getGroups.filter((g) => {
+                return this.filterItemSelected === 'all' || g.status === this.filterItemSelected;
             });
+        },
+        counts() {
+            return {
+                open: this.getGroups.filter(g => g.status === 'open').length,
+                archived: this.getGroups.filter(g => g.status === 'archived').length,
+                all: this.getGroups.length,
+            };
+        },
+        subtitle() {
+            const open = this.counts.open;
+            const disciples = this.getGroups
+                .filter(g => g.status === 'open')
+                .reduce((sum, g) => sum + (g.disciples_active ?? 0), 0);
+            if (!open) return 'Открытых групп нет';
+            return `${open} ${this.plural(open, ['открытая группа', 'открытые группы', 'открытых групп'])}, `
+                + `${disciples} ${this.plural(disciples, ['ученик', 'ученика', 'учеников'])}`;
+        },
+        emptyTitle() {
+            return {
+                open: 'Открытых групп нет',
+                archived: 'В архиве пусто',
+                all: 'Групп пока нет',
+            }[this.filterItemSelected];
         },
     },
     methods: {
-        go(item, row) {
-            this.$router.push({
-                name: 'AdministratorDetailGroup',
-                params: {id: row.item.id}
-            })
+        ...mapActions('administrator', ['actRequestGroups', 'actCreateGroup', 'actReqwestCourses']),
+        statusTitle(g) {
+            return g.status === 'open' ? 'Идёт' : 'В архиве';
         },
-        ...mapMutations('app', ['setSnackBar']),
-        ...mapActions('administrator', [
-            'actRequestGroups',
-            'actCreateGroup',
-            // 'actDeleteGroup',
-            'actReqwestCourses'
-        ]),
+        statusColor(g) {
+            return g.status === 'open' ? 'success' : 'muted';
+        },
+        progress(g) {
+            if (!g.days_total) return 0;
+            return Math.min(100, Math.round(g.days_closed / g.days_total * 100));
+        },
+        // Дата из 'Y-m-d' в 'd.m.Y'
+        fmtDate(value) {
+            if (!value) return '—';
+            const [y, m, d] = String(value).slice(0, 10).split('-');
+            return `${d}.${m}.${y}`;
+        },
+        plural(n, forms) {
+            const abs = Math.abs(n) % 100;
+            const last = abs % 10;
+            if (abs > 10 && abs < 20) return forms[2];
+            if (last > 1 && last < 5) return forms[1];
+            if (last === 1) return forms[0];
+            return forms[2];
+        },
         async createGroup() {
-            if (await this.actCreateGroup({
-                name: this.nameGroup,
-                course_id: this.course
-            })) {
-                this.dialog = false
-                this.nameGroup = '';
-                this.course = '';
-            }
+            await this.actCreateGroup({...this.newGroup});
+            this.dialog = false;
+            this.newGroup = {name: '', course_id: null};
         },
     },
     created() {
@@ -166,7 +245,38 @@ export default {
 }
 </script>
 
+<style lang="scss" scoped>
+.group-card {
+    transition: border-color .15s ease, transform .15s ease;
 
-<style scoped>
+    &:hover {
+        border-color: var(--bp-accent) !important;
+    }
+}
 
+.status-filter {
+    border-color: var(--bp-border-control) !important;
+    border-radius: var(--bp-radius-sm, 4px) !important;
+
+    :deep(.v-btn) {
+        border-color: var(--bp-border-control) !important;
+        border-radius: 0 !important;
+        color: var(--bp-text-muted);
+    }
+
+    :deep(.v-btn--active) {
+        background: var(--bp-surface-muted);
+        color: var(--bp-text-primary);
+    }
+}
+
+.tab-count {
+    margin-left: 6px;
+    font-size: 12px;
+    line-height: 16px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: var(--bp-surface-muted);
+    color: var(--bp-text-muted);
+}
 </style>
