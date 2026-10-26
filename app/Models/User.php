@@ -117,19 +117,6 @@ class User extends Authenticatable implements LaratrustUser
         return $phone;
     }
 
-    public function PermissionsGroup($groupId)
-    {
-
-        if ($this->hasRole('superadmin')) {
-            return 'superadmin';
-        }
-        $groupUser = $this->groupUsers()->where('group_id', $groupId)->first();
-        if (!empty($groupUser)) {
-            return $groupUser->role;
-        }
-        return false;
-    }
-
     /**
      * Обезличить пользователя
      * @return void

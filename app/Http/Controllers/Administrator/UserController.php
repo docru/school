@@ -55,9 +55,14 @@ class UserController extends RestController
         if (!in_array($role, ['teacher', 'disciple'])) {
             return $this->ResponseError("Нельзя присоединить к группе с ролью '$role'");
         }
-        $PermissionsGroup = $user->PermissionsGroup($group->id);
-        if (!empty($PermissionsGroup)) {
-            return $this->ResponseError("Пользователь уже подключен к группе с ролью '$PermissionsGroup'");
+        // Проверяем членство в группе, а не права доступа: у суперадмина есть доступ
+        // ко всем группам, но состоять в них он от этого не начинает
+        $GroupUser = GroupUser::whereGroupId($group->id)->whereUserId($user->id)->first();
+        if (!empty($GroupUser)) {
+            if ($GroupUser->status == 'expelled') {
+                return $this->ResponseError('Пользователь отчислен из этой группы — его нужно восстановить, а не подключать заново');
+            }
+            return $this->ResponseError("Пользователь уже подключен к группе с ролью '{$GroupUser->roleName()}'");
         }
 
         $GroupUser = new GroupUser();
