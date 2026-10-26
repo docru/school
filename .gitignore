@@ -20,3 +20,6 @@ yarn-error.log
 /app/Http/Controllers/Test*
 /routes/test*.php
 /env
+
+# Дампы БД с прода
+/dump
