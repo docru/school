@@ -14,7 +14,30 @@ class CourseController extends Controller
      */
     public function index()
     {
-        return $this->ResponseOk(Course::all(['id', 'name', 'description'])->toArray());
+        return $this->ResponseOk($this->coursesList());
+    }
+
+    /**
+     * Список курсов со сводкой по программе: её показывает раздел «Курсы».
+     * Считается подзапросами, чтобы не поднимать уроки каждого курса.
+     */
+    private function coursesList(): array
+    {
+        return Course::query()
+            ->select(['id', 'name', 'description'])
+            ->withCount(['modules', 'lessons', 'course_school_days'])
+            ->withSum('lessons', 'hours')
+            ->get()
+            ->map(fn (Course $course) => [
+                'id' => $course->id,
+                'name' => $course->name,
+                'description' => $course->description,
+                'modules_count' => $course->modules_count,
+                'lessons_count' => $course->lessons_count,
+                'school_days_count' => $course->course_school_days_count,
+                'hours' => round((float)$course->lessons_sum_hours, 1),
+            ])
+            ->toArray();
     }
 
     /**
@@ -33,7 +56,7 @@ class CourseController extends Controller
 
         $course = new Course(['name' => $nameCourse, 'description' => $descriptionCourse]);
         $course->save();
-        return $this->ResponseOk(Course::all(['id', 'name', 'description'])->toArray());
+        return $this->ResponseOk($this->coursesList());
     }
 
     /**
