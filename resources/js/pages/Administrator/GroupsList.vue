@@ -1,47 +1,110 @@
 <template>
     <div class="groups-page">
-        <!-- Шапка раздела -->
-        <div class="tw-flex tw-flex-col md:tw-flex-row md:tw-items-end md:tw-justify-between tw-gap-3 tw-mb-4">
-            <div>
-                <h1 class="adf-heading tw-text-2xl tw-leading-8 tw-m-0">Группы</h1>
-                <div class="tw-text-sm tw-text-text-muted dark:tw-text-dark-text-muted tw-mt-1">
+        <!-- Шапка раздела: заголовок и действие в одной строке, подпись под заголовком -->
+        <div class="tw-flex tw-items-start tw-justify-between tw-gap-3 tw-mb-4">
+            <div class="tw-min-w-0">
+                <h1 class="adf-heading tw-text-2xl tw-leading-9 tw-m-0">Группы</h1>
+                <div class="tw-text-sm tw-text-text-muted dark:tw-text-dark-text-muted">
                     {{ subtitle }}
                 </div>
             </div>
-            <div class="tw-flex tw-items-center tw-gap-2">
+            <div class="tw-flex tw-items-center tw-gap-1 tw-shrink-0">
                 <v-btn
+                    v-if="!isMobile"
                     icon="mdi-refresh"
                     variant="text"
                     color="muted"
+                    size="small"
                     :loading="load"
                     title="Обновить список"
                     @click="actRequestGroups"
                 />
-                <v-btn color="primary" class="tw-flex-1 md:tw-flex-none" prepend-icon="mdi-plus" @click="dialog = true">
-                    Создать группу
+                <v-btn color="primary" prepend-icon="mdi-plus" @click="dialog = true">
+                    {{ isMobile ? 'Создать' : 'Создать группу' }}
                 </v-btn>
             </div>
         </div>
 
-        <!-- Фильтр по статусу -->
-        <v-btn-toggle
-            v-model="filterItemSelected"
-            mandatory
-            density="comfortable"
-            variant="outlined"
-            divided
-            class="status-filter tw-mb-4 tw-w-full md:tw-w-auto"
-        >
-            <v-btn v-for="f in filterItems" :key="f.val" :value="f.val" class="tw-flex-1 md:tw-flex-none">
-                {{ f.title }}
-                <span class="tab-count">{{ counts[f.val] }}</span>
-            </v-btn>
-        </v-btn-toggle>
+        <!-- Фильтр по статусу и переключатель вида -->
+        <div class="tw-flex tw-items-center tw-justify-between tw-gap-3 tw-mb-4">
+            <v-btn-toggle
+                v-model="filterItemSelected"
+                mandatory
+                density="comfortable"
+                variant="outlined"
+                divided
+                class="status-filter tw-w-full md:tw-w-auto"
+            >
+                <v-btn v-for="f in filterItems" :key="f.val" :value="f.val" class="tw-flex-1 md:tw-flex-none">
+                    {{ f.title }}
+                    <span class="tab-count">{{ counts[f.val] }}</span>
+                </v-btn>
+            </v-btn-toggle>
+
+            <v-btn-toggle
+                v-if="!isMobile"
+                v-model="viewMode"
+                mandatory
+                density="comfortable"
+                variant="outlined"
+                divided
+                class="status-filter"
+            >
+                <v-btn value="cards" icon="mdi-view-grid-outline" title="Карточки"/>
+                <v-btn value="table" icon="mdi-format-list-bulleted" title="Таблица"/>
+            </v-btn-toggle>
+        </div>
 
         <v-progress-linear v-if="load && !groups.length" indeterminate color="primary" class="tw-mb-4"/>
 
+        <!-- Таблица групп (десктоп) -->
+        <v-card v-if="groups.length && showTable">
+            <v-data-table
+                :headers="tableHeaders"
+                :items="groups"
+                :items-per-page="-1"
+                hover
+                class="groups-table"
+                @click:row="(e, {item}) => $router.push({name: 'AdministratorDetailGroup', params: {id: item.id}})"
+            >
+                <template v-slot:item.name="{item}">
+                    <span class="tw-font-medium">{{ item.name }}</span>
+                </template>
+                <template v-slot:item.status="{item}">
+                    <v-chip size="small" label :color="statusColor(item)">{{ statusTitle(item) }}</v-chip>
+                </template>
+                <template v-slot:item.disciples_active="{item}">
+                    {{ item.disciples_active }}
+                    <span v-if="item.disciples_expelled" class="tw-text-text-muted dark:tw-text-dark-text-muted">
+                        · отчисл. {{ item.disciples_expelled }}
+                    </span>
+                </template>
+                <template v-slot:item.days_closed="{item}">
+                    <div class="tw-flex tw-items-center tw-gap-2 tw-min-w-[140px]">
+                        <v-progress-linear
+                            :model-value="progress(item)"
+                            height="4"
+                            rounded
+                            color="primary"
+                            bg-color="border"
+                            bg-opacity="1"
+                            class="tw-flex-1"
+                        />
+                        <span class="tw-whitespace-nowrap">{{ item.days_closed }} / {{ item.days_total }}</span>
+                    </div>
+                </template>
+                <template v-slot:item.first_day="{item}">{{ fmtDate(item.first_day) }}</template>
+                <template v-slot:item.last_day="{item}">{{ fmtDate(item.open_day || item.last_day) }}</template>
+                <template v-slot:item.teachers="{item}">
+                    <span v-if="item.teachers.length">{{ item.teachers.join(', ') }}</span>
+                    <span v-else class="tw-text-text-muted dark:tw-text-dark-text-muted">не назначены</span>
+                </template>
+                <template v-slot:bottom></template>
+            </v-data-table>
+        </v-card>
+
         <!-- Карточки групп -->
-        <div v-if="groups.length" class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 xl:tw-grid-cols-3 tw-gap-4">
+        <div v-else-if="groups.length" class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 xl:tw-grid-cols-3 tw-gap-4">
             <v-card
                 v-for="g in groups"
                 :key="g.id"
@@ -169,7 +232,24 @@ export default {
                 {title: 'Все', val: 'all'},
             ],
             filterItemSelected: 'open',
+            // Вид списка на десктопе: карточки или таблица, запоминается в браузере
+            viewMode: localStorage.getItem('adminGroupsView') === 'table' ? 'table' : 'cards',
+            tableHeaders: [
+                {title: 'Группа', key: 'name'},
+                {title: 'Курс', key: 'course_name'},
+                {title: 'Статус', key: 'status', sortable: false},
+                {title: 'Ученики', key: 'disciples_active'},
+                {title: 'Занятия', key: 'days_closed'},
+                {title: 'Старт', key: 'first_day'},
+                {title: 'Последнее', key: 'last_day'},
+                {title: 'Учителя', key: 'teachers', sortable: false},
+            ],
         }
+    },
+    watch: {
+        viewMode(val) {
+            localStorage.setItem('adminGroupsView', val);
+        },
     },
     computed: {
         ...mapGetters('administrator', {
@@ -197,6 +277,13 @@ export default {
             if (!open) return 'Открытых групп нет';
             return `${open} ${this.plural(open, ['открытая группа', 'открытые группы', 'открытых групп'])}, `
                 + `${disciples} ${this.plural(disciples, ['ученик', 'ученика', 'учеников'])}`;
+        },
+        // Мобильная ширина по порогам Vuetify (< 768px)
+        isMobile() {
+            return this.$vuetify.display.name === 'sm';
+        },
+        showTable() {
+            return this.viewMode === 'table' && !this.isMobile;
         },
         emptyTitle() {
             return {
@@ -268,6 +355,10 @@ export default {
         background: var(--bp-surface-muted);
         color: var(--bp-text-primary);
     }
+}
+
+.groups-table :deep(tbody tr) {
+    cursor: pointer;
 }
 
 .tab-count {
