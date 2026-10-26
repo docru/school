@@ -133,7 +133,7 @@ const routes = [
             title: 'Группы',
             breadcrumbs:[
                 {title:'Главная',routName:'Home'},
-                {title:'Курсы'},
+                {title:'Мои курсы'},
             ]
         }
     },
@@ -145,9 +145,9 @@ const routes = [
             title: 'Группы',
             breadcrumbs:[
                 {title:'Главная',routName:'Home'},
-                {title:'Курсы',routName:'DiscipleGroupsList'},
-                {title:'Уроки'},
-
+                {title:'Мои курсы',routName:'DiscipleGroupsList'},
+                // название группы подставляется из стора (см. breadcrumbs в App.vue)
+                {title:'Уроки', getter:'disciple/getGroup', field:'group.name'},
             ]
         }
     },
@@ -159,10 +159,9 @@ const routes = [
             title: 'Урок',
             breadcrumbs:[
                 {title:'Главная',routName:'Home'},
-                {title:'Курсы',routName:'DiscipleGroupsList'},
-                {title:'Уроки',href:'/disciple/group',params:'groupId'},
-                {title:'Урок'},
-
+                {title:'Мои курсы',routName:'DiscipleGroupsList'},
+                {title:'Уроки',href:'/disciple/group',params:'groupId', getter:'disciple/getGroup', field:'group.name'},
+                {title:'Урок', getter:'disciple/getLesson', field:'lesson.name'},
             ]
         }
     },

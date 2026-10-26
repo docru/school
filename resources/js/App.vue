@@ -160,10 +160,7 @@ export default {
 
         ],
         menu_teacher: [
-            {
-                name: 'Главная',
-                routName: 'Home'
-            },
+            // «Главная» в разделе не нужна: этот же пункт уже есть выше
             {
                 name: 'Мои группы',
                 routName: 'TeacherGroupsList'
