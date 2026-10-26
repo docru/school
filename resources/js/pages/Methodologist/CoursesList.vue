@@ -32,9 +32,10 @@
                 :headers="headers"
                 :items="getCourses"
                 items-per-page="-1"
-                hide-default-footer
                 @click:row="onRowClick"
             >
+                <!-- В Vuetify 3 подвал убирается пустым слотом: hide-default-footer там нет -->
+                <template v-slot:bottom></template>
                 <template v-slot:item.name="{item}">
                     <span class="tw-font-medium">{{ item.name }}</span>
                 </template>

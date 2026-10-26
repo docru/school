@@ -188,7 +188,7 @@ export default {
         ],
         menu_superadmin: [
             {
-                name: 'Пользователи ',
+                name: 'Пользователи',
                 routName: 'SuperadminUsers'
             },
 

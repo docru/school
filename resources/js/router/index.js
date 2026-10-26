@@ -178,6 +178,13 @@ const routes = [
         path: '/superadmin/users',
         name: 'SuperadminUsers',
         component: () => import('../pages/Superadmin/Users.vue'),
+        meta:{
+            title: 'Пользователи',
+            breadcrumbs:[
+                {title:'Главная',routName:'Home'},
+                {title:'Пользователи'},
+            ]
+        }
     },
 
 

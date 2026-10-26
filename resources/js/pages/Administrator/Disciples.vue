@@ -57,8 +57,9 @@
                 @update:sort-by="sortBy = $event"
                 :custom-key-sort="noSort"
                 items-per-page="-1"
-                hide-default-footer
             >
+                <!-- В Vuetify 3 подвал убирается пустым слотом: hide-default-footer там нет -->
+                <template v-slot:bottom></template>
                 <template v-slot:item.authorized_at="{item}">
                     <v-tooltip :text="item.authorized_at ? 'Последний вход ' + fmtDateTime(item.authorized_at) : 'Входа ещё не было'">
                         <template v-slot:activator="{ props }">
