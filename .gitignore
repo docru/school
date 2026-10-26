@@ -23,3 +23,6 @@ yarn-error.log
 
 # Дампы БД с прода
 /dump
+
+# Локальная инструкция по развёртыванию, не для MR в rap693/school
+/LOCAL_SETUP.md
