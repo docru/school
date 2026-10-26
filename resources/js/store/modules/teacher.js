@@ -39,7 +39,8 @@ const actions = {
         return await vuexGet('/teacher/groups/' + groupId, {}, state, commit, 'setGroup');
     },
     async actRequestLesson({state, commit}, params) {
-        return await vuexPost(`/teacher/lesson/${params.groupId}/${params.lessonId}`, {}, state, commit, 'setLesson');
+        // Чтение урока идёт POST-запросом, а vuexPost по умолчанию рапортует «Сохранено»
+        return await vuexPost(`/teacher/lesson/${params.groupId}/${params.lessonId}`, {}, state, commit, 'setLesson', {showMsg: false});
     },
 }
 
