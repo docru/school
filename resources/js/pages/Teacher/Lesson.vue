@@ -1,46 +1,26 @@
 <script>
 import {mapActions, mapGetters} from "vuex";
-import {MdPreview} from "md-editor-v3";
+import LessonView from "../../components/LessonView.vue";
 
 export default {
     name: 'Lesson',
-    components: {MdPreview},
+    components: {LessonView},
     data() {
         return {
-            // Вкладка задана сразу: при null окно остаётся пустым до первого клика
-            tab: 'plan',
+            tabs: [
+                {value: 'plan', title: 'План урока', field: 'methodical_description'},
+                {value: 'abstract', title: 'Конспект', field: 'abstract'},
+            ],
         }
     },
     computed: {
         ...mapGetters('teacher', {lesson: 'getLesson'}),
-        isMobile() {
-            return this.$vuetify.display.name === 'sm';
-        },
-        groupId() {
-            return this.$route.params.groupId;
-        },
-        item() {
-            return this.lesson?.lesson ?? null;
-        },
-        subtitle() {
-            if (!this.item) return 'Загрузка…';
-            const hours = Number(this.item.hours) || 0;
-            return hours ? `${hours} ${this.plural(hours, ['час', 'часа', 'часов'])}` : 'часы не заданы';
-        },
-        mdTheme() {
-            return this.$vuetify.theme.current.dark ? 'dark' : 'light';
+        backTo() {
+            return {name: 'TeacherDetailGroup', params: {id: this.$route.params.groupId}};
         },
     },
     methods: {
         ...mapActions('teacher', ['actRequestLesson']),
-        plural(n, forms) {
-            const abs = Math.abs(n) % 100;
-            const last = abs % 10;
-            if (abs > 10 && abs < 20) return forms[2];
-            if (last > 1 && last < 5) return forms[1];
-            if (last === 1) return forms[0];
-            return forms[2];
-        },
     },
     created() {
         this.actRequestLesson(this.$route.params);
@@ -49,68 +29,5 @@ export default {
 </script>
 
 <template>
-    <div class="lesson-page">
-        <div class="tw-flex tw-items-start tw-justify-between tw-gap-3 tw-mb-3">
-            <div class="tw-min-w-0">
-                <h1 class="adf-heading tw-text-xl md:tw-text-2xl tw-leading-7 md:tw-leading-8 tw-m-0">
-                    {{ item?.name || 'Урок' }}
-                </h1>
-                <div class="tw-text-sm tw-text-text-muted dark:tw-text-dark-text-muted">{{ subtitle }}</div>
-            </div>
-            <v-btn
-                variant="text"
-                color="muted"
-                size="small"
-                :icon="isMobile ? 'mdi-arrow-left' : undefined"
-                :prepend-icon="isMobile ? undefined : 'mdi-arrow-left'"
-                title="К списку уроков"
-                class="tw-shrink-0"
-                :to="{name: 'TeacherDetailGroup', params: {id: groupId}}"
-            >{{ isMobile ? '' : 'К урокам' }}</v-btn>
-        </div>
-
-        <v-progress-linear v-if="!item" indeterminate color="primary"/>
-
-        <v-card v-else>
-            <!-- bg-color не задаём: на фоне primary активная вкладка красится тем же цветом и пропадает -->
-            <v-tabs v-model="tab" :grow="isMobile" color="primary">
-                <v-tab value="plan">План урока</v-tab>
-                <v-tab value="abstract">Конспект</v-tab>
-            </v-tabs>
-            <v-divider/>
-
-            <!-- touch: горизонтальный свайп мешает выделять текст -->
-            <v-window v-model="tab" :touch="false">
-                <v-window-item value="plan">
-                    <div class="tw-p-3 md:tw-p-4">
-                        <MdPreview v-if="item.methodical_description" :modelValue="item.methodical_description" :theme="mdTheme"/>
-                        <div v-else class="tw-p-8 tw-text-center">
-                            <v-icon size="40" color="muted">mdi-text-box-outline</v-icon>
-                            <div class="tw-text-sm tw-text-text-muted dark:tw-text-dark-text-muted tw-mt-2">
-                                План урока не заполнен
-                            </div>
-                        </div>
-                    </div>
-                </v-window-item>
-                <v-window-item value="abstract">
-                    <div class="tw-p-3 md:tw-p-4">
-                        <MdPreview v-if="item.abstract" :modelValue="item.abstract" :theme="mdTheme"/>
-                        <div v-else class="tw-p-8 tw-text-center">
-                            <v-icon size="40" color="muted">mdi-text-box-outline</v-icon>
-                            <div class="tw-text-sm tw-text-text-muted dark:tw-text-dark-text-muted tw-mt-2">
-                                Конспект не заполнен
-                            </div>
-                        </div>
-                    </div>
-                </v-window-item>
-            </v-window>
-        </v-card>
-    </div>
+    <LessonView :lesson="lesson?.lesson ?? null" :tabs="tabs" :back-to="backTo"/>
 </template>
-
-<style scoped lang="scss">
-/* Отступы берёт на себя обёртка вкладки */
-.lesson-page :deep(.md-editor-preview-wrapper) {
-    padding: 0;
-}
-</style>
