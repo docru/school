@@ -1,24 +1,21 @@
 <script>
 import {mapActions, mapGetters} from "vuex";
 import draggable from 'vuedraggable'
+import swipeSheet from "../../mixins/swipeSheet.js";
 
 export default {
     name: 'CourseSchedule',
     components: {draggable},
+    mixins: [swipeSheet],
     data() {
         return {
-            tab: null,
-            dialogCreateSchoolDay: false,
-            newModuleName: '',
-            dialogCreateLesson: false,
-            moduleForMewLesson: false,
-            newLessonName: '',
-            curLesson: false,
+            // день, для которого на телефоне открыт выбор уроков
+            pickerDayId: null,
+            pickerSheet: false,
         }
     },
     computed: {
         ...mapGetters('methodologist', [
-            'getCourse',
             'getStudyProgram',
             'getSchedule',
             'getLessons',
@@ -26,23 +23,17 @@ export default {
         courseId() {
             return this.$route.params.idCourse;
         },
+        // Уроки, ещё не поставленные ни в один учебный день, по модулям
         unselectedLessons() {
-            let res = [];
-            for (const module of this.getStudyProgram) {
-                let moduleLessons = [];
-                for (const lesson of module.lessons) {
-                    if (!lesson.school_day) {
-                        moduleLessons.push(lesson);
-                    }
-                }
-                let moduleN = {
-                    module: module.module,
-                    lessons: moduleLessons,
-                };
-                res.push(moduleN);
-            }
-            return res;
+            return this.getStudyProgram.map(module => ({
+                module: module.module,
+                lessons: module.lessons.filter(lesson => !lesson.school_day),
+            }));
         },
+        unselectedCount() {
+            return this.unselectedLessons.reduce((sum, m) => sum + m.lessons.length, 0);
+        },
+        // {dayId: [уроки в порядке school_day_order]}
         schedul() {
             let schoolDays = {};
             for (const day of this.getSchedule) {
@@ -52,22 +43,14 @@ export default {
             let lessonsAll = this.getLessons;
             for (const l in lessonsAll) {
                 let lesson = lessonsAll[l];
-                if (lesson.school_day) {
+                if (lesson.school_day && schoolDays[lesson.school_day]) {
                     schoolDays[lesson.school_day].push(lesson);
                 }
             }
 
             for (const d in schoolDays) {
-                let schoolDay = schoolDays[d];
-                schoolDay.sort(function compare(a, b) {
-                    if (a.school_day_order < b.school_day_order) {
-                        return -1;
-                    }
-                    if (a.school_day_order > b.school_day_order) {
-                        return 1;
-                    }
-                    return 0;
-                });
+                // порядок — число: при строковом сравнении «10» встало бы раньше «9»
+                schoolDays[d].sort((a, b) => Number(a.school_day_order) - Number(b.school_day_order));
             }
             return schoolDays;
         },
@@ -77,6 +60,14 @@ export default {
             'actCreateCourseSchoolDay',
             'actDeleteCourseSchoolDay',
         ]),
+        plural(n, forms) {
+            const abs = Math.abs(n) % 100;
+            const last = abs % 10;
+            if (abs > 10 && abs < 20) return forms[2];
+            if (last > 1 && last < 5) return forms[1];
+            if (last === 1) return forms[0];
+            return forms[2];
+        },
         createSchoolDay() {
             this.actCreateCourseSchoolDay({course_id: this.courseId});
         },
@@ -85,170 +76,399 @@ export default {
                 await this.actDeleteCourseSchoolDay(day);
             }
         },
-        clone(i){
-            console.log(i)
+        // Уроки дня по порядку; заодно нумерует их подряд с нуля
+        renumberDay(dayId) {
+            const lessons = Object.values(this.getLessons)
+                .filter(lesson => lesson.school_day == dayId)
+                .sort((a, b) => Number(a.school_day_order) - Number(b.school_day_order));
+            lessons.forEach((lesson, i) => lesson.school_day_order = i);
+            return lessons;
         },
+        // Перетаскивание (десктоп): урок кладётся в тот день, над которым его отпустили
         onEnd(e) {
-            let dayId = e.to.dataset.dayId;
-            let lessonId = e.item.dataset.lessonId;
-            let newIndex = e.newIndex;
+            const dayId = e.to.dataset.dayId;
+            const lessonId = e.item.dataset.lessonId;
+            if (!dayId || !lessonId) return;
 
-            let lesson = this.getLessons[lessonId];
+            const lesson = this.getLessons[lessonId];
+            if (!lesson) return;
 
-            let lessons = [];
-            let lessonsAll = this.getLessons;
-            for (const i in lessonsAll) {
-                if (lessonsAll[i]?.school_day == dayId && lessonsAll[i]?.id != lessonId) {
-                    lessons.push(lessonsAll[i]);
-                }
+            const prevDayId = lesson.school_day;
+            lesson.school_day = Number(dayId);
+
+            const lessons = Object.values(this.getLessons)
+                .filter(item => item.id !== lesson.id && item.school_day == dayId)
+                .sort((a, b) => Number(a.school_day_order) - Number(b.school_day_order));
+            lessons.splice(e.newIndex, 0, lesson);
+            lessons.forEach((item, i) => item.school_day_order = i);
+
+            if (prevDayId && prevDayId != dayId) {
+                this.renumberDay(prevDayId);
             }
-            lessons.sort(function compare(a, b) {
-                if (a.school_day_order < b.school_day_order) {
-                    return -1;
-                }
-                if (a.school_day_order > b.school_day_order) {
-                    return 1;
-                }
-                return 0;
-            }).splice(newIndex, 0, lesson);
-
-            for (const order in lessons) {
-                lessons[order].school_day_order = order;
-            }
-
-            lesson.school_day = dayId;
         },
-        removeLesson(id) {
-            this.getLessons[id].school_day = null;
-            this.getLessons[id].school_day_order = null;
+        // Выбор уроков для дня (телефон)
+        openPicker(day) {
+            this.pickerDayId = day.id;
+            this.openDialog('pickerSheet');
+        },
+        addLessonToDay(lesson) {
+            // порядок считаем до присваивания дня: иначе урок уже попадёт в schedul и номер сдвинется
+            const order = this.schedul[this.pickerDayId]?.length ?? 0;
+            lesson.school_day = this.pickerDayId;
+            lesson.school_day_order = order;
+        },
+        removeLesson(lesson) {
+            const dayId = lesson.school_day;
+            lesson.school_day = null;
+            lesson.school_day_order = null;
+            if (dayId) {
+                this.renumberDay(dayId);
+            }
+        },
+        // Сдвиг урока внутри дня стрелками (телефон)
+        moveLesson(dayId, index, shift) {
+            const lessons = this.renumberDay(dayId);
+            const target = index + shift;
+            if (target < 0 || target >= lessons.length) return;
+            const moved = lessons.splice(index, 1)[0];
+            lessons.splice(target, 0, moved);
+            lessons.forEach((lesson, i) => lesson.school_day_order = i);
         },
     },
 }
 </script>
 
 <template>
-    <v-card variant="text">
-        <v-card-title>
-            <div class="tw-flex">
-                <div>Расписание курса</div>
-                <v-spacer></v-spacer>
-                <div class="tw-flex tw-gap-3">
-                    <v-btn @click="createSchoolDay()">Добавить учебный день</v-btn>
+    <div class="course-schedule tw-p-3 md:tw-p-4">
+        <div class="tw-flex tw-items-center tw-justify-between tw-gap-3 tw-mb-3">
+            <div class="tw-min-w-0">
+                <!-- Заголовок повторяет название вкладки, на телефоне он лишний -->
+                <div v-if="!isMobile" class="adf-heading tw-text-lg tw-leading-6">Расписание курса</div>
+                <div class="tw-text-xs tw-text-text-muted dark:tw-text-dark-text-muted">
+                    {{ getSchedule.length }} {{ plural(getSchedule.length, ['учебный день', 'учебных дня', 'учебных дней']) }},
+                    не распределено {{ unselectedCount }}
                 </div>
             </div>
-        </v-card-title>
-        <v-card-text>
-            <div class="tw-flex tw-gap-3">
-                <div class="tw-w-1/3" style="height: calc(100vh - 300px); overflow: auto">
-                    <v-card hover elevation="0"
-                            style="padding: 5px 10px; margin: 15px 0 "
-                            v-for="moduleItem in getStudyProgram"
-                            :key="moduleItem.id">
-                        <v-card-title>
-                            <div class="tw-flex">
-                                Модуль {{ moduleItem.module.name }}
-                            </div>
-                        </v-card-title>
-                        <v-card-text>
-                            <draggable
-                                :group="{ name: moduleItem.module.name, pull: 'clone', put: false}"
-                                :list="moduleItem.lessons"
-                                item-key=""
-                                handle=".item"
-                                @end="onEnd"
+            <v-btn
+                v-if="!isMobile"
+                color="primary"
+                variant="outlined"
+                prepend-icon="mdi-calendar-plus"
+                class="tw-shrink-0"
+                @click="createSchoolDay()"
+            >Добавить учебный день</v-btn>
+        </div>
+        <v-btn
+            v-if="isMobile"
+            color="primary"
+            variant="outlined"
+            prepend-icon="mdi-calendar-plus"
+            block
+            class="tw-mb-3"
+            @click="createSchoolDay()"
+        >Добавить учебный день</v-btn>
 
+        <!-- Пустое состояние -->
+        <div v-if="!getSchedule.length" class="tw-p-8 tw-text-center">
+            <v-icon size="40" color="muted">mdi-calendar-blank-outline</v-icon>
+            <div class="adf-heading tw-text-lg tw-mt-2 tw-mb-1">Учебных дней нет</div>
+            <div class="tw-text-sm tw-text-text-muted dark:tw-text-dark-text-muted">
+                Добавьте день и разложите по нему уроки программы
+            </div>
+        </div>
+
+        <!-- Десктоп: слева уроки программы, справа дни; перенос перетаскиванием -->
+        <div v-else-if="!isMobile" class="tw-flex tw-gap-3">
+            <div class="tw-w-1/3 schedule-pane">
+                <div class="bp-overline tw-mb-2">Уроки программы</div>
+                <div v-for="moduleItem in getStudyProgram" :key="moduleItem.module.id" class="module-card">
+                    <div class="module-card__header">
+                        <div class="tw-min-w-0">
+                            <div class="bp-overline">Модуль</div>
+                            <div class="tw-text-sm tw-font-medium tw-truncate">{{ moduleItem.module.name }}</div>
+                        </div>
+                    </div>
+                    <draggable
+                        :group="{ name: moduleItem.module.name, pull: 'clone', put: false}"
+                        :list="moduleItem.lessons"
+                        item-key="id"
+                        handle=".item"
+                        @end="onEnd"
+                    >
+                        <template #item="{element: lesson}">
+                            <div
+                                class="lesson-row"
+                                :class="{'item': !lesson.school_day, 'lesson-row--placed': !!lesson.school_day}"
+                                :data-lesson-id="lesson.id"
                             >
-                                <template #item="{element}">
-                                    <div
-                                        class="lesson"
-                                        :class="{'item':!element.school_day}"
-                                        :data-lesson-id="element.id"
-                                    >
-                                        <div class="tw-flex tw-justify-between">
-                                            <div>{{ parseInt(element.order) }} урок: {{ element.name }}</div>
-                                        </div>
+                                <v-icon v-if="!lesson.school_day" size="18" color="muted" class="tw-cursor-grab tw-shrink-0">mdi-drag</v-icon>
+                                <v-icon v-else size="18" color="success" class="tw-shrink-0">mdi-check</v-icon>
+                                <div class="tw-min-w-0 tw-flex-1">
+                                    <div class="tw-text-sm tw-truncate">{{ lesson.name }}</div>
+                                    <div class="tw-text-xs tw-text-text-muted dark:tw-text-dark-text-muted">
+                                        {{ parseInt(lesson.order) }} урок
                                     </div>
-                                </template>
-                            </draggable>
-                        </v-card-text>
-                        <v-divider/>
-                    </v-card>
-                </div>
-                <div class="tw-w-2/3" style="height: calc(100vh - 300px); overflow: auto">
-                    <v-card hover elevation="2" style="padding: 5px 10px; margin: 15px 0 ">
-                        <v-card-title>
-                            <div class="tw-flex">
-                                <div>Расписание</div>
+                                </div>
                             </div>
-                        </v-card-title>
-
-
-                        <v-card-text>
-                            <v-card v-for="day in getSchedule" :key="day.id">
-                                <v-card-title>
-                                    <div class="tw-flex">
-                                        <div class="">{{ day.order }}</div>
-                                        <v-spacer/>
-                                        <v-btn
-                                            icon="mdi-trash-can-outline"
-                                            size="small"
-                                            variant="text"
-                                            @click="deleteCourseSchoolDay(day)"
-                                        />
-                                    </div>
-                                </v-card-title>
-                                <v-card-text>
-                                    <draggable
-                                        class="dragArea list-group w-full"
-                                        :data-day-id="day.id"
-                                        :list="schedul[day.id]"
-                                        :group="{ name: 'to_' + day.id, put: true }"
-                                        @end="onEnd"
-                                        item-key=""
-                                    >
-                                        <template #item="{element}">
-                                            <div class="lesson" :data-lesson-id="element.id">
-                                                <div class="tw-flex tw-justify-between">
-                                                    <div>{{ parseInt(element.school_day_order) + 1 }} урок: {{ element.name }}</div>
-                                                    <v-icon
-                                                        size="small"
-                                                        color="grey"
-                                                        @click="removeLesson(element.id)"
-                                                    >mdi-trash-can-outline
-                                                    </v-icon>
-                                                </div>
-                                            </div>
-                                        </template>
-                                    </draggable>
-                                </v-card-text>
-                            </v-card>
-                        </v-card-text>
-                    </v-card>
+                        </template>
+                    </draggable>
+                    <div v-if="!moduleItem.lessons.length" class="tw-px-3 tw-py-2 tw-text-xs tw-text-text-muted dark:tw-text-dark-text-muted">
+                        В модуле пока нет уроков
+                    </div>
                 </div>
             </div>
 
+            <div class="tw-w-2/3 schedule-pane">
+                <div class="bp-overline tw-mb-2">Учебные дни</div>
+                <div v-for="day in getSchedule" :key="day.id" class="module-card">
+                    <div class="module-card__header">
+                        <div class="tw-min-w-0 tw-flex-1">
+                            <div class="tw-text-sm tw-font-medium">День {{ day.order }}</div>
+                            <div class="tw-text-xs tw-text-text-muted dark:tw-text-dark-text-muted">
+                                {{ schedul[day.id].length }} {{ plural(schedul[day.id].length, ['урок', 'урока', 'уроков']) }}
+                            </div>
+                        </div>
+                        <v-btn
+                            icon="mdi-delete-outline"
+                            size="small"
+                            density="comfortable"
+                            variant="text"
+                            color="muted"
+                            title="Удалить учебный день"
+                            class="tw-shrink-0"
+                            @click="deleteCourseSchoolDay(day)"
+                        />
+                    </div>
+                    <draggable
+                        class="day-drop"
+                        :data-day-id="day.id"
+                        :list="schedul[day.id]"
+                        :group="{ name: 'to_' + day.id, put: true }"
+                        item-key="id"
+                        @end="onEnd"
+                    >
+                        <template #item="{element: lesson, index}">
+                            <div class="lesson-row" :data-lesson-id="lesson.id">
+                                <span class="lesson-row__num">{{ index + 1 }}</span>
+                                <div class="tw-min-w-0 tw-flex-1 tw-text-sm tw-truncate">{{ lesson.name }}</div>
+                                <v-btn
+                                    icon="mdi-close"
+                                    size="small"
+                                    density="comfortable"
+                                    variant="text"
+                                    color="muted"
+                                    title="Убрать из дня"
+                                    class="tw-shrink-0"
+                                    @click="removeLesson(lesson)"
+                                />
+                            </div>
+                        </template>
+                    </draggable>
+                    <div v-if="!schedul[day.id].length" class="tw-px-3 tw-py-3 tw-text-xs tw-text-text-muted dark:tw-text-dark-text-muted">
+                        Перетащите сюда уроки из программы
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        </v-card-text>
-    </v-card>
+        <!-- Телефон: дни списком, уроки добавляются выбором и двигаются стрелками -->
+        <div v-else>
+            <div v-for="day in getSchedule" :key="day.id" class="module-card">
+                <div class="module-card__header">
+                    <div class="tw-min-w-0 tw-flex-1">
+                        <div class="tw-text-sm tw-font-medium">День {{ day.order }}</div>
+                        <div class="tw-text-xs tw-text-text-muted dark:tw-text-dark-text-muted">
+                            {{ schedul[day.id].length }} {{ plural(schedul[day.id].length, ['урок', 'урока', 'уроков']) }}
+                        </div>
+                    </div>
+                    <v-btn
+                        icon="mdi-delete-outline"
+                        size="small"
+                        density="comfortable"
+                        variant="text"
+                        color="muted"
+                        title="Удалить учебный день"
+                        class="tw-shrink-0"
+                        @click="deleteCourseSchoolDay(day)"
+                    />
+                </div>
 
+                <div
+                    v-for="(lesson, index) in schedul[day.id]"
+                    :key="lesson.id"
+                    class="lesson-row"
+                >
+                    <span class="lesson-row__num">{{ index + 1 }}</span>
+                    <div class="tw-min-w-0 tw-flex-1 tw-text-sm tw-line-clamp-2">{{ lesson.name }}</div>
+                    <v-btn
+                        icon="mdi-arrow-up"
+                        size="small"
+                        density="compact"
+                        variant="text"
+                        color="muted"
+                        title="Выше"
+                        :disabled="index === 0"
+                        class="tw-shrink-0"
+                        @click="moveLesson(day.id, index, -1)"
+                    />
+                    <v-btn
+                        icon="mdi-arrow-down"
+                        size="small"
+                        density="compact"
+                        variant="text"
+                        color="muted"
+                        title="Ниже"
+                        :disabled="index === schedul[day.id].length - 1"
+                        class="tw-shrink-0"
+                        @click="moveLesson(day.id, index, 1)"
+                    />
+                    <v-btn
+                        icon="mdi-close"
+                        size="small"
+                        density="compact"
+                        variant="text"
+                        color="muted"
+                        title="Убрать из дня"
+                        class="tw-shrink-0"
+                        @click="removeLesson(lesson)"
+                    />
+                </div>
+
+                <!-- Когда свободных уроков нет, кнопку прячем: иначе она висит погашенной в каждом дне -->
+                <div class="tw-p-2" v-if="unselectedCount">
+                    <v-btn
+                        variant="text"
+                        color="primary"
+                        size="small"
+                        prepend-icon="mdi-plus"
+                        block
+                        @click="openPicker(day)"
+                    >Добавить урок</v-btn>
+                </div>
+            </div>
+        </div>
+
+        <!-- Выбор уроков для дня (телефон) -->
+        <v-bottom-sheet v-model="pickerSheet">
+            <v-card
+                class="picker-sheet"
+                data-swipe-close="pickerSheet"
+                :style="sheetStyle"
+                @touchstart.passive="sheetTouchStart"
+                @touchmove="sheetTouchMove"
+                @touchend="sheetTouchEnd"
+                @touchcancel="sheetTouchEnd"
+            >
+                <div class="sheet-handle"></div>
+                <div class="tw-flex tw-items-center tw-justify-between tw-gap-2 tw-px-4 tw-pt-1 tw-pb-2">
+                    <div class="tw-min-w-0">
+                        <div class="bp-overline">Добавить в день</div>
+                        <div class="adf-heading tw-text-lg tw-leading-6">
+                            Нераспределённые уроки
+                        </div>
+                    </div>
+                    <v-btn icon="mdi-close" size="small" density="comfortable" variant="text" color="muted" class="tw-shrink-0 tw--mr-1" @click="pickerSheet = false"/>
+                </div>
+
+                <div class="swipe-scroll picker-sheet__body tw-pb-4">
+                    <template v-for="moduleItem in unselectedLessons" :key="moduleItem.module.id">
+                        <div v-if="moduleItem.lessons.length">
+                            <div class="bp-overline tw-px-4 tw-pt-3 tw-pb-1">{{ moduleItem.module.name }}</div>
+                            <div
+                                v-for="lesson in moduleItem.lessons"
+                                :key="lesson.id"
+                                class="lesson-row lesson-row--pick"
+                                @click="addLessonToDay(lesson)"
+                            >
+                                <div class="tw-min-w-0 tw-flex-1">
+                                    <div class="tw-text-sm tw-truncate">{{ lesson.name }}</div>
+                                    <div class="tw-text-xs tw-text-text-muted dark:tw-text-dark-text-muted">
+                                        {{ parseInt(lesson.order) }} урок
+                                    </div>
+                                </div>
+                                <v-icon size="20" color="primary" class="tw-shrink-0">mdi-plus</v-icon>
+                            </div>
+                        </div>
+                    </template>
+
+                    <div v-if="!unselectedCount" class="tw-p-8 tw-text-center">
+                        <v-icon size="40" color="muted">mdi-check-all</v-icon>
+                        <div class="adf-heading tw-text-lg tw-mt-2 tw-mb-1">Все уроки распределены</div>
+                        <div class="tw-text-sm tw-text-text-muted dark:tw-text-dark-text-muted">
+                            Свободных уроков в программе не осталось
+                        </div>
+                    </div>
+                </div>
+            </v-card>
+        </v-bottom-sheet>
+    </div>
 </template>
 
 <style scoped lang="scss">
-.lesson {
-    @apply tw-w-[98%]   tw-m-2 tw-p-2;
-    border: 1px solid rgba(128, 128, 128, 0.42);
-    border-radius: 4px;
+/* На десктопе колонки прокручиваются независимо (см. такой же расчёт в StudyProgram) */
+@media (min-width: 768px) {
+    .schedule-pane {
+        max-height: calc(100vh - 280px);
+        overflow-y: auto;
+    }
+}
 
-    &:hover {
-        background-color: rgba(187, 189, 193, 0.2);
+.module-card {
+    border: 1px solid var(--bp-border);
+    border-radius: var(--bp-radius-md, 8px);
+    margin-bottom: 8px;
+    overflow: hidden;
+}
+
+.module-card__header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 6px 6px 10px;
+    background: var(--bp-surface-muted);
+}
+
+.lesson-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 4px 6px 4px 10px;
+    border-top: 1px solid var(--bp-border);
+
+    &--placed {
+        opacity: .5;
     }
 
-}
-.item {
-    background-color: rgba(92, 165, 205, 0.25);
+    &--pick {
+        cursor: pointer;
+
+        &:active {
+            background: var(--bp-surface-muted);
+        }
+    }
 }
 
-.not-draggable {
-    cursor: no-drop;
+.lesson-row__num {
+    flex: 0 0 auto;
+    min-width: 20px;
+    font-size: 12px;
+    color: var(--bp-text-muted);
+}
+
+/* Пустой день должен принимать перетаскивание, поэтому у области есть минимальная высота */
+.day-drop {
+    min-height: 8px;
+}
+
+.picker-sheet.v-card {
+    display: flex;
+    flex-direction: column;
+    max-height: 85vh;
+    border-radius: var(--bp-radius-md, 8px) var(--bp-radius-md, 8px) 0 0 !important;
+}
+
+.picker-sheet__body {
+    overflow-y: auto;
 }
 </style>

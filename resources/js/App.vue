@@ -182,7 +182,7 @@ export default {
         ],
         menu_methodologist: [
             {
-                name: 'Курсы ',
+                name: 'Курсы',
                 routName: 'MethodologistCoursesList'
             },
         ],

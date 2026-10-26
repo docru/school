@@ -306,6 +306,11 @@ h2 {
   border-radius: var(--bp-radius-md) !important;
 }
 
+/* Карточка окна с формой: отступы задаём здесь, Vuetify обнуляет padding у .v-card */
+.edit-dialog.v-card {
+  padding: 20px 20px 16px;
+}
+
 /* Чипы и вкладки */
 .v-chip {
   border-radius: var(--bp-radius-sm) !important;

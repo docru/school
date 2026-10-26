@@ -671,9 +671,4 @@ export default {
     border: 1px solid var(--bp-border);
     border-radius: var(--bp-radius-md, 8px);
 }
-
-/* Отступы задаём здесь: Vuetify обнуляет padding у .v-card */
-.edit-dialog.v-card {
-    padding: 20px 20px 16px;
-}
 </style>

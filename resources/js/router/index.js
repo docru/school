@@ -62,6 +62,7 @@ const routes = [
         meta:{
             title: 'Курсы',
             breadcrumbs:[
+                {title:'Главная',routName:'Home'},
                 {title:'Курсы'},
             ]
         }
@@ -73,7 +74,10 @@ const routes = [
         meta:{
             title: 'Курсы',
             breadcrumbs:[
+                {title:'Главная',routName:'Home'},
                 {title:'Курсы',routName:'MethodologistCoursesList'},
+                // название курса подставляется из стора (см. breadcrumbs в App.vue)
+                {title:'Курс', getter:'methodologist/getCourse', field:'name'},
             ]
         }
     },

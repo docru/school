@@ -1,116 +1,202 @@
 <template>
-    <v-card>
-        <v-card-title>
-            <div class="tw-flex tw-justify-between">
-                <div>Курсы</div>
-                <v-btn color="primary" @click="dialog = true">Создать курс</v-btn>
+    <!-- Нижний отступ на мобильном — чтобы плавающая кнопка не закрывала последнюю строку -->
+    <div class="courses-page tw-pb-24 md:tw-pb-0">
+        <!-- Шапка раздела (только десктоп): на мобильном название уже есть в хлебных крошках -->
+        <div v-if="!isMobile" class="tw-flex tw-items-start tw-justify-between tw-gap-3 tw-mb-4">
+            <div class="tw-min-w-0">
+                <h1 class="adf-heading tw-text-2xl tw-leading-8 tw-m-0">Курсы</h1>
+                <div class="tw-text-sm tw-text-text-muted dark:tw-text-dark-text-muted">
+                    {{ subtitle }}
+                </div>
             </div>
-        </v-card-title>
-        <v-data-table v-if="getCourses"
-                      :headers="courseHeaders"
-                      :items="getCourses || []"
-                      :loading="getLoad"
-                      @click:row="goCourse"
-        >
-
-            <template v-slot:item.actions="{ item }">
-                <v-icon
-                    class="me-2"
+            <div class="tw-flex tw-items-center tw-gap-1 tw-shrink-0">
+                <v-btn
+                    icon="mdi-refresh"
+                    variant="text"
+                    color="muted"
                     size="small"
-                    @click.stop="editItem(item)"
-                >
-                    mdi-pencil
-                </v-icon>
-                <v-icon
-                    size="small"
-                    @click.stop="deleteItem(item)"
-                >
-                    mdi-delete
-                </v-icon>
-            </template>
-            <template v-slot:header.actions>
-                <div style="float: right">
-                    <svg class="tw-cursor-pointer" @click.stop="actReqwestCourses" width="17" height="16"
-                         viewBox="0 0 17 16"
-                         fill="none"
-                         xmlns="http://www.w3.org/2000/svg">
-                        <path fill-rule="evenodd" clip-rule="evenodd"
-                              d="M1.59964 3.45737C3.80628 0.250428 8.08538 -0.94687 11.6901 0.811276C15.6603 2.74768 17.3091 7.53595 15.3727 11.5062C13.4363 15.4764 8.64798 17.1251 4.67776 15.1887C3.08138 14.4101 1.81733 13.1467 1.03718 11.5918C0.839085 11.197 0.998557 10.7163 1.39337 10.5182C1.78819 10.3201 2.26884 10.4796 2.46694 10.8744C3.09113 12.1184 4.10063 13.1275 5.379 13.751C8.55518 15.3001 12.3858 13.9811 13.9349 10.8049C15.484 7.62876 14.1651 3.79815 10.9889 2.24902C7.94449 0.764172 4.29884 1.91436 2.63736 4.80937H3.99909C4.44082 4.80937 4.79891 5.16746 4.79891 5.60918C4.79891 6.05091 4.44082 6.409 3.99909 6.409H0.799819C0.358091 6.409 0 6.05091 0 5.60918V2.40991C0 1.96818 0.358091 1.61009 0.799819 1.61009C1.24155 1.61009 1.59964 1.96818 1.59964 2.40991V3.45737Z"
-                              fill="#B0BACD"/>
-                    </svg>
-                </div>
+                    :loading="getLoad"
+                    title="Обновить список"
+                    @click="actReqwestCourses"
+                />
+                <v-btn color="primary" prepend-icon="mdi-plus" @click="openCreate">Новый курс</v-btn>
+            </div>
+        </div>
 
-            </template>
+        <v-progress-linear v-if="getLoad && !getCourses.length" indeterminate color="primary" class="tw-mb-4"/>
 
-        </v-data-table>
-
-    </v-card>
-    <v-dialog v-model="dialog" width="500">
-        <v-card>
-            <v-card-title>
-                <div class="tw-w-full tw-flex tw-justify-between ">
-                    <h6> Создание курса</h6>
-                    <v-icon @click="dialog=false">mdi-close</v-icon>
-                </div>
-                <v-card-text>
-                    <v-text-field label="Название курса" v-model="nameCourse"/>
-                    <v-textarea label="Описание курса" v-model="description"/>
-                    <v-btn block @click="createCourse" :disabled="!description||!nameCourse">Создать курс</v-btn>
-                </v-card-text>
-
-            </v-card-title>
-
+        <!-- Таблица (десктоп) -->
+        <v-card v-if="!isMobile && getCourses.length">
+            <v-data-table
+                class="courses-table"
+                :headers="headers"
+                :items="getCourses"
+                items-per-page="-1"
+                hide-default-footer
+                @click:row="onRowClick"
+            >
+                <template v-slot:item.name="{item}">
+                    <span class="tw-font-medium">{{ item.name }}</span>
+                </template>
+                <template v-slot:item.description="{item}">
+                    <span v-if="item.description" class="tw-line-clamp-2">{{ item.description }}</span>
+                    <span v-else class="tw-text-text-muted dark:tw-text-dark-text-muted">без описания</span>
+                </template>
+                <template v-slot:item.hours="{item}">
+                    <span v-if="item.hours">{{ item.hours }}</span>
+                    <span v-else class="tw-text-text-muted dark:tw-text-dark-text-muted">—</span>
+                </template>
+                <template v-slot:item.school_days_count="{item}">
+                    <span v-if="item.school_days_count">{{ item.school_days_count }}</span>
+                    <span v-else class="tw-text-text-muted dark:tw-text-dark-text-muted">—</span>
+                </template>
+            </v-data-table>
         </v-card>
-    </v-dialog>
 
+        <!-- Список (телефон) -->
+        <v-card v-else-if="getCourses.length">
+            <div
+                v-for="item in getCourses"
+                :key="item.id"
+                class="course-row"
+                @click="openCourse(item)"
+            >
+                <div class="tw-min-w-0 tw-flex-1">
+                    <div class="tw-text-[15px] tw-font-medium tw-truncate">{{ item.name }}</div>
+                    <div class="tw-text-xs tw-text-text-muted dark:tw-text-dark-text-muted tw-line-clamp-2 tw-mt-0.5">
+                        {{ item.description || 'без описания' }}
+                    </div>
+                    <div class="tw-text-xs tw-text-accent dark:tw-text-dark-accent tw-mt-1">
+                        {{ courseMeta(item) }}
+                    </div>
+                </div>
+                <v-icon size="20" color="muted" class="tw-shrink-0">mdi-chevron-right</v-icon>
+            </div>
+        </v-card>
+
+        <!-- Пустое состояние -->
+        <v-card v-else-if="!getLoad">
+            <div class="tw-p-8 tw-text-center">
+                <v-icon size="40" color="muted">mdi-book-open-page-variant-outline</v-icon>
+                <div class="adf-heading tw-text-lg tw-mt-2 tw-mb-1">Курсов пока нет</div>
+                <div class="tw-text-sm tw-text-text-muted dark:tw-text-dark-text-muted">
+                    Создайте курс — внутри появятся модули, уроки и расписание
+                </div>
+            </div>
+        </v-card>
+
+        <!-- Мобильная кнопка создания -->
+        <v-btn
+            v-if="isMobile"
+            icon="mdi-plus"
+            color="primary"
+            size="large"
+            elevation="4"
+            title="Новый курс"
+            class="create-fab"
+            @click="openCreate"
+        />
+
+        <!-- Создание курса -->
+        <v-dialog v-model="dialog" width="420" max-width="calc(100vw - 32px)">
+            <v-card class="edit-dialog">
+                <div class="tw-flex tw-items-center tw-justify-between tw-gap-2 tw-mb-2">
+                    <div class="adf-heading tw-text-xl tw-leading-7">Новый курс</div>
+                    <v-btn icon="mdi-close" size="small" density="comfortable" variant="text" color="muted" class="tw--mr-1" @click="dialog = false"/>
+                </div>
+                <v-text-field v-model="nameCourse" label="Название курса" autofocus/>
+                <v-textarea v-model="description" label="Описание курса" rows="3"/>
+                <div class="tw-flex tw-justify-end tw-gap-2 tw-mt-4">
+                    <v-btn variant="text" color="muted" @click="dialog = false">Отмена</v-btn>
+                    <v-btn color="primary" :disabled="!canCreate" :loading="saving" @click="createCourse">Создать</v-btn>
+                </div>
+            </v-card>
+        </v-dialog>
+    </div>
 </template>
+
 <script>
-import {mapActions, mapGetters, mapMutations} from "vuex";
+import {mapActions, mapGetters} from "vuex";
 
 export default {
     name: 'CoursesList',
     data() {
         return {
-            courseHeaders: [
-                {title: 'id', key: 'id'},
+            headers: [
                 {title: 'Название', key: 'name'},
-                {title: 'Описание', key: 'description'},
-                {title: 'Методист', key: 'metodist'},
-                {title: 'Кол-во часов', key: 'time'},
-                {title: 'Кол-во уроков', key: 'time'},
-                {title: 'Заданий', key: ''},
-                {title: 'Д/З', key: ''},
-                {title: '', align: 'end', sortable: false, key: 'actions'},
+                {title: 'Описание', key: 'description', sortable: false},
+                {title: 'Модули', key: 'modules_count', align: 'end'},
+                {title: 'Уроки', key: 'lessons_count', align: 'end'},
+                {title: 'Часы', key: 'hours', align: 'end'},
+                {title: 'Дни', key: 'school_days_count', align: 'end'},
             ],
             dialog: false,
+            saving: false,
             nameCourse: '',
-            description: ""
+            description: '',
         }
     },
     computed: {
         ...mapGetters('methodologist', ['getCourses', 'getLoad']),
+        isMobile() {
+            return this.$vuetify.display.name === 'sm';
+        },
+        subtitle() {
+            const n = this.getCourses.length;
+            if (!n) return 'Курсов пока нет';
+            const lessons = this.getCourses.reduce((sum, c) => sum + (c.lessons_count ?? 0), 0);
+            return `${n} ${this.plural(n, ['курс', 'курса', 'курсов'])}`
+                + `, ${lessons} ${this.plural(lessons, ['урок', 'урока', 'уроков'])}`;
+        },
+        canCreate() {
+            return !!this.nameCourse.trim() && !!this.description.trim();
+        },
     },
     methods: {
-        goCourse(item, row) {
-            this.$router.push({
-                name: 'MethodologistCourseDetail',
-                params: {idCourse: row.item.id}
-            })
-        },
-        ...mapMutations('app', ['setSnackBar']),
         ...mapActions('methodologist', ['actReqwestCourses', 'actCreateCourse']),
+        plural(n, forms) {
+            const abs = Math.abs(n) % 100;
+            const last = abs % 10;
+            if (abs > 10 && abs < 20) return forms[2];
+            if (last > 1 && last < 5) return forms[1];
+            if (last === 1) return forms[0];
+            return forms[2];
+        },
+        // Сводка по программе курса одной строкой — на телефоне колонок таблицы нет
+        courseMeta(item) {
+            if (!item.modules_count && !item.lessons_count) return 'программа пустая';
+            const parts = [
+                `${item.modules_count} ${this.plural(item.modules_count, ['модуль', 'модуля', 'модулей'])}`,
+                `${item.lessons_count} ${this.plural(item.lessons_count, ['урок', 'урока', 'уроков'])}`,
+            ];
+            if (item.hours) {
+                parts.push(`${item.hours} ч`);
+            }
+            if (item.school_days_count) {
+                parts.push(`${item.school_days_count} ${this.plural(item.school_days_count, ['день', 'дня', 'дней'])}`);
+            }
+            return parts.join(' · ');
+        },
+        openCourse(item) {
+            this.$router.push({name: 'MethodologistCourseDetail', params: {idCourse: item.id}});
+        },
+        // v-data-table отдаёт (event, {item})
+        onRowClick(event, {item}) {
+            this.openCourse(item);
+        },
+        openCreate() {
+            this.nameCourse = '';
+            this.description = '';
+            this.dialog = true;
+        },
         async createCourse() {
-            if (this.nameCourse.length === 0) {
-                this.setSnackBar({text: 'Задайте название курса'});
-            } else {
-                if (await this.actCreateCourse({
-                    nameCourse: this.nameCourse,
-                    description: this.description
-                })) {
-                    this.dialog = false
-                    this.nameCourse = '';
-                    this.description = '';
+            this.saving = true;
+            try {
+                if (await this.actCreateCourse({nameCourse: this.nameCourse, description: this.description})) {
+                    this.dialog = false;
                 }
+            } finally {
+                this.saving = false;
             }
         },
     },
@@ -120,7 +206,33 @@ export default {
 }
 </script>
 
+<style scoped lang="scss">
+.course-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 64px;
+    padding: 10px 12px 10px 16px;
+    border-bottom: 1px solid var(--bp-border);
+    cursor: pointer;
 
-<style scoped>
+    &:last-child {
+        border-bottom: 0;
+    }
 
+    &:active {
+        background: var(--bp-surface-muted);
+    }
+}
+
+.courses-table :deep(tbody tr) {
+    cursor: pointer;
+}
+
+.create-fab {
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    z-index: 5;
+}
 </style>
