@@ -1,9 +1,11 @@
 <template>
-    <div class="groups-page">
-        <!-- Шапка раздела: заголовок и действие в одной строке, подпись под заголовком -->
-        <div class="tw-flex tw-items-start tw-justify-between tw-gap-3 tw-mb-4">
+    <!-- Нижний отступ на мобильном — чтобы плавающая кнопка не закрывала последнюю карточку -->
+    <div class="groups-page tw-pb-24 md:tw-pb-0">
+        <!-- Шапка раздела (только десктоп): на мобильном название раздела уже есть в хлебных крошках,
+             а счётчики групп видны на фильтре, поэтому там шапка не показывается ради экономии места -->
+        <div v-if="!isMobile" class="tw-flex tw-items-start tw-justify-between tw-gap-3 tw-mb-4">
             <div class="tw-min-w-0">
-                <h1 class="adf-heading tw-text-2xl tw-leading-9 tw-m-0">Группы</h1>
+                <h1 class="adf-heading tw-text-2xl tw-leading-8 tw-m-0">Группы</h1>
                 <div class="tw-text-sm tw-text-text-muted dark:tw-text-dark-text-muted">
                     {{ subtitle }}
                 </div>
@@ -19,13 +21,11 @@
                     title="Обновить список"
                     @click="actRequestGroups"
                 />
-                <v-btn color="primary" prepend-icon="mdi-plus" @click="dialog = true">
-                    {{ isMobile ? 'Создать' : 'Создать группу' }}
-                </v-btn>
+                <v-btn color="primary" prepend-icon="mdi-plus" @click="dialog = true">Создать группу</v-btn>
             </div>
         </div>
 
-        <!-- Фильтр по статусу и переключатель вида -->
+        <!-- Фильтр по статусу; справа на десктопе переключатель вида -->
         <div class="tw-flex tw-items-center tw-justify-between tw-gap-3 tw-mb-4">
             <v-btn-toggle
                 v-model="filterItemSelected"
@@ -33,7 +33,7 @@
                 density="comfortable"
                 variant="outlined"
                 divided
-                class="status-filter tw-w-full md:tw-w-auto"
+                class="status-filter tw-flex-1 md:tw-flex-none"
             >
                 <v-btn v-for="f in filterItems" :key="f.val" :value="f.val" class="tw-flex-1 md:tw-flex-none">
                     {{ f.title }}
@@ -74,13 +74,16 @@
                     <v-chip size="small" label :color="statusColor(item)">{{ statusTitle(item) }}</v-chip>
                 </template>
                 <template v-slot:item.disciples_active="{item}">
-                    {{ item.disciples_active }}
-                    <span v-if="item.disciples_expelled" class="tw-text-text-muted dark:tw-text-dark-text-muted">
-                        · отчисл. {{ item.disciples_expelled }}
+                    <span class="tw-whitespace-nowrap">
+                        {{ item.disciples_active }}
+                        <span v-if="item.disciples_expelled" class="tw-text-text-muted dark:tw-text-dark-text-muted">
+                            · отчисл. {{ item.disciples_expelled }}
+                        </span>
                     </span>
                 </template>
                 <template v-slot:item.days_closed="{item}">
-                    <div class="tw-flex tw-items-center tw-gap-2 tw-min-w-[140px]">
+                    <div class="tw-flex tw-items-center tw-gap-2 tw-whitespace-nowrap">
+                        <!-- У v-progress-linear ширина 100%, во flex она не сжимается — задаём ширину явно -->
                         <v-progress-linear
                             :model-value="progress(item)"
                             height="4"
@@ -88,7 +91,7 @@
                             color="primary"
                             bg-color="border"
                             bg-opacity="1"
-                            class="tw-flex-1"
+                            class="table-progress"
                         />
                         <span class="tw-whitespace-nowrap">{{ item.days_closed }} / {{ item.days_total }}</span>
                     </div>
@@ -187,6 +190,18 @@
                 </div>
             </div>
         </v-card>
+
+        <!-- Мобильная кнопка создания: плавающая, не занимает места в потоке -->
+        <v-btn
+            v-if="isMobile"
+            icon="mdi-plus"
+            color="primary"
+            size="large"
+            elevation="4"
+            title="Создать группу"
+            class="create-fab"
+            @click="dialog = true"
+        />
 
         <!-- Диалог создания группы -->
         <v-dialog v-model="dialog" width="480">
@@ -354,11 +369,31 @@ export default {
     :deep(.v-btn--active) {
         background: var(--bp-surface-muted);
         color: var(--bp-text-primary);
+
+        /* на активной вкладке фон совпадает с пилюлей счётчика — делаем её белой */
+        .tab-count {
+            background: var(--bp-surface-card);
+        }
     }
+}
+
+.create-fab {
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    z-index: 5;
 }
 
 .groups-table :deep(tbody tr) {
     cursor: pointer;
+}
+
+/* Vuetify центрирует прогресс через left:50% + translateX(-50%), во flex-строке это сдвигает его на текст */
+.table-progress {
+    flex: 0 0 56px;
+    width: 56px;
+    left: 0 !important;
+    transform: none !important;
 }
 
 .tab-count {

@@ -115,7 +115,7 @@
                 />
 
 
-                <v-card variant="text" class=" px-3 pt-15" style="min-height: 100%">
+                <v-card variant="text" class="px-3 bp-page" style="min-height: 100%">
                     <router-view></router-view>
                 </v-card>
             </v-main>

@@ -169,6 +169,15 @@ h2 {
   box-shadow: none !important;
 }
 
+/* Отступ контента под фиксированными хлебными крошками: на телефоне плотнее */
+.bp-page.v-card {
+  padding-top: 52px;
+
+  @media (min-width: 768px) {
+    padding-top: 60px;
+  }
+}
+
 .bp-breadcrumbs.v-breadcrumbs {
   background: var(--bp-surface-page);
   font-size: 13px;
