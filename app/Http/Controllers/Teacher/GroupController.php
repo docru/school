@@ -16,28 +16,22 @@ class GroupController extends Controller
      */
     public function index()
     {
+        // Сводка та же, что у администратора: учителю нужны те же сведения о группе
         $groups = GroupUser::whereRole('teacher')
             ->whereUserId(auth()->id())
+            ->with([
+                'group.course:id,name',
+                'group.course.course_school_days:id,course_id',
+                'group.groupUser.user:id,name,surname,patronymic',
+                'group.groupsSchoolDay',
+            ])
             ->orderBy('created_at', 'desc')
             ->get()
-            ->map(function (GroupUser $groupUser) {
-                $group = $groupUser->group;
-                $course = $group->course;
+            ->map(fn(GroupUser $groupUser): ?array => $groupUser->group?->summary())
+            ->filter()
+            ->values()
+            ->all();
 
-                $res =[
-                    'id' => $groupUser->id,
-                    'status' => $groupUser->status,
-                    'group' => [
-                        'id' => $group->id,
-                        'name' => $group->name,
-                    ],
-                    'course' => [
-                        'id' => $course->id,
-                        'name' => $course->name,
-                    ],
-                ];
-                return $res;
-            })->toArray();
         return $this->ResponseOk($groups);
     }
 
@@ -66,16 +60,29 @@ class GroupController extends Controller
             ];
         });
 
-        // учителя и ученики (список)
-        $users = $group->groupUser()->get();
+        // учителя и ученики (список). Телефон нужен, чтобы учитель мог позвонить,
+        // статус — чтобы отчисленный не выглядел как остальные.
+        $users = $group->groupUser()->with('user')->get();
         $teachers = [];
         $disciples = [];
-        foreach ($users as $user) {
-            $member = $user->user()->first(['id', 'surname', 'name', 'patronymic'])->toArray();
-            if($user->role == 'disciple'){
+        foreach ($users as $groupUser) {
+            $user = $groupUser->user;
+            if (empty($user)) {
+                continue;
+            }
+            $member = [
+                'id' => $user->id,
+                'surname' => $user->surname,
+                'name' => $user->name,
+                'patronymic' => $user->patronymic,
+                'phone' => $user->phone,
+                'status' => $groupUser->status,
+                'expelled_at' => $groupUser->expelled_at,
+            ];
+            if ($groupUser->role == 'disciple') {
                 $disciples[] = $member;
             }
-            if($user->role == 'teacher'){
+            if ($groupUser->role == 'teacher') {
                 $teachers[] = $member;
             }
         }
@@ -88,6 +95,16 @@ class GroupController extends Controller
             })
             ->map(function ($item) {
                 return $item->group_school_day_id;
+            })
+            ->toArray();
+
+        // отметки посещения по всей группе: «<id дня группы>_<id ученика>».
+        // Нужны, чтобы учитель видел пропуски учеников так же, как администратор.
+        $dayIds = $group->groupsSchoolDay->pluck('id')->toArray();
+        $attendanceMarks = Attendance::whereIn('group_school_day_id', $dayIds)
+            ->get(['group_school_day_id', 'user_id'])
+            ->map(function (Attendance $item) {
+                return $item->group_school_day_id . '_' . $item->user_id;
             })
             ->toArray();
 
@@ -107,6 +124,7 @@ class GroupController extends Controller
             'courseSchoolDay' => $courseSchoolDay,
             'groupsSchoolDay' => $groupsSchoolDay,
             'attendances' => $attendances,
+            'attendanceMarks' => $attendanceMarks,
             'disciples' => $disciples,
             'teachers' => $teachers,
         ]);
