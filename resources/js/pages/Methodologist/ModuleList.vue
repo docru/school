@@ -1,9 +1,10 @@
 <script>
 import draggable from 'vuedraggable'
+import ListRow from "../../components/ListRow.vue";
 
 export default {
     name: "ModuleList",
-    components: {draggable},
+    components: {draggable, ListRow},
     props: {
         getStudyProgram: {type: Array, default: () => []},
         // id выбранного урока — по нему подсвечивается строка
@@ -38,8 +39,8 @@ export default {
             :delay-on-touch-only="true"
         >
             <template #item="{element: moduleItem}">
-                <div class="module-card">
-                    <div class="module-card__header">
+                <div class="section-card">
+                    <div class="section-card__header">
                         <v-icon size="18" color="muted" class="drag-handle tw-cursor-grab tw-shrink-0">mdi-drag</v-icon>
                         <div class="tw-min-w-0 tw-flex-1">
                             <div class="bp-overline">Модуль</div>
@@ -75,29 +76,32 @@ export default {
                         :delay-on-touch-only="true"
                     >
                         <template #item="{element: lesson}">
-                            <div
-                                class="lesson-row"
-                                :class="{'lesson-row--active': lesson.id === curLessonId}"
+                            <ListRow
+                                dense
+                                clickable
+                                :title="lesson.name"
+                                :active="lesson.id === curLessonId"
                                 @click="$emit('chooseLesson', lesson)"
                             >
-                                <v-icon size="18" color="muted" class="drag-handle tw-cursor-grab tw-shrink-0" @click.stop>mdi-drag</v-icon>
-                                <div class="tw-min-w-0 tw-flex-1">
-                                    <div class="tw-text-sm tw-truncate">{{ lesson.name }}</div>
-                                    <div class="tw-text-xs tw-text-text-muted dark:tw-text-dark-text-muted">
-                                        {{ parseInt(lesson.order) }} урок<span v-if="lesson.school_day"> · в расписании</span>
-                                    </div>
-                                </div>
-                                <v-btn
-                                    icon="mdi-delete-outline"
-                                    variant="text"
-                                    color="muted"
-                                    size="small"
-                                    density="comfortable"
-                                    title="Удалить урок"
-                                    class="tw-shrink-0"
-                                    @click.stop="$emit('deleteLesson', lesson)"
-                                />
-                            </div>
+                                <template #lead>
+                                    <v-icon size="18" color="muted" class="drag-handle tw-cursor-grab tw-shrink-0" @click.stop>mdi-drag</v-icon>
+                                </template>
+                                <template #subtitle>
+                                    {{ parseInt(lesson.order) }} урок<span v-if="lesson.school_day"> · в расписании</span>
+                                </template>
+                                <template #actions>
+                                    <v-btn
+                                        icon="mdi-delete-outline"
+                                        variant="text"
+                                        color="muted"
+                                        size="small"
+                                        density="comfortable"
+                                        title="Удалить урок"
+                                        class="tw-shrink-0"
+                                        @click.stop="$emit('deleteLesson', lesson)"
+                                    />
+                                </template>
+                            </ListRow>
                         </template>
                     </draggable>
 
@@ -111,37 +115,4 @@ export default {
 </template>
 
 <style scoped lang="scss">
-.module-card {
-    border: 1px solid var(--bp-border);
-    border-radius: var(--bp-radius-md, 8px);
-    margin-bottom: 8px;
-    overflow: hidden;
-}
-
-.module-card__header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 6px 6px 10px;
-    background: var(--bp-surface-muted);
-}
-
-.lesson-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    min-height: 48px;
-    padding: 4px 6px 4px 10px;
-    border-top: 1px solid var(--bp-border);
-    cursor: pointer;
-
-    &:active {
-        background: var(--bp-surface-muted);
-    }
-
-    &--active {
-        background: var(--bp-surface-muted);
-        box-shadow: inset 3px 0 0 var(--bp-accent);
-    }
-}
 </style>

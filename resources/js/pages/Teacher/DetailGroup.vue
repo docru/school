@@ -32,8 +32,8 @@
                             </div>
                         </div>
 
-                        <div v-for="day in days" :key="day.id" class="day-card">
-                            <div class="day-card__header">
+                        <div v-for="day in days" :key="day.id" class="section-card">
+                            <div class="section-card__header">
                                 <div class="tw-min-w-0 tw-flex-1">
                                     <div class="tw-text-sm tw-font-medium">
                                         {{ day.order }}. {{ day.date ? fmtDate(day.date) : 'дата не назначена' }}
@@ -46,16 +46,17 @@
                                 <span v-else-if="day.date" class="day-badge">проведён</span>
                             </div>
 
-                            <div
+                            <ListRow
                                 v-for="(lesson, index) in day.lessons"
                                 :key="lesson.id"
-                                class="lesson-row"
+                                dense
+                                clickable
+                                wrap-title
+                                :title="lesson.name"
                                 @click="openLesson(lesson)"
                             >
-                                <span class="lesson-row__num">{{ index + 1 }}</span>
-                                <div class="tw-min-w-0 tw-flex-1 tw-text-sm">{{ lesson.name }}</div>
-                                <v-icon size="20" color="muted" class="tw-shrink-0">mdi-chevron-right</v-icon>
-                            </div>
+                                <template #lead><span class="row-num">{{ index + 1 }}</span></template>
+                            </ListRow>
 
                             <div v-if="!day.lessons.length" class="tw-px-3 tw-py-2 tw-text-xs tw-text-text-muted dark:tw-text-dark-text-muted">
                                 Уроков на этот день нет
@@ -66,24 +67,68 @@
 
                 <v-window-item value="group">
                     <div class="tw-p-3 md:tw-p-4">
-                        <div class="bp-overline tw-mb-2">Учителя</div>
-                        <div v-if="getTeachers.length" class="tw-mb-5">
-                            <div v-for="teacher in getTeachers" :key="teacher.id" class="person-row">
-                                {{ fio(teacher) }}
-                            </div>
+                        <div class="bp-overline tw-mb-1">Учителя</div>
+                        <div v-if="getTeachers.length" class="list-box tw-mb-5">
+                            <ListRow v-for="person in getTeachers" :key="person.id" :title="fio(person)">
+                                <template #subtitle>
+                                    <span v-if="person.phone">{{ fmtPhone(person.phone) }}</span>
+                                    <span v-else>телефон не указан</span>
+                                </template>
+                                <template #actions>
+                                    <v-btn
+                                        v-if="person.phone"
+                                        icon="mdi-phone-outline"
+                                        size="small"
+                                        density="comfortable"
+                                        variant="text"
+                                        color="primary"
+                                        :href="'tel:+' + person.phone"
+                                        title="Позвонить"
+                                        class="tw-shrink-0"
+                                    />
+                                </template>
+                            </ListRow>
                         </div>
                         <div v-else class="tw-text-sm tw-text-text-muted dark:tw-text-dark-text-muted tw-mb-5">
                             Учителей нет
                         </div>
 
-                        <div class="bp-overline tw-mb-2">
+                        <div class="bp-overline tw-mb-1">
                             Ученики
-                            <span class="tw-ml-1">{{ getDisciples.length || '' }}</span>
+                            <span v-if="disciples.length" class="tw-ml-1">{{ activeDisciples.length }}</span>
+                            <span v-if="expelledCount" class="tw-ml-1">· отчислено {{ expelledCount }}</span>
                         </div>
-                        <div v-if="getDisciples.length">
-                            <div v-for="disciple in getDisciples" :key="disciple.id" class="person-row">
-                                {{ fio(disciple) }}
-                            </div>
+                        <div v-if="disciples.length" class="list-box">
+                            <ListRow
+                                v-for="(person, index) in disciples"
+                                :key="person.id"
+                                :title="`${index + 1}. ${fio(person)}`"
+                                :muted="person.status === 'expelled'"
+                                :warning="hasWarning(person)"
+                            >
+                                <template #subtitle>
+                                    <span v-if="person.status === 'expelled'">
+                                        отчислен{{ person.expelled_at ? ' ' + fmtDate(person.expelled_at) : '' }}
+                                    </span>
+                                    <template v-else>
+                                        <span>посещено {{ attendedCount(person) }} из {{ closedDaysCount }}</span>
+                                        <span class="tw-text-warning tw-font-medium" v-if="hasWarning(person)"> · пропусков {{ missedCount(person) }}</span>
+                                    </template>
+                                </template>
+                                <template #actions>
+                                    <v-btn
+                                        v-if="person.phone"
+                                        icon="mdi-phone-outline"
+                                        size="small"
+                                        density="comfortable"
+                                        variant="text"
+                                        color="primary"
+                                        :href="'tel:+' + person.phone"
+                                        title="Позвонить"
+                                        class="tw-shrink-0"
+                                    />
+                                </template>
+                            </ListRow>
                         </div>
                         <div v-else class="tw-text-sm tw-text-text-muted dark:tw-text-dark-text-muted">
                             Учеников нет
@@ -97,9 +142,11 @@
 
 <script>
 import {mapActions, mapGetters} from "vuex";
+import ListRow from "../../components/ListRow.vue";
 
 export default {
     name: "DetailGroup",
+    components: {ListRow},
     data() {
         return {
             tab: 'lessons',
@@ -119,7 +166,29 @@ export default {
         subtitle() {
             const course = this.group?.course?.name;
             if (!course) return 'курс не указан';
-            return `${course} · ${this.getDisciples.length} ${this.plural(this.getDisciples.length, ['ученик', 'ученика', 'учеников'])}`;
+            const n = this.activeDisciples.length;
+            return `${course} · ${n} ${this.plural(n, ['ученик', 'ученика', 'учеников'])}`;
+        },
+        // Отметки посещения группы: «<id дня>_<id ученика>»
+        attendanceSet() {
+            return new Set(this.group?.attendanceMarks ?? []);
+        },
+        closedDaysCount() {
+            return Object.values(this.groupSchoolDays ?? {}).filter(d => d.status === 'close').length;
+        },
+        activeDisciples() {
+            return this.getDisciples.filter(d => d.status !== 'expelled');
+        },
+        expelledCount() {
+            return this.getDisciples.length - this.activeDisciples.length;
+        },
+        // Отчисленные уходят в конец списка, как в разделе «Ученики»
+        disciples() {
+            const byFio = (a, b) => this.fio(a).localeCompare(this.fio(b), 'ru');
+            return [
+                ...this.activeDisciples.slice().sort(byFio),
+                ...this.getDisciples.filter(d => d.status === 'expelled').sort(byFio),
+            ];
         },
         // День курса и назначенный ему день группы — в одном объекте
         days() {
@@ -139,6 +208,23 @@ export default {
         ...mapActions('teacher', ['actRequestGroup']),
         fio(user) {
             return [user.surname, user.name, user.patronymic].filter(Boolean).join(' ') || 'без имени';
+        },
+        // Сколько закрытых занятий посетил ученик
+        attendedCount(person) {
+            const suffix = '_' + person.id;
+            return [...this.attendanceSet].filter(a => a.endsWith(suffix)).length;
+        },
+        missedCount(person) {
+            return Math.max(this.closedDaysCount - this.attendedCount(person), 0);
+        },
+        // Замечание: активный ученик пропустил больше трёх занятий (порог как в админке)
+        hasWarning(person) {
+            return person.status !== 'expelled' && this.missedCount(person) > 3;
+        },
+        fmtPhone(phone) {
+            const d = String(phone).replace(/\D/g, '');
+            if (d.length === 11) return `+${d[0]} ${d.slice(1, 4)} ${d.slice(4, 7)}-${d.slice(7, 9)}-${d.slice(9)}`;
+            return '+' + d;
         },
         fmtDate(value) {
             if (!value) return '—';
@@ -167,21 +253,6 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.day-card {
-    border: 1px solid var(--bp-border);
-    border-radius: var(--bp-radius-md, 8px);
-    margin-bottom: 8px;
-    overflow: hidden;
-}
-
-.day-card__header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 10px;
-    background: var(--bp-surface-muted);
-}
-
 .day-badge {
     flex: 0 0 auto;
     font-size: 12px;
@@ -196,34 +267,4 @@ export default {
     }
 }
 
-.lesson-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    min-height: 48px;
-    padding: 6px 8px 6px 10px;
-    border-top: 1px solid var(--bp-border);
-    cursor: pointer;
-
-    &:active {
-        background: var(--bp-surface-muted);
-    }
-}
-
-.lesson-row__num {
-    flex: 0 0 auto;
-    min-width: 20px;
-    font-size: 12px;
-    color: var(--bp-text-muted);
-}
-
-.person-row {
-    padding: 8px 2px;
-    font-size: 14px;
-    border-bottom: 1px solid var(--bp-border);
-
-    &:last-child {
-        border-bottom: 0;
-    }
-}
 </style>

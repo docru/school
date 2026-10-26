@@ -1,11 +1,12 @@
 <script>
 import {mapActions, mapGetters} from "vuex";
 import draggable from 'vuedraggable'
+import ListRow from "../../components/ListRow.vue";
 import swipeSheet from "../../mixins/swipeSheet.js";
 
 export default {
     name: 'CourseSchedule',
-    components: {draggable},
+    components: {draggable, ListRow},
     mixins: [swipeSheet],
     data() {
         return {
@@ -181,8 +182,8 @@ export default {
         <div v-else-if="!isMobile" class="tw-flex tw-gap-3">
             <div class="tw-w-1/3 schedule-pane">
                 <div class="bp-overline tw-mb-2">Уроки программы</div>
-                <div v-for="moduleItem in getStudyProgram" :key="moduleItem.module.id" class="module-card">
-                    <div class="module-card__header">
+                <div v-for="moduleItem in getStudyProgram" :key="moduleItem.module.id" class="section-card">
+                    <div class="section-card__header">
                         <div class="tw-min-w-0">
                             <div class="bp-overline">Модуль</div>
                             <div class="tw-text-sm tw-font-medium tw-truncate">{{ moduleItem.module.name }}</div>
@@ -196,20 +197,19 @@ export default {
                         @end="onEnd"
                     >
                         <template #item="{element: lesson}">
-                            <div
-                                class="lesson-row"
-                                :class="{'item': !lesson.school_day, 'lesson-row--placed': !!lesson.school_day}"
+                            <ListRow
+                                dense
+                                :title="lesson.name"
+                                :muted="!!lesson.school_day"
+                                :class="{'item': !lesson.school_day}"
                                 :data-lesson-id="lesson.id"
                             >
-                                <v-icon v-if="!lesson.school_day" size="18" color="muted" class="tw-cursor-grab tw-shrink-0">mdi-drag</v-icon>
-                                <v-icon v-else size="18" color="success" class="tw-shrink-0">mdi-check</v-icon>
-                                <div class="tw-min-w-0 tw-flex-1">
-                                    <div class="tw-text-sm tw-truncate">{{ lesson.name }}</div>
-                                    <div class="tw-text-xs tw-text-text-muted dark:tw-text-dark-text-muted">
-                                        {{ parseInt(lesson.order) }} урок
-                                    </div>
-                                </div>
-                            </div>
+                                <template #lead>
+                                    <v-icon v-if="!lesson.school_day" size="18" color="muted" class="tw-cursor-grab tw-shrink-0">mdi-drag</v-icon>
+                                    <v-icon v-else size="18" color="success" class="tw-shrink-0">mdi-check</v-icon>
+                                </template>
+                                <template #subtitle>{{ parseInt(lesson.order) }} урок</template>
+                            </ListRow>
                         </template>
                     </draggable>
                     <div v-if="!moduleItem.lessons.length" class="tw-px-3 tw-py-2 tw-text-xs tw-text-text-muted dark:tw-text-dark-text-muted">
@@ -220,8 +220,8 @@ export default {
 
             <div class="tw-w-2/3 schedule-pane">
                 <div class="bp-overline tw-mb-2">Учебные дни</div>
-                <div v-for="day in getSchedule" :key="day.id" class="module-card">
-                    <div class="module-card__header">
+                <div v-for="day in getSchedule" :key="day.id" class="section-card">
+                    <div class="section-card__header">
                         <div class="tw-min-w-0 tw-flex-1">
                             <div class="tw-text-sm tw-font-medium">День {{ day.order }}</div>
                             <div class="tw-text-xs tw-text-text-muted dark:tw-text-dark-text-muted">
@@ -248,20 +248,21 @@ export default {
                         @end="onEnd"
                     >
                         <template #item="{element: lesson, index}">
-                            <div class="lesson-row" :data-lesson-id="lesson.id">
-                                <span class="lesson-row__num">{{ index + 1 }}</span>
-                                <div class="tw-min-w-0 tw-flex-1 tw-text-sm tw-truncate">{{ lesson.name }}</div>
-                                <v-btn
-                                    icon="mdi-close"
-                                    size="small"
-                                    density="comfortable"
-                                    variant="text"
-                                    color="muted"
-                                    title="Убрать из дня"
-                                    class="tw-shrink-0"
-                                    @click="removeLesson(lesson)"
-                                />
-                            </div>
+                            <ListRow dense :title="lesson.name" :data-lesson-id="lesson.id">
+                                <template #lead><span class="row-num">{{ index + 1 }}</span></template>
+                                <template #actions>
+                                    <v-btn
+                                        icon="mdi-close"
+                                        size="small"
+                                        density="comfortable"
+                                        variant="text"
+                                        color="muted"
+                                        title="Убрать из дня"
+                                        class="tw-shrink-0"
+                                        @click="removeLesson(lesson)"
+                                    />
+                                </template>
+                            </ListRow>
                         </template>
                     </draggable>
                     <div v-if="!schedul[day.id].length" class="tw-px-3 tw-py-3 tw-text-xs tw-text-text-muted dark:tw-text-dark-text-muted">
@@ -273,8 +274,8 @@ export default {
 
         <!-- Телефон: дни списком, уроки добавляются выбором и двигаются стрелками -->
         <div v-else>
-            <div v-for="day in getSchedule" :key="day.id" class="module-card">
-                <div class="module-card__header">
+            <div v-for="day in getSchedule" :key="day.id" class="section-card">
+                <div class="section-card__header">
                     <div class="tw-min-w-0 tw-flex-1">
                         <div class="tw-text-sm tw-font-medium">День {{ day.order }}</div>
                         <div class="tw-text-xs tw-text-text-muted dark:tw-text-dark-text-muted">
@@ -293,13 +294,15 @@ export default {
                     />
                 </div>
 
-                <div
+                <ListRow
                     v-for="(lesson, index) in schedul[day.id]"
                     :key="lesson.id"
-                    class="lesson-row"
+                    dense
+                    wrap-title
+                    :title="lesson.name"
                 >
-                    <span class="lesson-row__num">{{ index + 1 }}</span>
-                    <div class="tw-min-w-0 tw-flex-1 tw-text-sm tw-line-clamp-2">{{ lesson.name }}</div>
+                    <template #lead><span class="row-num">{{ index + 1 }}</span></template>
+                    <template #actions>
                     <v-btn
                         icon="mdi-arrow-up"
                         size="small"
@@ -332,7 +335,8 @@ export default {
                         class="tw-shrink-0"
                         @click="removeLesson(lesson)"
                     />
-                </div>
+                    </template>
+                </ListRow>
 
                 <!-- Когда свободных уроков нет, кнопку прячем: иначе она висит погашенной в каждом дне -->
                 <div class="tw-p-2" v-if="unselectedCount">
@@ -374,20 +378,19 @@ export default {
                     <template v-for="moduleItem in unselectedLessons" :key="moduleItem.module.id">
                         <div v-if="moduleItem.lessons.length">
                             <div class="bp-overline tw-px-4 tw-pt-3 tw-pb-1">{{ moduleItem.module.name }}</div>
-                            <div
+                            <ListRow
                                 v-for="lesson in moduleItem.lessons"
                                 :key="lesson.id"
-                                class="lesson-row lesson-row--pick"
+                                dense
+                                clickable
+                                :title="lesson.name"
                                 @click="addLessonToDay(lesson)"
                             >
-                                <div class="tw-min-w-0 tw-flex-1">
-                                    <div class="tw-text-sm tw-truncate">{{ lesson.name }}</div>
-                                    <div class="tw-text-xs tw-text-text-muted dark:tw-text-dark-text-muted">
-                                        {{ parseInt(lesson.order) }} урок
-                                    </div>
-                                </div>
-                                <v-icon size="20" color="primary" class="tw-shrink-0">mdi-plus</v-icon>
-                            </div>
+                                <template #subtitle>{{ parseInt(lesson.order) }} урок</template>
+                                <template #actions>
+                                    <v-icon size="20" color="primary" class="tw-shrink-0">mdi-plus</v-icon>
+                                </template>
+                            </ListRow>
                         </div>
                     </template>
 
@@ -411,49 +414,6 @@ export default {
         max-height: calc(100vh - 280px);
         overflow-y: auto;
     }
-}
-
-.module-card {
-    border: 1px solid var(--bp-border);
-    border-radius: var(--bp-radius-md, 8px);
-    margin-bottom: 8px;
-    overflow: hidden;
-}
-
-.module-card__header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 6px 6px 10px;
-    background: var(--bp-surface-muted);
-}
-
-.lesson-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    min-height: 44px;
-    padding: 4px 6px 4px 10px;
-    border-top: 1px solid var(--bp-border);
-
-    &--placed {
-        opacity: .5;
-    }
-
-    &--pick {
-        cursor: pointer;
-
-        &:active {
-            background: var(--bp-surface-muted);
-        }
-    }
-}
-
-.lesson-row__num {
-    flex: 0 0 auto;
-    min-width: 20px;
-    font-size: 12px;
-    color: var(--bp-text-muted);
 }
 
 /* Пустой день должен принимать перетаскивание, поэтому у области есть минимальная высота */

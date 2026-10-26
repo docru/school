@@ -46,18 +46,21 @@
         <div v-if="isMobile">
             <v-skeleton-loader v-if="getLoad" type="list-item-two-line@6"/>
             <template v-else>
-                <div
+                <ListRow
                     v-for="item in visibleItems"
                     :key="item.id"
-                    class="user-row"
+                    :title="fullName(item)"
+                    clickable
                     @click="choose(item.id)"
                 >
-                    <div class="tw-min-w-0">
-                        <div class="tw-text-[15px] tw-truncate">{{ fullName(item) }}</div>
-                        <div class="tw-text-xs tw-text-text-muted dark:tw-text-dark-text-muted" v-if="item.phone">+{{ item.phone }}</div>
-                    </div>
-                    <v-icon color="primary" size="small">mdi-plus-circle-outline</v-icon>
-                </div>
+                    <template #subtitle>
+                        <span v-if="item.phone">{{ fmtPhone(item.phone) }}</span>
+                        <span v-else>телефон не указан</span>
+                    </template>
+                    <template #actions>
+                        <v-icon color="primary" size="small" class="tw-shrink-0 tw-mr-2">mdi-plus-circle-outline</v-icon>
+                    </template>
+                </ListRow>
                 <div class="tw-py-3 tw-text-center tw-text-xs tw-text-text-muted dark:tw-text-dark-text-muted" v-if="searchItems.length > visibleItems.length">
                     Показаны первые {{ visibleItems.length }} из {{ searchItems.length }} — уточните поиск
                 </div>
@@ -104,13 +107,14 @@
 <script>
 import {mapActions, mapGetters} from "vuex";
 import Code from "../../components/Code.vue";
+import ListRow from "../../components/ListRow.vue";
 import Loading from "../../components/Loading.vue";
 import ICode from "../../components/icon/ICode.vue";
 import normalize from "../../utils/normalize.js";
 
 export default {
     name: "UserChoose",
-    components: {ICode, Loading, Code},
+    components: {ICode, Loading, Code, ListRow},
     props: {
         group: Object,
         role: {
@@ -153,6 +157,11 @@ export default {
                     }
                 }
             });
+        },
+        fmtPhone(phone) {
+            const d = String(phone).replace(/\D/g, '');
+            if (d.length === 11) return `+${d[0]} ${d.slice(1, 4)} ${d.slice(4, 7)}-${d.slice(7, 9)}-${d.slice(9)}`;
+            return '+' + d;
         },
         fullName(item) {
             return [item.surname, item.name, item.patronymic].filter(Boolean).join(' ');
@@ -230,17 +239,6 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.user-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    min-height: 48px;
-    padding: 6px 4px 6px 0;
-    border-bottom: 1px solid var(--bp-border);
-    cursor: pointer;
-}
-
 .users-table :deep(tbody tr) {
     cursor: pointer;
 }

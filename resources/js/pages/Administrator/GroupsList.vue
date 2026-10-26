@@ -27,19 +27,7 @@
 
         <!-- Фильтр по статусу; справа на десктопе переключатель вида -->
         <div class="tw-flex tw-items-center tw-justify-between tw-gap-3 tw-mb-4">
-            <v-btn-toggle
-                v-model="filterItemSelected"
-                mandatory
-                density="comfortable"
-                variant="outlined"
-                divided
-                class="status-filter tw-flex-1 md:tw-flex-none"
-            >
-                <v-btn v-for="f in filterItems" :key="f.val" :value="f.val" class="tw-flex-1 md:tw-flex-none">
-                    {{ f.title }}
-                    <span class="tab-count">{{ counts[f.val] }}</span>
-                </v-btn>
-            </v-btn-toggle>
+            <FilterChips v-model="filterItemSelected" :items="filterItems" :counts="counts"/>
 
             <v-btn-toggle
                 v-if="!isMobile"
@@ -48,7 +36,7 @@
                 density="comfortable"
                 variant="outlined"
                 divided
-                class="status-filter"
+                class="view-toggle"
             >
                 <v-btn value="cards" icon="mdi-view-grid-outline" title="Карточки"/>
                 <v-btn value="table" icon="mdi-format-list-bulleted" title="Таблица"/>
@@ -108,76 +96,12 @@
 
         <!-- Карточки групп -->
         <div v-else-if="groups.length" class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 xl:tw-grid-cols-3 tw-gap-4">
-            <v-card
+            <GroupCard
                 v-for="g in groups"
                 :key="g.id"
-                class="group-card"
+                :group="g"
                 :to="{name: 'AdministratorDetailGroup', params: {id: g.id}}"
-            >
-                <div class="tw-p-4 tw-flex tw-flex-col tw-gap-4 tw-h-full">
-                    <!-- Название, курс, статус -->
-                    <div class="tw-flex tw-items-start tw-justify-between tw-gap-3">
-                        <div class="tw-min-w-0">
-                            <div class="adf-heading tw-text-xl tw-leading-7 tw-truncate">{{ g.name }}</div>
-                            <div class="tw-text-sm tw-text-text-muted dark:tw-text-dark-text-muted tw-truncate">
-                                {{ g.course_name || 'Курс не задан' }}
-                            </div>
-                        </div>
-                        <v-chip size="small" label :color="statusColor(g)" class="tw-shrink-0">
-                            {{ statusTitle(g) }}
-                        </v-chip>
-                    </div>
-
-                    <!-- Прогресс по учебным дням -->
-                    <div>
-                        <div class="tw-flex tw-justify-between tw-items-baseline tw-mb-1">
-                            <span class="bp-overline">Занятия</span>
-                            <span class="tw-text-sm">
-                                <span class="tw-font-medium">{{ g.days_closed }}</span>
-                                <span class="tw-text-text-muted dark:tw-text-dark-text-muted"> из {{ g.days_total }}</span>
-                            </span>
-                        </div>
-                        <v-progress-linear
-                            :model-value="progress(g)"
-                            height="4"
-                            rounded
-                            color="primary"
-                            bg-color="border"
-                            bg-opacity="1"
-                        />
-                    </div>
-
-                    <!-- Показатели -->
-                    <div class="tw-grid tw-grid-cols-3 tw-gap-3">
-                        <div>
-                            <div class="bp-overline">Ученики</div>
-                            <div class="tw-text-sm tw-mt-0.5">
-                                <span class="tw-font-medium">{{ g.disciples_active }}</span>
-                                <span v-if="g.disciples_expelled" class="tw-text-text-muted dark:tw-text-dark-text-muted">
-                                    · отчисл. {{ g.disciples_expelled }}
-                                </span>
-                            </div>
-                        </div>
-                        <div>
-                            <div class="bp-overline">Старт</div>
-                            <div class="tw-text-sm tw-mt-0.5">{{ fmtDate(g.first_day) }}</div>
-                        </div>
-                        <div>
-                            <div class="bp-overline">{{ g.open_day ? 'Текущее' : 'Последнее' }}</div>
-                            <div class="tw-text-sm tw-mt-0.5">{{ fmtDate(g.open_day || g.last_day) }}</div>
-                        </div>
-                    </div>
-
-                    <!-- Учителя -->
-                    <div class="tw-mt-auto tw-pt-3 tw-border-t tw-border-border dark:tw-border-dark-border">
-                        <div class="bp-overline">Учителя</div>
-                        <div class="tw-text-sm tw-mt-0.5" v-if="g.teachers.length">{{ g.teachers.join(', ') }}</div>
-                        <div class="tw-text-sm tw-mt-0.5 tw-text-text-muted dark:tw-text-dark-text-muted" v-else>
-                            не назначены
-                        </div>
-                    </div>
-                </div>
-            </v-card>
+            />
         </div>
 
         <!-- Пустое состояние -->
@@ -234,9 +158,12 @@
 
 <script>
 import {mapActions, mapGetters} from "vuex";
+import FilterChips from "../../components/FilterChips.vue";
+import GroupCard from "../../components/GroupCard.vue";
 
 export default {
     name: 'GroupsList',
+    components: {FilterChips, GroupCard},
     data() {
         return {
             dialog: false,
@@ -348,15 +275,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.group-card {
-    transition: border-color .15s ease, transform .15s ease;
-
-    &:hover {
-        border-color: var(--bp-accent) !important;
-    }
-}
-
-.status-filter {
+/* Переключатель вида — не фильтр, поэтому стиль свой */
+.view-toggle {
     border-color: var(--bp-border-control) !important;
     border-radius: var(--bp-radius-sm, 4px) !important;
 
@@ -369,11 +289,6 @@ export default {
     :deep(.v-btn--active) {
         background: var(--bp-surface-muted);
         color: var(--bp-text-primary);
-
-        /* на активной вкладке фон совпадает с пилюлей счётчика — делаем её белой */
-        .tab-count {
-            background: var(--bp-surface-card);
-        }
     }
 }
 
@@ -394,15 +309,5 @@ export default {
     width: 56px;
     left: 0 !important;
     transform: none !important;
-}
-
-.tab-count {
-    margin-left: 6px;
-    font-size: 12px;
-    line-height: 16px;
-    padding: 0 6px;
-    border-radius: 999px;
-    background: var(--bp-surface-muted);
-    color: var(--bp-text-muted);
 }
 </style>

@@ -113,25 +113,23 @@
 
         <!-- Список (телефон) -->
         <v-card v-else-if="filtered.length">
-            <div
+            <ListRow
                 v-for="item in visibleItems"
                 :key="item.id"
-                class="user-row"
+                :title="item.fio"
+                :muted="!!item.deleted_at"
+                clickable
                 @click="openSheet(item)"
             >
-                <span class="entry-dot tw-shrink-0" :class="{'entry-dot--on': item.authorized_at}"></span>
-                <div class="tw-min-w-0 tw-flex-1">
-                    <div class="tw-text-[15px] tw-font-medium tw-truncate" :class="{'tw-text-text-muted dark:tw-text-dark-text-muted': item.deleted_at}">
-                        {{ item.fio }}
-                    </div>
-                    <div class="tw-text-xs tw-text-text-muted dark:tw-text-dark-text-muted tw-truncate">
-                        <span v-if="item.phone">{{ fmtPhone(item.phone) }}</span>
-                        <span v-else>телефон не указан</span>
-                        <span> · {{ item.roleNames || 'без ролей' }}</span>
-                    </div>
-                </div>
-                <v-icon size="20" color="muted" class="tw-shrink-0">mdi-chevron-right</v-icon>
-            </div>
+                <template #lead>
+                    <span class="entry-dot tw-shrink-0" :class="{'entry-dot--on': item.authorized_at}"></span>
+                </template>
+                <template #subtitle>
+                    <span v-if="item.phone">{{ fmtPhone(item.phone) }}</span>
+                    <span v-else>телефон не указан</span>
+                    <span> · {{ item.roleNames || 'без ролей' }}</span>
+                </template>
+            </ListRow>
         </v-card>
 
         <!-- Пустое состояние -->
@@ -265,6 +263,7 @@
 <script>
 import {mapActions, mapGetters} from "vuex";
 import Code from "../../components/Code.vue";
+import ListRow from "../../components/ListRow.vue";
 import swipeSheet from "../../mixins/swipeSheet.js";
 import normalize from "../../utils/normalize.js";
 import {copyText} from "../../utils/clipboard.js";
@@ -273,7 +272,7 @@ const PAGE = 50;
 
 export default {
     name: "Users",
-    components: {Code},
+    components: {Code, ListRow},
     mixins: [swipeSheet],
     data() {
         return {
@@ -537,37 +536,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.user-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    min-height: 56px;
-    padding: 8px 12px 8px 16px;
-    border-bottom: 1px solid var(--bp-border);
-    cursor: pointer;
-
-    &:last-child {
-        border-bottom: 0;
-    }
-
-    &:active {
-        background: var(--bp-surface-muted);
-    }
-}
-
-/* Точка «заходил / не заходил» */
-.entry-dot {
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--bp-border-control);
-
-    &--on {
-        background: #22c55e;
-    }
-}
-
 .create-fab {
     position: fixed;
     right: 16px;

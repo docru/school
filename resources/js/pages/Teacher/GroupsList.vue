@@ -21,22 +21,14 @@
         <v-progress-linear v-if="load && !groups.length" indeterminate color="primary" class="tw-mb-4"/>
 
         <!-- Карточки: на телефоне таблица из двух колонок читалась как два значения без подписей -->
-        <v-card v-if="groups.length">
-            <div
-                v-for="item in groups"
-                :key="item.id"
-                class="group-row"
-                @click="openGroup(item)"
-            >
-                <div class="tw-min-w-0 tw-flex-1">
-                    <div class="tw-text-[15px] tw-font-medium tw-truncate">{{ item.group.name }}</div>
-                    <div class="tw-text-xs tw-text-text-muted dark:tw-text-dark-text-muted tw-truncate">
-                        {{ item.course?.name || 'курс не указан' }}
-                    </div>
-                </div>
-                <v-icon size="20" color="muted" class="tw-shrink-0">mdi-chevron-right</v-icon>
-            </div>
-        </v-card>
+        <div v-if="groups.length" class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 xl:tw-grid-cols-3 tw-gap-4">
+            <GroupCard
+                v-for="g in groups"
+                :key="g.id"
+                :group="g"
+                :to="{name: 'TeacherDetailGroup', params: {id: g.id}}"
+            />
+        </div>
 
         <!-- Пустое состояние: раньше страница показывала только заголовок -->
         <v-card v-else-if="!load">
@@ -53,9 +45,11 @@
 
 <script>
 import {mapActions, mapGetters} from "vuex";
+import GroupCard from "../../components/GroupCard.vue";
 
 export default {
     name: 'GroupsList',
+    components: {GroupCard},
     computed: {
         ...mapGetters('teacher', {groups: 'getGroups', load: 'getLoad'}),
         isMobile() {
@@ -77,9 +71,6 @@ export default {
             if (last === 1) return forms[0];
             return forms[2];
         },
-        openGroup(item) {
-            this.$router.push({name: 'TeacherDetailGroup', params: {id: item.group.id}});
-        },
     },
     created() {
         this.actRequestGroups();
@@ -87,22 +78,3 @@ export default {
 }
 </script>
 
-<style scoped lang="scss">
-.group-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    min-height: 56px;
-    padding: 8px 12px 8px 16px;
-    border-bottom: 1px solid var(--bp-border);
-    cursor: pointer;
-
-    &:last-child {
-        border-bottom: 0;
-    }
-
-    &:active {
-        background: var(--bp-surface-muted);
-    }
-}
-</style>

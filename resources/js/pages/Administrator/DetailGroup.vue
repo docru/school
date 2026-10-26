@@ -209,28 +209,23 @@
             <template v-slot:bottom></template>
             <template v-slot:item="{index, item}" v-if="isMobile">
                 <!-- На мобильном ученик — строка списка, подробности открываются в отдельном окне снизу -->
-                <div
-                    class="disciple-item"
-                    :class="{
-                        'disciple-item--expelled': item.status === 'expelled',
-                        'disciple-item--warning': hasWarning(item),
-                    }"
+                <ListRow
+                    :title="`${index + 1}. ${item.name}`"
+                    :muted="item.status === 'expelled'"
+                    :warning="hasWarning(item)"
+                    clickable
                     @click="openDisciple(item)"
                 >
-                    <div class="tw-min-w-0 tw-flex-1">
-                        <div class="tw-text-[15px] tw-font-medium tw-truncate">{{ index + 1 }}. {{ item.name }}</div>
-                        <div class="tw-text-xs tw-mt-0.5">
-                            <span class="tw-text-text-muted dark:tw-text-dark-text-muted" v-if="item.status === 'expelled'">
-                                отчислен{{ item.expelled_at ? ' ' + fmtDate(item.expelled_at) : '' }}
-                            </span>
-                            <template v-else>
-                                <span>посещено {{ attendedCount(item) }} из {{ closedDaysCount }}</span>
-                                <span class="tw-text-warning tw-font-medium" v-if="hasWarning(item)"> · пропусков {{ missedCount(item) }}</span>
-                            </template>
-                        </div>
-                    </div>
-                    <v-icon color="muted" size="small">mdi-chevron-right</v-icon>
-                </div>
+                    <template #subtitle>
+                        <span v-if="item.status === 'expelled'">
+                            отчислен{{ item.expelled_at ? ' ' + fmtDate(item.expelled_at) : '' }}
+                        </span>
+                        <template v-else>
+                            <span>посещено {{ attendedCount(item) }} из {{ closedDaysCount }}</span>
+                            <span class="tw-text-warning tw-font-medium" v-if="hasWarning(item)"> · пропусков {{ missedCount(item) }}</span>
+                        </template>
+                    </template>
+                </ListRow>
             </template>
 
             <template v-slot:headers v-if="$vuetify.display.name === 'sm'"></template>
@@ -573,11 +568,12 @@ import {mapActions, mapGetters} from "vuex";
 import swipeSheet from "../../mixins/swipeSheet.js";
 import UserChoose from './UserChoose.vue';
 import Code from "../../components/Code.vue";
+import ListRow from "../../components/ListRow.vue";
 
 export default {
     mixins: [swipeSheet],
     name: "DetailGroup",
-    components: {Code, UserChoose,},
+    components: {Code, UserChoose, ListRow},
     data() {
         return {
             dialogDisciple: false,
@@ -986,36 +982,6 @@ export default {
         font-size: 13px;
         font-weight: 400;
         color: var(--bp-text-muted);
-    }
-}
-
-/* Строка ученика в мобильном списке */
-.disciple-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    min-height: 52px;
-    padding: 6px 8px 6px 12px;
-    margin-bottom: 8px;
-    border: 1px solid var(--bp-border);
-    border-radius: var(--bp-radius-md, 8px);
-    background: var(--bp-surface-card);
-    cursor: pointer;
-
-    &:active {
-        background: var(--bp-surface-muted);
-    }
-
-    /* Отчисленный: приглушённый текст и фон */
-    &--expelled {
-        background: var(--bp-surface-muted);
-        color: var(--bp-text-muted);
-    }
-
-    /* Замечание по пропускам: янтарная полоска слева, паддинг уменьшен на её толщину */
-    &--warning {
-        border-left: 3px solid var(--bp-warning);
-        padding-left: 10px;
     }
 }
 

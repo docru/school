@@ -311,6 +311,51 @@ h2 {
   padding: 20px 20px 16px;
 }
 
+/* Карточка с шапкой: модуль программы, учебный день. Содержимое — строки ListRow. */
+.section-card {
+  border: 1px solid var(--bp-border);
+  border-radius: var(--bp-radius-md);
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+
+.section-card__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 6px 6px 10px;
+  background: var(--bp-surface-muted);
+}
+
+/* Порядковый номер слева в строке */
+.row-num {
+  flex: 0 0 auto;
+  min-width: 20px;
+  font-size: 12px;
+  color: var(--bp-text-muted);
+}
+
+/* Контейнер списка. Разделители рисует сама строка (ListRow). */
+.list-box {
+  border: 1px solid var(--bp-border);
+  border-radius: var(--bp-radius-md);
+  overflow: hidden;
+  background: var(--bp-surface-card);
+}
+
+/* Точка «заходил / не заходил» — метка слева в строке списка */
+.entry-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--bp-border-control);
+
+  &--on {
+    background: var(--bp-success, #22c55e);
+  }
+}
+
 /* md-editor-v3 и @kangc/v-md-editor ставят word-break: break-all — это правило для
    иероглифов, а русский текст оно рвёт по слогам посреди слова. Правим глобально:
    просмотр урока открывают и методист, и учитель, и ученик.

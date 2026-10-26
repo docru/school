@@ -30,19 +30,7 @@
                 clearable
                 class="!tw-my-0 md:tw-max-w-sm tw-w-full"
             />
-            <v-btn-toggle
-                v-model="filter"
-                mandatory
-                density="comfortable"
-                variant="outlined"
-                divided
-                class="status-filter tw-flex md:tw-inline-flex"
-            >
-                <v-btn v-for="f in filterItems" :key="f.val" :value="f.val">
-                    {{ f.title }}
-                    <span class="tab-count">{{ counts[f.val] }}</span>
-                </v-btn>
-            </v-btn-toggle>
+            <FilterChips v-model="filter" :items="filterItems" :counts="counts"/>
         </div>
 
         <v-progress-linear v-if="getLoad && !users.length" indeterminate color="primary" class="tw-mb-4"/>
@@ -126,24 +114,23 @@
 
         <!-- Список (телефон) -->
         <v-card v-else-if="filtered.length">
-            <div
+            <ListRow
                 v-for="item in visibleItems"
                 :key="item.id"
-                class="user-row"
+                :title="item.fio"
+                clickable
                 @click="openSheet(item)"
             >
-                <span class="entry-dot tw-shrink-0" :class="{'entry-dot--on': item.authorized_at}"></span>
-                <div class="tw-min-w-0 tw-flex-1">
-                    <div class="tw-text-[15px] tw-font-medium tw-truncate">{{ item.fio }}</div>
-                    <div class="tw-text-xs tw-text-text-muted dark:tw-text-dark-text-muted tw-truncate">
-                        <span v-if="item.phone">{{ fmtPhone(item.phone) }}</span>
-                        <span v-else>телефон не указан</span>
-                        <span> · {{ item.groupNames || 'без группы' }}</span>
-                        <span> · {{ item.home_group_leader || 'без лидера' }}</span>
-                    </div>
-                </div>
-                <v-icon size="20" color="muted" class="tw-shrink-0">mdi-chevron-right</v-icon>
-            </div>
+                <template #lead>
+                    <span class="entry-dot tw-shrink-0" :class="{'entry-dot--on': item.authorized_at}"></span>
+                </template>
+                <template #subtitle>
+                    <span v-if="item.phone">{{ fmtPhone(item.phone) }}</span>
+                    <span v-else>телефон не указан</span>
+                    <span> · {{ item.groupNames || 'без группы' }}</span>
+                    <span> · {{ item.home_group_leader || 'без лидера' }}</span>
+                </template>
+            </ListRow>
         </v-card>
 
         <!-- Пустое состояние -->
@@ -290,6 +277,8 @@
 <script>
 import {mapActions, mapGetters} from "vuex";
 import Code from "../../components/Code.vue";
+import ListRow from "../../components/ListRow.vue";
+import FilterChips from "../../components/FilterChips.vue";
 import swipeSheet from "../../mixins/swipeSheet.js";
 import normalize from "../../utils/normalize.js";
 import {copyText} from "../../utils/clipboard.js";
@@ -298,7 +287,7 @@ const PAGE = 50;
 
 export default {
     name: "Disciples",
-    components: {Code},
+    components: {Code, ListRow, FilterChips},
     mixins: [swipeSheet],
     data() {
         return {
@@ -605,85 +594,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.user-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    min-height: 56px;
-    padding: 8px 12px 8px 16px;
-    border-bottom: 1px solid var(--bp-border);
-    cursor: pointer;
-
-    &:last-child {
-        border-bottom: 0;
-    }
-
-    &:active {
-        background: var(--bp-surface-muted);
-    }
-}
-
-/* Точка «заходил / не заходил» */
-.entry-dot {
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--bp-border-control);
-
-    &--on {
-        background: #22c55e;
-    }
-}
-
-.status-filter {
-    border-color: var(--bp-border-control) !important;
-    border-radius: var(--bp-radius-sm, 4px) !important;
-
-    /* Четыре фильтра в строку на телефон не помещаются — переносим по два */
-    @media (max-width: 767px) {
-        flex-wrap: wrap;
-        height: auto !important;
-    }
-
-    :deep(.v-btn) {
-        border-color: var(--bp-border-control) !important;
-        border-radius: 0 !important;
-        color: var(--bp-text-muted);
-
-        @media (max-width: 767px) {
-            flex: 1 1 50%;
-            max-width: 50%;
-            min-width: 0;
-            padding: 0 4px;
-            font-size: 12px;
-
-            .tab-count {
-                margin-left: 4px;
-                padding: 0 5px;
-            }
-        }
-    }
-
-    :deep(.v-btn--active) {
-        background: var(--bp-surface-muted);
-        color: var(--bp-text-primary);
-
-        .tab-count {
-            background: var(--bp-surface-card);
-        }
-    }
-}
-
-.tab-count {
-    margin-left: 6px;
-    font-size: 12px;
-    line-height: 16px;
-    padding: 0 6px;
-    border-radius: 999px;
-    background: var(--bp-surface-muted);
-    color: var(--bp-text-muted);
-}
 
 .create-fab {
     position: fixed;

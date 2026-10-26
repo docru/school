@@ -56,23 +56,18 @@
 
         <!-- Список (телефон) -->
         <v-card v-else-if="getCourses.length">
-            <div
+            <ListRow
                 v-for="item in getCourses"
                 :key="item.id"
-                class="course-row"
+                :title="item.name"
+                clickable
                 @click="openCourse(item)"
             >
-                <div class="tw-min-w-0 tw-flex-1">
-                    <div class="tw-text-[15px] tw-font-medium tw-truncate">{{ item.name }}</div>
-                    <div class="tw-text-xs tw-text-text-muted dark:tw-text-dark-text-muted tw-line-clamp-2 tw-mt-0.5">
-                        {{ item.description || 'без описания' }}
-                    </div>
-                    <div class="tw-text-xs tw-text-accent dark:tw-text-dark-accent tw-mt-1">
-                        {{ courseMeta(item) }}
-                    </div>
-                </div>
-                <v-icon size="20" color="muted" class="tw-shrink-0">mdi-chevron-right</v-icon>
-            </div>
+                <template #subtitle>
+                    <span>{{ item.description || 'без описания' }}</span>
+                    <span class="tw-text-accent dark:tw-text-dark-accent"> · {{ courseMeta(item) }}</span>
+                </template>
+            </ListRow>
         </v-card>
 
         <!-- Пустое состояние -->
@@ -118,9 +113,11 @@
 
 <script>
 import {mapActions, mapGetters} from "vuex";
+import ListRow from "../../components/ListRow.vue";
 
 export default {
     name: 'CoursesList',
+    components: {ListRow},
     data() {
         return {
             headers: [
@@ -208,24 +205,6 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.course-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    min-height: 64px;
-    padding: 10px 12px 10px 16px;
-    border-bottom: 1px solid var(--bp-border);
-    cursor: pointer;
-
-    &:last-child {
-        border-bottom: 0;
-    }
-
-    &:active {
-        background: var(--bp-surface-muted);
-    }
-}
-
 .courses-table :deep(tbody tr) {
     cursor: pointer;
 }
