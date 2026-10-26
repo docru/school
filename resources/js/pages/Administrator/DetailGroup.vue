@@ -418,8 +418,9 @@
                                         {{ groupsSchoolDays[day.id].date }}
                                         <span class="tw-text-xs tw-text-accent dark:tw-text-dark-accent tw-ml-1" v-if="groupsSchoolDays[day.id].status === 'open'">открыт</span>
                                     </div>
-                                    <div class="tw-text-xs tw-text-text-muted dark:tw-text-dark-text-muted tw-truncate" v-if="day.lessons?.length">
-                                        {{ day.lessons.join(', ') }}
+                                    <!-- Несколько уроков в один день — каждый на своей строке -->
+                                    <div class="tw-text-xs tw-text-text-muted dark:tw-text-dark-text-muted" v-if="day.lessons?.length">
+                                        <div class="tw-truncate" v-for="(lesson, li) in day.lessons" :key="li">{{ lesson }}</div>
                                     </div>
                                 </div>
                             </div>
