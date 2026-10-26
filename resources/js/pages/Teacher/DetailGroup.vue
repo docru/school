@@ -26,7 +26,6 @@
                         :items="courseSchoolDays"
                         items-per-page="100"
                         :headers="headers"
-                        :hide-default-footer="true"
                         disable-pagination
                     >
                         <template #bottom></template>
