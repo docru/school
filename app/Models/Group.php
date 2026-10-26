@@ -63,4 +63,42 @@ class Group extends Model
     {
         return $this->hasMany(GroupSchoolDay::class);
     }
+
+    /**
+     * Сводка по группе для списков: статус, прогресс по занятиям, состав.
+     * Лежит в модели, потому что одинаково нужна и администратору, и учителю.
+     */
+    public function summary(): array
+    {
+        $teachers = $this->groupUser
+            ->where('role', 'teacher')
+            ->where('status', 'active')
+            ->map(fn(GroupUser $groupUser): string => trim(
+                ($groupUser->user?->surname ?? '') . ' ' . ($groupUser->user?->name ?? '')
+            ))
+            ->filter()
+            ->values();
+
+        $disciples = $this->groupUser->where('role', 'disciple');
+
+        $days = $this->groupsSchoolDay->sortBy('order')->values();
+        $openDay = $days->firstWhere('status', 'open');
+
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'status' => $this->status,
+            'course_id' => $this->course_id,
+            'course_name' => $this->course?->name ?? '',
+            'created_at' => $this->created_at?->format('Y-m-d'),
+            'teachers' => $teachers->all(),
+            'disciples_active' => $disciples->where('status', 'active')->count(),
+            'disciples_expelled' => $disciples->where('status', 'expelled')->count(),
+            'days_closed' => $days->where('status', 'close')->count(),
+            'days_total' => $this->course?->course_school_days->count() ?? 0,
+            'first_day' => $days->first()?->date,
+            'last_day' => $days->last()?->date,
+            'open_day' => $openDay?->date,
+        ];
+    }
 }

@@ -16,28 +16,22 @@ class GroupController extends Controller
      */
     public function index()
     {
+        // Сводка та же, что у администратора и учителя (Group::summary)
         $groups = GroupUser::whereRole('disciple')
             ->whereUserId(auth()->id())
+            ->with([
+                'group.course:id,name',
+                'group.course.course_school_days:id,course_id',
+                'group.groupUser.user:id,name,surname,patronymic',
+                'group.groupsSchoolDay',
+            ])
             ->orderBy('created_at', 'desc')
             ->get()
-            ->map(function (GroupUser $groupUser) {
-                $group = $groupUser->group;
-                $course = $group->course;
+            ->map(fn(GroupUser $groupUser): ?array => $groupUser->group?->summary())
+            ->filter()
+            ->values()
+            ->all();
 
-                $res =[
-                    'id' => $groupUser->id,
-                    'status' => $groupUser->status,
-                    'group' => [
-                        'id' => $group->id,
-                        'name' => $group->name,
-                    ],
-                    'course' => [
-                        'id' => $course->id,
-                        'name' => $course->name,
-                    ],
-                ];
-                return $res;
-            })->toArray();
         return $this->ResponseOk($groups);
     }
 

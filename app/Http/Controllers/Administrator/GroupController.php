@@ -95,7 +95,7 @@ class GroupController extends Controller
             ->get();
 
         return $groups
-            ->map(fn(Group $group): array => $this->_groupSummary($group))
+            ->map(fn(Group $group): array => $group->summary())
             ->values()
             ->all();
     }
@@ -105,39 +105,6 @@ class GroupController extends Controller
      * @param Group $group
      * @return array<string, mixed>
      */
-    private function _groupSummary(Group $group): array
-    {
-        $teachers = $group->groupUser
-            ->where('role', 'teacher')
-            ->where('status', 'active')
-            ->map(fn(GroupUser $groupUser): string => trim(
-                ($groupUser->user?->surname ?? '') . ' ' . ($groupUser->user?->name ?? '')
-            ))
-            ->filter()
-            ->values();
-
-        $disciples = $group->groupUser->where('role', 'disciple');
-
-        $days = $group->groupsSchoolDay->sortBy('order')->values();
-        $openDay = $days->firstWhere('status', 'open');
-
-        return [
-            'id' => $group->id,
-            'name' => $group->name,
-            'status' => $group->status,
-            'course_id' => $group->course_id,
-            'course_name' => $group->course?->name ?? '',
-            'created_at' => $group->created_at?->format('Y-m-d'),
-            'teachers' => $teachers->all(),
-            'disciples_active' => $disciples->where('status', 'active')->count(),
-            'disciples_expelled' => $disciples->where('status', 'expelled')->count(),
-            'days_closed' => $days->where('status', 'close')->count(),
-            'days_total' => $group->course?->course_school_days->count() ?? 0,
-            'first_day' => $days->first()?->date,
-            'last_day' => $days->last()?->date,
-            'open_day' => $openDay?->date,
-        ];
-    }
 
 
     /**
