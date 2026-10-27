@@ -10,6 +10,8 @@ export default {
             tabs: [
                 {value: 'plan', title: 'План урока', field: 'methodical_description'},
                 {value: 'abstract', title: 'Конспект', field: 'abstract'},
+                {value: 'classwork', title: 'Задания', kind: 'classwork'},
+                {value: 'homework', title: 'Д/З', kind: 'homework'},
             ],
         }
     },
@@ -29,5 +31,12 @@ export default {
 </script>
 
 <template>
-    <LessonView :lesson="lesson?.lesson ?? null" :tabs="tabs" :back-to="backTo"/>
+    <!-- Учителю блоки только на ознакомление: ответы учеников в разделе «Проверка» -->
+    <LessonView
+        :lesson="lesson?.lesson ?? null"
+        :tabs="tabs"
+        :tasks="lesson?.tasks ?? {}"
+        mode="view"
+        :back-to="backTo"
+    />
 </template>

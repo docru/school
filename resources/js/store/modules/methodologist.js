@@ -107,6 +107,23 @@ const actions = {
             });
         }
     },
+    // Блоки заданий урока. Своя пара запросов, в курс не входят:
+    // иначе каждое нажатие тащило бы всю программу целиком.
+    async actRequestTasks({state, commit}, params) {
+        return await vuexGet('/methodologist/tasks', {lesson_id: params.lessonId, kind: params.kind}, state, commit, false);
+    },
+    async actCreateTask({state, commit}, params) {
+        return await vuexPost('/methodologist/tasks', params, state, commit, false, {msgOk: 'Блок добавлен'});
+    },
+    async actSaveTask({state, commit}, params) {
+        return await vuexPut('/methodologist/tasks/' + params.id, params, state, commit, false, {showMsg: false});
+    },
+    async actDeleteTask({state, commit}, id) {
+        return await vuexDelete('/methodologist/tasks/' + id, {}, state, commit, false, {msgOk: 'Блок удалён'});
+    },
+    async actReorderTasks({state, commit}, params) {
+        return await vuexPost('/methodologist/tasks/reorder', params, state, commit, false, {showMsg: false});
+    },
     async actCreateCourseSchoolDay({state, commit, dispatch}, params) {
         await dispatch('actSaveCourse', {silent: true}); // отправить набранное до того, как ответ перезапишет курс
         return await vuexPost('/methodologist/course_school_day', params, state, commit, 'setCourse', {msgOk: 'Учебный день создан'});

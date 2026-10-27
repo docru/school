@@ -10,6 +10,8 @@ export default {
             // Плана урока ученик не видит: бэкенд отдаёт ему только конспект
             tabs: [
                 {value: 'abstract', title: 'Конспект', field: 'abstract'},
+                {value: 'classwork', title: 'Задания', kind: 'classwork'},
+                {value: 'homework', title: 'Д/З', kind: 'homework'},
             ],
         }
     },
@@ -21,13 +23,25 @@ export default {
     },
     methods: {
         ...mapActions('disciple', ['actRequestLesson']),
+        reload() {
+            this.actRequestLesson(this.$route.params);
+        },
     },
     created() {
-        this.actRequestLesson(this.$route.params);
+        this.reload();
     }
 }
 </script>
 
 <template>
-    <LessonView :lesson="lesson?.lesson ?? null" :tabs="tabs" :back-to="backTo"/>
+    <LessonView
+        :lesson="lesson?.lesson ?? null"
+        :tabs="tabs"
+        :tasks="lesson?.tasks ?? {}"
+        :answers="lesson?.answers ?? {}"
+        mode="fill"
+        :group-id="$route.params.groupId"
+        :back-to="backTo"
+        @reload="reload"
+    />
 </template>

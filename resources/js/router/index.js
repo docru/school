@@ -110,6 +110,18 @@ const routes = [
         }
     },
     {
+        path: '/teacher/review',
+        name: 'TeacherReview',
+        component: () => import('../pages/Teacher/Review.vue'),
+        meta:{
+            title: 'Проверка',
+            breadcrumbs:[
+                {title:'Главная',routName:'Home'},
+                {title:'Проверка'},
+            ]
+        }
+    },
+    {
         path: '/teacher/lesson/:groupId/:lessonId',
         name: 'TeacherLesson',
         component: () => import('../pages/Teacher/Lesson.vue'),
@@ -148,6 +160,18 @@ const routes = [
                 {title:'Мои курсы',routName:'DiscipleGroupsList'},
                 // название группы подставляется из стора (см. breadcrumbs в App.vue)
                 {title:'Уроки', getter:'disciple/getGroup', field:'group.name'},
+            ]
+        }
+    },
+    {
+        path: '/disciple/homework',
+        name: 'DiscipleHomework',
+        component: () => import('../pages/Disciple/Homework.vue'),
+        meta:{
+            title: 'Домашние задания',
+            breadcrumbs:[
+                {title:'Главная',routName:'Home'},
+                {title:'Домашние задания'},
             ]
         }
     },

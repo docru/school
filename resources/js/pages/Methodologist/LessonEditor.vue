@@ -1,5 +1,6 @@
 <script>
 import {MdPreview} from "md-editor-v3";
+import TaskEditor from "../../components/TaskEditor.vue";
 
 // Панель markdown-редактора: на телефоне остаётся только то, что влезает в ширину экрана
 const TOOLBAR_LEFT = 'undo redo clear | h bold italic strikethrough quote | ul ol table hr | link image code';
@@ -9,7 +10,7 @@ const TOOLBAR_RIGHT_MOBILE = 'preview';
 
 export default {
     name: 'LessonEditor',
-    components: {MdPreview},
+    components: {MdPreview, TaskEditor},
     props: {
         // Объект урока из стора: правки полей сразу попадают в курс и уходят автосохранением
         lesson: {type: Object, required: true},
@@ -41,6 +42,8 @@ export default {
                 ];
         },
         // Правятся только вкладки с текстом: «Задания» и «Д/З» ещё не подключены
+        // Кнопка «Редактировать» только для текстовых вкладок:
+        // блоки заданий правятся прямо на месте
         isEditable() {
             return this.tab === 'methodical' || this.tab === 'abstract';
         },
@@ -176,22 +179,14 @@ export default {
             </v-window-item>
 
             <v-window-item value="tasks">
-                <div class="tw-p-8 tw-text-center">
-                    <v-icon size="40" color="muted">mdi-clipboard-text-outline</v-icon>
-                    <div class="adf-heading tw-text-lg tw-mt-2 tw-mb-1">Задания на уроке</div>
-                    <div class="tw-text-sm tw-text-text-muted dark:tw-text-dark-text-muted">
-                        Раздел ещё не подключён
-                    </div>
+                <div class="tw-pt-1">
+                    <TaskEditor :lesson-id="lesson.id" kind="classwork"/>
                 </div>
             </v-window-item>
 
             <v-window-item value="homework">
-                <div class="tw-p-8 tw-text-center">
-                    <v-icon size="40" color="muted">mdi-home-edit-outline</v-icon>
-                    <div class="adf-heading tw-text-lg tw-mt-2 tw-mb-1">Домашнее задание</div>
-                    <div class="tw-text-sm tw-text-text-muted dark:tw-text-dark-text-muted">
-                        Раздел ещё не подключён
-                    </div>
+                <div class="tw-pt-1">
+                    <TaskEditor :lesson-id="lesson.id" kind="homework"/>
                 </div>
             </v-window-item>
         </v-window>

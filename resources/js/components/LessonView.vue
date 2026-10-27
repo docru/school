@@ -1,5 +1,6 @@
 <script>
 import {MdPreview} from "md-editor-v3";
+import TaskList from "./TaskList.vue";
 
 /**
  * Просмотр урока: заголовок, часы, возврат к списку и содержимое вкладками.
@@ -8,14 +9,23 @@ import {MdPreview} from "md-editor-v3";
  */
 export default {
     name: 'LessonView',
-    components: {MdPreview},
+    emits: ['reload'],
+    components: {MdPreview, TaskList},
     props: {
         // {name, hours, methodical_description, abstract} или null, пока грузится
         lesson: {type: Object, default: null},
-        // [{value, title, field}] — field это поле урока с markdown
+        // [{value, title, field}] — поле урока с markdown,
+        // либо [{value, title, kind}] — блоки задания этого вида
         tabs: {type: Array, required: true},
         // маршрут кнопки возврата
         backTo: {type: Object, default: null},
+        // блоки заданий урока: {classwork: [], homework: []}
+        tasks: {type: Object, default: () => ({})},
+        // ответы ученика: {task_id: {...}}
+        answers: {type: Object, default: () => ({})},
+        // view — ознакомление, fill — ученик заполняет
+        mode: {type: String, default: 'view'},
+        groupId: {type: [Number, String], default: null},
     },
     data() {
         return {
@@ -86,13 +96,26 @@ export default {
             <v-window v-model="tab" :touch="false">
                 <v-window-item v-for="t in tabs" :key="t.value" :value="t.value">
                     <div class="tw-p-3 md:tw-p-4">
-                        <MdPreview v-if="lesson[t.field]" :modelValue="lesson[t.field]" :theme="mdTheme"/>
-                        <div v-else class="tw-p-8 tw-text-center">
-                            <v-icon size="40" color="muted">mdi-text-box-outline</v-icon>
-                            <div class="tw-text-sm tw-text-text-muted dark:tw-text-dark-text-muted tw-mt-2">
-                                {{ t.title }} не заполнен
+                        <!-- Вкладка с блоками задания -->
+                        <TaskList
+                            v-if="t.kind"
+                            :tasks="tasks[t.kind] ?? []"
+                            :answers="answers"
+                            :mode="mode"
+                            :lesson-id="lesson.id"
+                            :group-id="groupId"
+                            :kind="t.kind"
+                            @reload="$emit('reload')"
+                        />
+                        <template v-else>
+                            <MdPreview v-if="lesson[t.field]" :modelValue="lesson[t.field]" :theme="mdTheme"/>
+                            <div v-else class="tw-p-8 tw-text-center">
+                                <v-icon size="40" color="muted">mdi-text-box-outline</v-icon>
+                                <div class="tw-text-sm tw-text-text-muted dark:tw-text-dark-text-muted tw-mt-2">
+                                    {{ t.title }} не заполнен
+                                </div>
                             </div>
-                        </div>
+                        </template>
                     </div>
                 </v-window-item>
             </v-window>

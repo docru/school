@@ -149,6 +149,10 @@ export default {
                 name: 'Мои курсы',
                 routName: 'DiscipleGroupsList'
             },
+            {
+                name: 'Домашние задания',
+                routName: 'DiscipleHomework'
+            },
             // {
             //   name: 'Мои задания ',
             //   routName: 'Home'
@@ -160,6 +164,10 @@ export default {
             {
                 name: 'Мои группы',
                 routName: 'TeacherGroupsList'
+            },
+            {
+                name: 'Проверка',
+                routName: 'TeacherReview'
             },
         ],
         menu_admin: [
