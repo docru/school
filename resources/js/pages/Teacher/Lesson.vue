@@ -8,10 +8,10 @@ export default {
     data() {
         return {
             tabs: [
-                {value: 'plan', title: 'План урока', field: 'methodical_description'},
+                {value: 'plan', title: 'План урока', short: 'План', field: 'methodical_description'},
                 {value: 'abstract', title: 'Конспект', field: 'abstract'},
-                {value: 'classwork', title: 'Задания', kind: 'classwork'},
-                {value: 'homework', title: 'Д/З', kind: 'homework'},
+                {value: 'classwork', title: 'Задания на уроке', short: 'Задания', kind: 'classwork'},
+                {value: 'homework', title: 'Домашнее задание', short: 'Д/З', kind: 'homework'},
             ],
         }
     },

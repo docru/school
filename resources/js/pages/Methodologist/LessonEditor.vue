@@ -179,13 +179,14 @@ export default {
             </v-window-item>
 
             <v-window-item value="tasks">
-                <div class="tw-pt-1">
+                <!-- tab-scroll: у блоков нет своей прокрутки, в отличие от markdown-редактора -->
+                <div class="tw-pt-1 tab-scroll">
                     <TaskEditor :lesson-id="lesson.id" kind="classwork"/>
                 </div>
             </v-window-item>
 
             <v-window-item value="homework">
-                <div class="tw-pt-1">
+                <div class="tw-pt-1 tab-scroll">
                     <TaskEditor :lesson-id="lesson.id" kind="homework"/>
                 </div>
             </v-window-item>
@@ -269,9 +270,11 @@ export default {
         min-height: 0;
     }
 
-    .lesson-editor__preview {
+    .lesson-editor__preview,
+    .tab-scroll {
         flex: 1 1 auto;
         min-height: 0;
+        height: 100%;
         overflow-y: auto;
     }
 }

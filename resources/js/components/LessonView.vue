@@ -14,8 +14,9 @@ export default {
     props: {
         // {name, hours, methodical_description, abstract} или null, пока грузится
         lesson: {type: Object, default: null},
-        // [{value, title, field}] — поле урока с markdown,
-        // либо [{value, title, kind}] — блоки задания этого вида
+        // [{value, title, short?, field}] — поле урока с markdown,
+        // либо [{value, title, short?, kind}] — блоки задания этого вида.
+        // short — короткая подпись: на телефоне полные в строку не помещаются
         tabs: {type: Array, required: true},
         // маршрут кнопки возврата
         backTo: {type: Object, default: null},
@@ -103,7 +104,9 @@ export default {
             <!-- bg-color не задаём: на фоне primary активная вкладка красится тем же цветом и пропадает -->
             <template v-if="visibleTabs.length > 1">
                 <v-tabs v-model="tab" :grow="isMobile" color="primary">
-                    <v-tab v-for="t in visibleTabs" :key="t.value" :value="t.value">{{ t.title }}</v-tab>
+                    <v-tab v-for="t in visibleTabs" :key="t.value" :value="t.value">
+                        {{ isMobile && t.short ? t.short : t.title }}
+                    </v-tab>
                 </v-tabs>
                 <v-divider/>
             </template>
@@ -140,6 +143,12 @@ export default {
 </template>
 
 <style scoped lang="scss">
+/* Четыре вкладки должны помещаться в 390px без стрелок прокрутки */
+.lesson-view :deep(.v-tab) {
+    min-width: 0;
+    padding: 0 8px;
+}
+
 /* Отступы берёт на себя обёртка вкладки */
 .lesson-view :deep(.md-editor-preview-wrapper) {
     padding: 0;

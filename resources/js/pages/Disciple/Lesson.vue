@@ -10,8 +10,8 @@ export default {
             // Плана урока ученик не видит: бэкенд отдаёт ему только конспект
             tabs: [
                 {value: 'abstract', title: 'Конспект', field: 'abstract'},
-                {value: 'classwork', title: 'Задания', kind: 'classwork'},
-                {value: 'homework', title: 'Д/З', kind: 'homework'},
+                {value: 'classwork', title: 'Задания на уроке', short: 'Задания', kind: 'classwork'},
+                {value: 'homework', title: 'Домашнее задание', short: 'Д/З', kind: 'homework'},
             ],
         }
     },
