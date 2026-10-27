@@ -84,8 +84,10 @@ class Course extends Model
             return [
                 'module' => $module->only($moduleKeys),
                 'lessons' => $module->lessons()
+                    ->select($lessonsKeys)
+                    ->withCount(['tasks as homework_count' => fn($q) => $q->where('kind', 'homework')])
                     ->orderBy('order')
-                    ->get($lessonsKeys)
+                    ->get()
                     ->toArray(),
             ];
         })->toArray();

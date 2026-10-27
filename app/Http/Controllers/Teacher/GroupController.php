@@ -52,7 +52,12 @@ class GroupController extends Controller
 
         // расписание (все дни расписания, уроки в днях, дни группы со статусом)
         $courseSchoolDay = $course->course_school_days()->get(['id', 'order'])->map(function (CourseSchoolDay $item) {
-            $lessons = $item->lessons()->orderBy('school_day_order')->get(['id', 'name', 'school_day_order', 'hours']);
+            // homework_count — чтобы в списке уроков пометить те, где есть домашнее задание
+            $lessons = $item->lessons()
+                ->select(['id', 'name', 'school_day_order', 'hours'])
+                ->withCount(['tasks as homework_count' => fn($q) => $q->where('kind', 'homework')])
+                ->orderBy('school_day_order')
+                ->get();
             return [
                 'id' => $item->id,
                 'order' => $item->order,

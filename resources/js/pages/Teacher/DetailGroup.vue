@@ -56,6 +56,16 @@
                                 @click="openLesson(lesson)"
                             >
                                 <template #lead><span class="row-num">{{ index + 1 }}</span></template>
+                                <template #actions>
+                                    <v-icon
+                                        v-if="lesson.homework_count"
+                                        size="18"
+                                        color="primary"
+                                        class="tw-shrink-0"
+                                        title="Есть домашнее задание"
+                                    >mdi-home-edit-outline</v-icon>
+                                    <v-icon size="20" color="muted" class="tw-shrink-0">mdi-chevron-right</v-icon>
+                                </template>
                             </ListRow>
 
                             <div v-if="!day.lessons.length" class="tw-px-3 tw-py-2 tw-text-xs tw-text-text-muted dark:tw-text-dark-text-muted">

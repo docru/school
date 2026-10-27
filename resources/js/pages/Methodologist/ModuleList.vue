@@ -90,6 +90,13 @@ export default {
                                     {{ parseInt(lesson.order) }} урок<span v-if="lesson.school_day"> · в расписании</span>
                                 </template>
                                 <template #actions>
+                                    <v-icon
+                                        v-if="lesson.homework_count"
+                                        size="18"
+                                        color="primary"
+                                        class="tw-shrink-0"
+                                        title="Есть домашнее задание"
+                                    >mdi-home-edit-outline</v-icon>
                                     <v-btn
                                         icon="mdi-delete-outline"
                                         variant="text"
