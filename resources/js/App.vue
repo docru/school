@@ -9,15 +9,17 @@
 
             <snack-bar/>
             <confirm-dialog/>
+            <!-- temporary без absolute: при absolute панель жила внутри страницы
+                 и уезжала вместе с её прокруткой -->
             <v-navigation-drawer
                 v-if="!showFormNicName"
-                app
-                left
-                absolute
                 temporary
                 v-model="drawer"
                 class="pa-3"
             >
+                <!-- «Главная» одна на все роли, поэтому стоит выше разделов -->
+                <v-list-item :to="{name: 'Home'}" link title="Главная" prepend-icon="mdi-home-outline"/>
+                <v-divider class="tw-my-2"/>
 
                 <template v-if="getProfile.roles.includes('disciple')">
                     <v-list-subheader :class="{'bp-subheader--active': section?.key === 'disciple'}">Учебный процесс</v-list-subheader>
@@ -27,7 +29,6 @@
                         :to="{name:item.routName}"
                         link
                         :title="item.name"
-                        v-if="getProfile.roles.includes('disciple')"
                     />
                 </template>
 
@@ -39,7 +40,6 @@
                         :to="{name:item.routName}"
                         link
                         :title="item.name"
-                        v-if="getProfile.roles.includes('teacher')"
                     />
                 </template>
 
@@ -146,10 +146,6 @@ export default {
         ],
         menu_disciple: [
             {
-                name: 'Главная',
-                routName: 'Home'
-            },
-            {
                 name: 'Мои курсы',
                 routName: 'DiscipleGroupsList'
             },
@@ -191,6 +187,12 @@ export default {
 
         ],
     }),
+    watch: {
+        // Накладное меню не должно прокручивать страницу под собой
+        drawer(open) {
+            document.documentElement.classList.toggle('bp-no-scroll', open);
+        },
+    },
     methods: {
         routePoint() {
             if (!this.validProfile) {
@@ -233,6 +235,9 @@ export default {
     },
     async mounted() {
         await this.actResetProfile();
+    },
+    unmounted() {
+        document.documentElement.classList.remove('bp-no-scroll');
     },
 
 }

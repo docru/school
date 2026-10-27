@@ -311,6 +311,11 @@ h2 {
   padding: 20px 20px 16px;
 }
 
+/* Пока открыто меню, фон под ним не прокручивается */
+.bp-no-scroll {
+  overflow: hidden;
+}
+
 /* Карточка с шапкой: модуль программы, учебный день. Содержимое — строки ListRow. */
 .section-card {
   border: 1px solid var(--bp-border);
