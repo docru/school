@@ -72,4 +72,10 @@ class Lesson extends Model
     {
         return $this->belongsTo(Module::class);
     }
+
+    /** Блоки заданий урока: домашние и на уроке */
+    public function tasks()
+    {
+        return $this->hasMany(Task::class)->orderBy('order');
+    }
 }

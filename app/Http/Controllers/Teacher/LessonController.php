@@ -27,6 +27,17 @@ class LessonController extends Controller
                 'abstract' => $lesson->abstract,
                 'methodical_description' => $lesson->methodical_description,
             ],
+            'tasks' => $this->tasks($lesson),
         ]);
+    }
+
+    /** Блоки урока по видам, в заданном методистом порядке */
+    private function tasks(Lesson $lesson): array
+    {
+        $all = $lesson->tasks()->get(['id', 'kind', 'type', 'order', 'title', 'body', 'url']);
+        return [
+            'classwork' => $all->where('kind', 'classwork')->values()->toArray(),
+            'homework' => $all->where('kind', 'homework')->values()->toArray(),
+        ];
     }
 }

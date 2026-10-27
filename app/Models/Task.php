@@ -4,28 +4,58 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * 
+ * Блок задания в уроке: домашнее задание или задание на уроке.
  *
  * @property int $id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property int $course_id Курс
- * @property string $type Тип задания
- * @property string $description Описание
- * @method static \Illuminate\Database\Eloquent\Builder|Task newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Task newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Task query()
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereCourseId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereDescription($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereType($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @property int $lesson_id
+ * @property string $kind homework|classwork
+ * @property string $type memorize|question|video|text
+ * @property int $order
+ * @property string $title
+ * @property string|null $body
+ * @property string|null $url
  */
 class Task extends Model
 {
     use HasFactory;
+
+    /** Домашнее задание и задание на уроке */
+    public const KINDS = ['homework', 'classwork'];
+
+    /** Выучить наизусть, вопрос с ответом, видео, просто текст */
+    public const TYPES = ['memorize', 'question', 'video', 'text'];
+
+    protected $fillable = [
+        'lesson_id',
+        'kind',
+        'type',
+        'order',
+        'title',
+        'body',
+        'url',
+    ];
+
+    protected $casts = [
+        'order' => 'integer',
+    ];
+
+    public function lesson(): BelongsTo
+    {
+        return $this->belongsTo(Lesson::class);
+    }
+
+    public function answers(): HasMany
+    {
+        return $this->hasMany(Answer::class);
+    }
+
+    /** Отвечать ученик может только на вопрос */
+    public function isAnswerable(): bool
+    {
+        return $this->type === 'question';
+    }
 }
