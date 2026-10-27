@@ -34,6 +34,11 @@ export default {
         }
     },
     computed: {
+        // Вкладку с блоками показываем, только если блоки есть:
+        // пустая вкладка с надписью «Заданий нет» ничего не сообщает
+        visibleTabs() {
+            return this.tabs.filter(t => !t.kind || (this.tasks[t.kind]?.length ?? 0) > 0);
+        },
         isMobile() {
             return this.$vuetify.display.name === 'sm';
         },
@@ -44,6 +49,17 @@ export default {
         },
         mdTheme() {
             return this.$vuetify.theme.current.dark ? 'dark' : 'light';
+        },
+    },
+    watch: {
+        // Блоки приходят с задержкой: если открытая вкладка исчезла, переходим на первую
+        visibleTabs: {
+            handler(list) {
+                if (!list.some(t => t.value === this.tab)) {
+                    this.tab = list[0]?.value ?? null;
+                }
+            },
+            immediate: true,
         },
     },
     methods: {
@@ -85,16 +101,16 @@ export default {
 
         <v-card v-else>
             <!-- bg-color не задаём: на фоне primary активная вкладка красится тем же цветом и пропадает -->
-            <template v-if="tabs.length > 1">
+            <template v-if="visibleTabs.length > 1">
                 <v-tabs v-model="tab" :grow="isMobile" color="primary">
-                    <v-tab v-for="t in tabs" :key="t.value" :value="t.value">{{ t.title }}</v-tab>
+                    <v-tab v-for="t in visibleTabs" :key="t.value" :value="t.value">{{ t.title }}</v-tab>
                 </v-tabs>
                 <v-divider/>
             </template>
 
             <!-- touch: горизонтальный свайп мешает выделять текст -->
             <v-window v-model="tab" :touch="false">
-                <v-window-item v-for="t in tabs" :key="t.value" :value="t.value">
+                <v-window-item v-for="t in visibleTabs" :key="t.value" :value="t.value">
                     <div class="tw-p-3 md:tw-p-4">
                         <!-- Вкладка с блоками задания -->
                         <TaskList
