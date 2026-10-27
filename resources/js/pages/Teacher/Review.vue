@@ -39,7 +39,7 @@
                     <div class="tw-min-w-0 tw-flex-1">
                         <div class="tw-text-sm tw-font-medium tw-truncate">{{ item.user_name }}</div>
                         <div class="tw-text-xs tw-text-text-muted dark:tw-text-dark-text-muted tw-truncate">
-                            {{ item.lesson_name }} · {{ item.question }}
+                            {{ kindTitle(item.kind) }} · {{ item.lesson_name }} · {{ item.question }}
                         </div>
                     </div>
                     <v-chip size="small" label :color="item.status === 'checked' ? 'success' : 'primary'" class="tw-shrink-0">
@@ -114,6 +114,8 @@ export default {
             filterItems: [
                 {title: 'Ждут проверки', val: 'submitted'},
                 {title: 'Проверено', val: 'checked'},
+                {title: 'Д/З', val: 'homework'},
+                {title: 'На уроке', val: 'classwork'},
                 {title: 'Все', val: 'all'},
             ],
         }
@@ -131,10 +133,15 @@ export default {
                 all: this.answers.length,
                 submitted: this.answers.filter(a => a.status === 'submitted').length,
                 checked: this.answers.filter(a => a.status === 'checked').length,
+                homework: this.answers.filter(a => a.kind === 'homework').length,
+                classwork: this.answers.filter(a => a.kind === 'classwork').length,
             };
         },
         filtered() {
             if (this.filter === 'all') return this.answers;
+            if (['homework', 'classwork'].includes(this.filter)) {
+                return this.answers.filter(a => a.kind === this.filter);
+            }
             return this.answers.filter(a => a.status === this.filter);
         },
         subtitle() {
@@ -148,6 +155,10 @@ export default {
     },
     methods: {
         ...mapActions('teacher', ['actRequestGroups']),
+        // В один список приходят оба вида заданий — различаем их подписью
+        kindTitle(kind) {
+            return kind === 'classwork' ? 'На уроке' : 'Д/З';
+        },
         async load() {
             if (!this.groupId) return;
             this.loading = true;

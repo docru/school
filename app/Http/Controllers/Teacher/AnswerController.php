@@ -48,6 +48,7 @@ class AnswerController extends Controller
             'user_name' => trim(($answer->user?->surname ?? '') . ' ' . ($answer->user?->name ?? '')),
             'lesson_id' => $answer->task?->lesson_id,
             'lesson_name' => $answer->task?->lesson?->name ?? '',
+            'kind' => $answer->task?->kind,
             'question' => $answer->task?->title ?? '',
             'question_body' => $answer->task?->body,
         ])->values();
