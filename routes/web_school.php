@@ -14,6 +14,9 @@ use App\Http\Controllers\Teacher\GroupController as TeacherGroupController;
 use App\Http\Controllers\Teacher\LessonController as TeacherLessonController;
 use App\Http\Controllers\Disciple\GroupController as DiscipleGroupController;
 use App\Http\Controllers\Disciple\LessonController as DiscipleLessonController;
+use App\Http\Controllers\Disciple\AnswerController as DiscipleAnswerController;
+use App\Http\Controllers\Disciple\TaskController as DiscipleTaskController;
+use App\Http\Controllers\Teacher\AnswerController as TeacherAnswerController;
 use Illuminate\Support\Facades\Route;
 
 // Если нужен тестовый путь помещай его в файл test_media.php
@@ -64,6 +67,9 @@ Route::namespace('App\Http\Controllers')->group(function () {
                     'control' => MethodologistControlController::class,
                     'tasks' => MethodologistTaskController::class,
                 ]);
+
+                // Порядок блоков задания: список id в нужной последовательности
+                Route::post('tasks/reorder', [MethodologistTaskController::class, 'reorder']);
 
                 Route::post('course_school_day', [MethodologistCourseController::class, 'createCourseSchoolDay']);
                 Route::delete('course_school_day/{courseSchoolDay}', [MethodologistCourseController::class, 'destroyCourseSchoolDay']);
@@ -121,6 +127,9 @@ Route::namespace('App\Http\Controllers')->group(function () {
             ]);
             // Урок
             Route::post('/lesson/{group}/{lesson}', [TeacherLessonController::class, 'show']);
+            // Проверка ответов: список по группе и отметка
+            Route::get('/answers', [TeacherAnswerController::class, 'index']);
+            Route::post('/answers/{answer}/check', [TeacherAnswerController::class, 'check']);
         });
 
         // ученик
@@ -135,6 +144,10 @@ Route::namespace('App\Http\Controllers')->group(function () {
             ]);
             // Урок
             Route::post('/lesson/{group}/{lesson}', [DiscipleLessonController::class, 'show']);
+            // Домашние задания: список и ответы
+            Route::get('/tasks', [DiscipleTaskController::class, 'index']);
+            Route::post('/answers', [DiscipleAnswerController::class, 'store']);
+            Route::post('/answers/submit', [DiscipleAnswerController::class, 'submit']);
         });
     });
 

@@ -1,42 +1,47 @@
 <script>
 import {mapActions, mapGetters} from "vuex";
-import {MdCatalog, MdPreview} from "md-editor-v3";
+import LessonView from "../../components/LessonView.vue";
 
 export default {
-  name: 'Lesson',
-  data(){
-    return {
-      id : 'preview-only',
-      scrollElement:document.documentElement
+    name: 'Lesson',
+    components: {LessonView},
+    data() {
+        return {
+            // Плана урока ученик не видит: бэкенд отдаёт ему только конспект
+            tabs: [
+                {value: 'abstract', title: 'Конспект', field: 'abstract'},
+                {value: 'classwork', title: 'Задания на уроке', short: 'Задания', kind: 'classwork'},
+                {value: 'homework', title: 'Домашнее задание', short: 'Д/З', kind: 'homework'},
+            ],
+        }
+    },
+    computed: {
+        ...mapGetters('disciple', {lesson: 'getLesson'}),
+        backTo() {
+            return {name: 'DiscipleDetailGroup', params: {id: this.$route.params.groupId}};
+        },
+    },
+    methods: {
+        ...mapActions('disciple', ['actRequestLesson']),
+        reload() {
+            this.actRequestLesson(this.$route.params);
+        },
+    },
+    created() {
+        this.reload();
     }
-  },
-  components: {MdCatalog, MdPreview},
-  computed: {
-    ...mapGetters('disciple', {lesson: 'getLesson'})
-  },
-  methods: {
-    ...mapActions('disciple', ['actRequestLesson']),
-  },
-  created() {
-    this.actRequestLesson(this.$route.params);
-  }
 }
 </script>
 
 <template>
-<!--  {{ $route.params }} {{ lesson }} <br>-->
-  <h1>{{lesson?.lesson?.name}}</h1>
-  <div class="tw-flex">
-<!--    <MdCatalog :editorId="id" :scrollElement="scrollElement"-->
-<!--                     style="position: fixed; "-->
-<!--    />-->
-
-    <MdPreview   :editorId="id" :modelValue="lesson?.lesson?.abstract" />
-
-
-  </div>
+    <LessonView
+        :lesson="lesson?.lesson ?? null"
+        :tabs="tabs"
+        :tasks="lesson?.tasks ?? {}"
+        :answers="lesson?.answers ?? {}"
+        mode="fill"
+        :group-id="$route.params.groupId"
+        :back-to="backTo"
+        @reload="reload"
+    />
 </template>
-
-<style scoped lang="scss">
-
-</style>

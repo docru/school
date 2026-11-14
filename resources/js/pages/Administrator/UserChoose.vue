@@ -1,48 +1,103 @@
 <template>
     <div v-if="getUsers">
-        <div>
-            <div
-                class="tw-flex tw-flex-col md:tw-flex-row  tw-gap-[15px] tw-mb-5 tw-justify-center"
+        <!-- Одно поле поиска: по любой части ФИО или по цифрам телефона -->
+        <v-text-field
+            v-model="search"
+            label="Поиск по имени или телефону"
+            prepend-inner-icon="mdi-magnify"
+            clearable
+            autofocus
+            class="!tw-my-0"
+        />
+        <div class="tw-flex tw-items-center tw-justify-between tw-gap-2 tw-mt-1 tw-text-xs tw-text-text-muted dark:tw-text-dark-text-muted">
+            <span>{{ listHint }}</span>
+            <v-btn
+                variant="text"
+                size="small"
+                color="primary"
+                :prepend-icon="showCreate ? 'mdi-chevron-up' : 'mdi-account-plus-outline'"
+                class="tw--mr-2"
+                @click="toggleCreate"
             >
-                <div class="tw-w-full tw-grid tw-gap-2 tw-grid-cols-1 md:tw-grid-cols-2 xl:tw-grid-cols-4">
-                    <v-text-field label="Фамилия" v-model="surname"></v-text-field>
-                    <v-text-field label="Имя" v-model="name"></v-text-field>
-                    <v-text-field label="Отчество" v-model="patronymic"></v-text-field>
-                    <v-text-field label="Телефон" type="number" v-model="phone"></v-text-field>
+                {{ showCreate ? 'Скрыть форму' : 'Создать нового' }}
+            </v-btn>
+        </div>
+
+        <!-- Форма создания скрыта, пока не понадобится: экономит место на телефоне -->
+        <v-expand-transition>
+            <div v-show="showCreate" class="create-form tw-mt-2">
+                <div class="tw-grid tw-gap-2 tw-grid-cols-2 xl:tw-grid-cols-4">
+                    <v-text-field label="Фамилия" v-model="surname" class="!tw-my-0"/>
+                    <v-text-field label="Имя" v-model="name" class="!tw-my-0"/>
+                    <v-text-field label="Отчество" v-model="patronymic" class="!tw-my-0"/>
+                    <v-text-field label="Телефон" type="tel" inputmode="numeric" v-model="phone" class="!tw-my-0"/>
                 </div>
-
-                <v-btn class="tw-mt-2" color="primary" :disabled="!canCreate" @click="create">
-                    {{ $vuetify.display.name === 'sm' ? 'Создать' : 'Создать нового пользователя' }}
-                </v-btn>
+                <div class="tw-flex tw-items-center tw-justify-between tw-gap-3 tw-mt-2">
+                    <div class="tw-text-xs tw-text-text-muted dark:tw-text-dark-text-muted">{{ createHint }}</div>
+                    <v-btn color="primary" :disabled="!canCreate" @click="create" class="tw-shrink-0">
+                        {{ isMobile ? 'Создать' : 'Создать нового пользователя' }}
+                    </v-btn>
+                </div>
             </div>
-            <v-divider class="tw-my-3" color="blue"/>
+        </v-expand-transition>
+        <v-divider class="tw-my-3"/>
 
-            <div v-if="getUsers">
-                <v-data-table
-                    @click:row="dialog=!dialog"
-                    :headers="usersHeaders"
-                    :items="searchItems"
-                    :loading="getLoad"
+        <!-- Мобильный список: имя и телефон, нажатие добавляет в группу -->
+        <div v-if="isMobile">
+            <v-skeleton-loader v-if="getLoad" type="list-item-two-line@6"/>
+            <template v-else>
+                <ListRow
+                    v-for="item in visibleItems"
+                    :key="item.id"
+                    :title="fullName(item)"
+                    clickable
+                    @click="choose(item.id)"
                 >
-                    <template v-slot:item.name="{ item }">
-                        <div @click="choose(item.id)">
-                            {{ item.surname }} {{ item.name }} {{ item.patronymic }}
-                        </div>
+                    <template #subtitle>
+                        <span v-if="item.phone">{{ fmtPhone(item.phone) }}</span>
+                        <span v-else>телефон не указан</span>
                     </template>
-                    <template v-slot:loading>
-                        <v-skeleton-loader type="table-row@10"></v-skeleton-loader>
+                    <template #actions>
+                        <v-icon color="primary" size="small" class="tw-shrink-0 tw-mr-2">mdi-plus-circle-outline</v-icon>
                     </template>
-                    <template v-slot:item.link="{item}">
-                        <Code
-                            v-if="item.entry_code"
-                            :code="item.entry_code"
-                        />
-                        <div v-else @click="actUserCreateLink({ uid:item.id })">
-                            сгенерить ключ
-                        </div>
-                    </template>
+                </ListRow>
+                <div class="tw-py-3 tw-text-center tw-text-xs tw-text-text-muted dark:tw-text-dark-text-muted" v-if="searchItems.length > visibleItems.length">
+                    Показаны первые {{ visibleItems.length }} из {{ searchItems.length }} — уточните поиск
+                </div>
+            </template>
+        </div>
 
-                </v-data-table>
+        <v-data-table
+            v-else
+            :headers="usersHeaders"
+            :items="searchItems"
+            :loading="getLoad"
+            class="users-table"
+        >
+            <template v-slot:item.name="{ item }">
+                <div @click="choose(item.id)">{{ fullName(item) }}</div>
+            </template>
+            <template v-slot:loading>
+                <v-skeleton-loader type="table-row@10"></v-skeleton-loader>
+            </template>
+            <template v-slot:item.link="{item}">
+                <Code
+                    v-if="item.entry_code"
+                    :code="item.entry_code"
+                />
+                <div v-else @click="actUserCreateLink({ uid:item.id })">
+                    сгенерить ключ
+                </div>
+            </template>
+        </v-data-table>
+
+        <!-- Пусто: предлагаем сразу создать, подставив то, что искали -->
+        <div class="tw-py-4 tw-text-center tw-text-sm tw-text-text-muted dark:tw-text-dark-text-muted" v-if="!getLoad && !searchItems.length">
+            Никого не найдено
+            <div class="tw-mt-2" v-if="!showCreate">
+                <v-btn variant="outlined" size="small" prepend-icon="mdi-account-plus-outline" @click="toggleCreate">
+                    Создать нового
+                </v-btn>
             </div>
         </div>
     </div>
@@ -52,13 +107,14 @@
 <script>
 import {mapActions, mapGetters} from "vuex";
 import Code from "../../components/Code.vue";
+import ListRow from "../../components/ListRow.vue";
 import Loading from "../../components/Loading.vue";
 import ICode from "../../components/icon/ICode.vue";
 import normalize from "../../utils/normalize.js";
 
 export default {
     name: "UserChoose",
-    components: {ICode, Loading, Code},
+    components: {ICode, Loading, Code, ListRow},
     props: {
         group: Object,
         role: {
@@ -69,7 +125,7 @@ export default {
     data() {
         return {
             search: '',
-            dialog: false,
+            showCreate: false,
             surname: '',
             name: '',
             patronymic: '',
@@ -102,6 +158,26 @@ export default {
                 }
             });
         },
+        fmtPhone(phone) {
+            const d = String(phone).replace(/\D/g, '');
+            if (d.length === 11) return `+${d[0]} ${d.slice(1, 4)} ${d.slice(4, 7)}-${d.slice(7, 9)}-${d.slice(9)}`;
+            return '+' + d;
+        },
+        fullName(item) {
+            return [item.surname, item.name, item.patronymic].filter(Boolean).join(' ');
+        },
+        toggleCreate() {
+            this.showCreate = !this.showCreate;
+            if (!this.showCreate) return;
+            // Подставляем в форму то, что уже набрали в поиске
+            const q = (this.search || '').trim();
+            const digits = q.replace(/\D/g, '');
+            if (digits.length >= 10 && digits.length >= q.length / 2) {
+                if (!this.phone) this.phone = digits;
+            } else if (q && !this.surname) {
+                this.surname = normalize.name(q.split(/\s+/)[0]);
+            }
+        },
         async choose(userId) { // 'disciple'
             await this.actJoinUserToGroup({groupId: this.group.id, userId, role: this.role});
             this.$emit('choosedUser');
@@ -110,43 +186,50 @@ export default {
     computed: {
         ...mapGetters('users', ['getUsers', 'getLoad']),
         searchItems() {
-            let surname = this.surname.trim().toLowerCase();
-            let phone = normalize.phone(this.phone);
-            if (surname && phone) {
-                return this.getUsers.filter((el) => {
-                    return el.phone?.search(phone) > -1 && el.surname?.toLowerCase().search(surname) > -1;
-                });
-            } else if (phone) {
-                return this.getUsers.filter((el) => {
-                    return el.phone?.search(phone) > -1;
-                });
-            } else if (surname) {
-                return this.getUsers.filter((el) => {
-                    return el.surname?.toLowerCase().search(surname) > -1;
-                });
-            } else {
-                return this.getUsers;
-            }
+            const q = (this.search || '').trim().toLowerCase();
+            if (!q) return this.getUsers;
+            const digits = q.replace(/\D/g, '');
+            const words = q.split(/\s+/).filter(Boolean);
+            return this.getUsers.filter((el) => {
+                if (digits.length >= 3 && el.phone?.includes(digits)) return true;
+                const full = this.fullName(el).toLowerCase();
+                return words.every(w => full.includes(w));
+            });
+        },
+        isMobile() {
+            return this.$vuetify.display.name === 'sm';
+        },
+        // На телефоне длинный список не рисуем целиком: первые 50, дальше пусть уточняют поиск
+        visibleItems() {
+            return this.searchItems.slice(0, 50);
         },
         usersHeaders() {
-            if (this.$vuetify.display.name !== 'sm') {
-                return [
-                    {title: 'ФИО', key: 'name'},
-                    {title: 'Телефон', key: 'phone'},
-                    {title: 'link', sortable: false, key: 'link'},
-                ];
-            } else {
-                return [
-                    {title: 'ФИО', key: 'name'},
-                    {title: 'Телефон', key: 'phone'},
-                ];
-            }
+            return [
+                {title: 'ФИО', key: 'name'},
+                {title: 'Телефон', key: 'phone'},
+                {title: 'link', sortable: false, key: 'link'},
+            ];
         },
         canCreate() {
-            let phone = normalize.phone(this.phone);
-            let surname = this.surname.trim();
-            let name = normalize.phone(this.phone);
-            return phone.length === 11 && surname.length > 1 && name.length > 1 && this.searchItems.length === 0;
+            const phone = normalize.phone(this.phone);
+            const surname = this.surname.trim();
+            const name = this.name.trim();
+            return phone.length === 11 && surname.length > 1 && name.length > 1 && !this.phoneTaken;
+        },
+        // Такой телефон уже есть в базе — создавать дубль нельзя
+        phoneTaken() {
+            const phone = normalize.phone(this.phone);
+            return phone.length === 11 && this.getUsers.some(u => u.phone === phone);
+        },
+        listHint() {
+            const n = this.searchItems.length;
+            if (!(this.search || '').trim()) return `Всего: ${n}. Нажмите, чтобы добавить`;
+            return n ? `Найдено: ${n}` : '';
+        },
+        createHint() {
+            if (this.phoneTaken) return 'Такой телефон уже есть — найдите его в списке';
+            if (this.canCreate) return 'Можно создать';
+            return 'Нужны фамилия, имя и телефон из 11 цифр';
         },
     },
     created() {
@@ -155,6 +238,8 @@ export default {
 }
 </script>
 
-<style scoped>
-
+<style scoped lang="scss">
+.users-table :deep(tbody tr) {
+    cursor: pointer;
+}
 </style>

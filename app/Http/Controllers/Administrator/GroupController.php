@@ -1,10 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Administrator;
 
 use App\Http\Controllers\Controller;
 use App\Models\Group;
 use App\Models\GroupSchoolDay;
+use App\Models\GroupUser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -75,10 +78,33 @@ class GroupController extends Controller
         return $this->ResponseOk($this->_groupList());
     }
 
+    /**
+     * Список групп со сводкой для карточек: курс, учителя, ученики, прогресс по учебным дням.
+     * @return array<int, array<string, mixed>>
+     */
     private function _groupList(): array
     {
-        return Group::all()->toArray();
+        $groups = Group::query()
+            ->with([
+                'course:id,name',
+                'course.course_school_days:id,course_id',
+                'groupUser.user:id,name,surname,patronymic',
+                'groupsSchoolDay',
+            ])
+            ->orderByDesc('id')
+            ->get();
+
+        return $groups
+            ->map(fn(Group $group): array => $group->summary())
+            ->values()
+            ->all();
     }
+
+    /**
+     * Сводка по одной группе для списка
+     * @param Group $group
+     * @return array<string, mixed>
+     */
 
 
     /**

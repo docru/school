@@ -38,8 +38,16 @@ const actions = {
     async actRequestGroup({state, commit}, groupId) {
         return await vuexGet('/teacher/groups/' + groupId, {}, state, commit, 'setGroup');
     },
+    // Проверка ответов
+    async actRequestAnswers({state, commit}, params) {
+        return await vuexGet('/teacher/answers', {group_id: params.groupId}, state, commit, false);
+    },
+    async actCheckAnswer({state, commit}, params) {
+        return await vuexPost('/teacher/answers/' + params.id + '/check', params, state, commit, false);
+    },
     async actRequestLesson({state, commit}, params) {
-        return await vuexPost(`/teacher/lesson/${params.groupId}/${params.lessonId}`, {}, state, commit, 'setLesson');
+        // Чтение урока идёт POST-запросом, а vuexPost по умолчанию рапортует «Сохранено»
+        return await vuexPost(`/teacher/lesson/${params.groupId}/${params.lessonId}`, {}, state, commit, 'setLesson', {showMsg: false});
     },
 }
 

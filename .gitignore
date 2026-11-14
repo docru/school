@@ -20,3 +20,18 @@ yarn-error.log
 /app/Http/Controllers/Test*
 /routes/test*.php
 /env
+
+# Дампы БД с прода
+/dump
+
+# Локальная инструкция по развёртыванию, не для MR в rap693/school
+/LOCAL_SETUP.md
+
+# Локальная инфраструктура разработки. Зависит от конкретной машины: подсеть
+# понадобилась из-за исчерпанного пула Docker, Dockerfile.local — из-за того,
+# что не собирался штатный Sail-образ. Вдобавок docker-compose.override.yml
+# Docker подхватывает автоматически и молча меняет окружение у всех,
+# кто склонирует проект. Файлы остаются локально, в репозиторий не уходят.
+/Makefile
+/docker-compose.override.yml
+/docker/Dockerfile.local

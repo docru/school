@@ -3,6 +3,7 @@ import {vuexGet, vuexPost} from "../../helpers/vuexHelper.js";
 const state = {
     home: {},
     users: null,
+    leaders: null,
     roles: null,
     rolesSelect: null,
     load: false
@@ -10,6 +11,7 @@ const state = {
 const getters = {
     getHome: (state) => state.home,
     getUsers: (state) => state.users,
+    getLeaders: (state) => state.leaders ?? [],
     getRoles: (state) => state.roles,
     getRolesSelect: (state) => state.rolesSelect,
     getLoad: (state) => !!state.load
@@ -29,6 +31,7 @@ const mutations = {
         state.users.filter(el => el.id === payload.id)[0].entry_code = payload.key
     },
     setUsers: (state, payload) => state.users = payload.users,
+    setLeaders: (state, payload) => state.leaders = payload.users,
     setRoles: (state, payload) => {
         state.roles = payload.map((el) => {
             return {...el, value: false}
@@ -48,6 +51,10 @@ const actions = {
             url += '/' + params.role;
         }
         return await vuexGet(url, {}, state, commit, 'setUsers');
+    },
+    // Лидеры домашних групп — для выбора в окне ученика
+    async actReqwestLeaders({state, commit}) {
+        return await vuexGet('/users/home_group_leader', {}, state, commit, 'setLeaders');
     },
     async actReqwestUserRoles({state, commit}) {
         return await vuexGet('/users/roles', {}, state, commit, 'setRoles');

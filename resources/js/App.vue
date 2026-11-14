@@ -8,43 +8,44 @@
         <template v-else>
 
             <snack-bar/>
+            <confirm-dialog/>
+            <!-- temporary без absolute: при absolute панель жила внутри страницы
+                 и уезжала вместе с её прокруткой -->
             <v-navigation-drawer
                 v-if="!showFormNicName"
-                app
-                left
-                absolute
                 temporary
                 v-model="drawer"
                 class="pa-3"
             >
+                <!-- «Главная» одна на все роли, поэтому стоит выше разделов -->
+                <v-list-item :to="{name: 'Home'}" link title="Главная" prepend-icon="mdi-home-outline"/>
+                <v-divider class="tw-my-2"/>
 
                 <template v-if="getProfile.roles.includes('disciple')">
-                    <v-list-subheader>Учебный процесс</v-list-subheader>
+                    <v-list-subheader :class="{'bp-subheader--active': section?.key === 'disciple'}">Учебный процесс</v-list-subheader>
                     <v-list-item
                         v-for="item in menu_disciple"
                         :key="item"
                         :to="{name:item.routName}"
                         link
                         :title="item.name"
-                        v-if="getProfile.roles.includes('disciple')"
                     />
                 </template>
 
                 <template v-if="getProfile.roles.includes('teacher')">
-                    <v-list-subheader>Учитель</v-list-subheader>
+                    <v-list-subheader :class="{'bp-subheader--active': section?.key === 'teacher'}">Учитель</v-list-subheader>
                     <v-list-item
                         v-for="item in menu_teacher"
                         :key="item"
                         :to="{name:item.routName}"
                         link
                         :title="item.name"
-                        v-if="getProfile.roles.includes('teacher')"
                     />
                 </template>
 
                 <template v-if="getProfile.roles.includes('administrator')">
                     <v-divider></v-divider>
-                    <v-list-subheader>Администрирование</v-list-subheader>
+                    <v-list-subheader :class="{'bp-subheader--active': section?.key === 'administrator'}">Администрирование</v-list-subheader>
                     <v-list-item
                         v-for="item in menu_admin"
                         :key="item"
@@ -56,7 +57,7 @@
 
                 <template v-if="getProfile.roles.includes('methodologist')">
                     <v-divider></v-divider>
-                    <v-list-subheader>Методология</v-list-subheader>
+                    <v-list-subheader :class="{'bp-subheader--active': section?.key === 'methodologist'}">Методология</v-list-subheader>
                     <v-list-item
                         v-for="item in menu_methodologist"
                         :key="item"
@@ -68,7 +69,7 @@
 
                 <template v-if="getProfile.roles.includes('superadmin')">
                     <v-divider></v-divider>
-                    <v-list-subheader>СуперАдминистрирование</v-list-subheader>
+                    <v-list-subheader :class="{'bp-subheader--active': section?.key === 'superadmin'}">СуперАдминистрирование</v-list-subheader>
                     <v-list-item
                         v-for="item in  menu_superadmin"
                         :key="item"
@@ -81,19 +82,23 @@
             </v-navigation-drawer>
             <v-app-bar
                 app
-                color="primary"
+                color="surface"
+                flat
+                class="bp-app-bar"
                 v-if="!showFormNicName"
             >
                 <v-app-bar-nav-icon @click="drawer = !drawer">
                 </v-app-bar-nav-icon>
                 <v-app-bar-title>
-                    <h3 class="white--text">
+                    <h3 class="bp-app-title">
                         {{ $vuetify.display.name === 'sm' ? 'Школа' : 'ЦХМ школа' }}
                     </h3>
+                    <!-- Текущий раздел системы: видно, в какой его части находишься -->
+                    <div v-if="section" class="bp-app-section">{{ section.title }}</div>
                 </v-app-bar-title>
-                <v-spacer></v-spacer>
 
-                <div class="tw-mx-3">
+                <!-- Имя не должно отжимать название с подписью раздела: ограничиваем ширину и обрезаем -->
+                <div class="tw-mx-3 tw-text-sm tw-text-text-muted dark:tw-text-dark-text-muted tw-truncate tw-shrink-0 tw-max-w-[35%] md:tw-max-w-none">
                     {{ getProfile?.name[0] }} ({{ getProfile?.name[0] }} {{ getProfile?.surname }}
                     {{ getProfile?.patronymic }})
                 </div>
@@ -108,12 +113,12 @@
 
                 <v-breadcrumbs
                     :items="breadcrumbs"
-                    class="tw-w-full"
-                    style="position: fixed; background-color: white; z-index: 100;"
+                    class="tw-w-full bp-breadcrumbs"
+                    style="position: fixed; z-index: 100;"
                 />
 
 
-                <v-card variant="text" class=" px-3 pt-15" style="min-height: 100%">
+                <v-card variant="text" class="px-3 bp-page" style="min-height: 100%">
                     <router-view></router-view>
                 </v-card>
             </v-main>
@@ -124,20 +129,29 @@
 <script>
 import {mapActions, mapGetters} from "vuex";
 import SnackBar from "./components/Snackbar.vue";
+import ConfirmDialog from "./components/ConfirmDialog.vue";
 
 export default {
     name: 'App',
-    components: {SnackBar},
+    components: {SnackBar, ConfirmDialog},
     data: () => ({
         drawer: false,
+        // Разделы по префиксу пути маршрута
+        sections: [
+            {key: 'disciple', title: 'Учебный процесс'},
+            {key: 'teacher', title: 'Учитель'},
+            {key: 'administrator', title: 'Администрирование'},
+            {key: 'methodologist', title: 'Методология'},
+            {key: 'superadmin', title: 'Суперадминистрирование'},
+        ],
         menu_disciple: [
-            {
-                name: 'Главная ',
-                routName: 'Home'
-            },
             {
                 name: 'Мои курсы',
                 routName: 'DiscipleGroupsList'
+            },
+            {
+                name: 'Домашние задания',
+                routName: 'DiscipleHomework'
             },
             // {
             //   name: 'Мои задания ',
@@ -146,13 +160,14 @@ export default {
 
         ],
         menu_teacher: [
-            {
-                name: 'Главная ',
-                routName: 'Home'
-            },
+            // «Главная» в разделе не нужна: этот же пункт уже есть выше
             {
                 name: 'Мои группы',
                 routName: 'TeacherGroupsList'
+            },
+            {
+                name: 'Проверка',
+                routName: 'TeacherReview'
             },
         ],
         menu_admin: [
@@ -168,18 +183,24 @@ export default {
         ],
         menu_methodologist: [
             {
-                name: 'Курсы ',
+                name: 'Курсы',
                 routName: 'MethodologistCoursesList'
             },
         ],
         menu_superadmin: [
             {
-                name: 'Пользователи ',
+                name: 'Пользователи',
                 routName: 'SuperadminUsers'
             },
 
         ],
     }),
+    watch: {
+        // Накладное меню не должно прокручивать страницу под собой
+        drawer(open) {
+            document.documentElement.classList.toggle('bp-no-scroll', open);
+        },
+    },
     methods: {
         routePoint() {
             if (!this.validProfile) {
@@ -191,12 +212,22 @@ export default {
         ...mapActions('profile', ['actResetProfile'])
     },
     computed: {
+        section() {
+            const first = this.$route?.path.split('/')[1];
+            return this.sections.find(el => el.key === first) ?? null;
+        },
         breadcrumbs() {
             if (!this.$route?.meta || !this.$route?.meta?.breadcrumbs?.length) return []
             return this.$route?.meta?.breadcrumbs.map(el => {
-                if (el.params) return {...el, href: el.href + '/' + this.$route.params[el.params], disabled: false}
-                if (el.routName) return {...el, to: {name: el.routName}, disabled: false}
-                return {...el, disabled: true}
+                // Крошка может брать заголовок из стора (например, название открытой группы).
+                // field — путь с точками: у учителя группа лежит как {group: {name}}
+                const fromStore = () => el.field
+                    .split('.')
+                    .reduce((obj, key) => obj?.[key], this.$store.getters[el.getter]);
+                const title = el.getter ? (fromStore() || el.title) : el.title
+                if (el.params) return {...el, title, href: el.href + '/' + this.$route.params[el.params], disabled: false}
+                if (el.routName) return {...el, title, to: {name: el.routName}, disabled: false}
+                return {...el, title, disabled: true}
             })
         },
         validProfile() {
@@ -212,6 +243,9 @@ export default {
     },
     async mounted() {
         await this.actResetProfile();
+    },
+    unmounted() {
+        document.documentElement.classList.remove('bp-no-scroll');
     },
 
 }

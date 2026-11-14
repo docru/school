@@ -1,19 +1,27 @@
 <script>
 import {mapActions, mapGetters} from "vuex";
-import {MdPreview} from "md-editor-v3";
+import LessonView from "../../components/LessonView.vue";
 
 export default {
     name: 'Lesson',
-  components: {MdPreview},
-  data(){
-      return {
-        tab:null
-      }
-  },
-    computed:{
-        ...mapGetters('teacher', {lesson: 'getLesson'})
+    components: {LessonView},
+    data() {
+        return {
+            tabs: [
+                {value: 'plan', title: 'План урока', short: 'План', field: 'methodical_description'},
+                {value: 'abstract', title: 'Конспект', field: 'abstract'},
+                {value: 'classwork', title: 'Задания на уроке', short: 'Задания', kind: 'classwork'},
+                {value: 'homework', title: 'Домашнее задание', short: 'Д/З', kind: 'homework'},
+            ],
+        }
     },
-    methods:{
+    computed: {
+        ...mapGetters('teacher', {lesson: 'getLesson'}),
+        backTo() {
+            return {name: 'TeacherDetailGroup', params: {id: this.$route.params.groupId}};
+        },
+    },
+    methods: {
         ...mapActions('teacher', ['actRequestLesson']),
     },
     created() {
@@ -23,28 +31,12 @@ export default {
 </script>
 
 <template>
-<div class="">
-  <h1>{{lesson?.lesson?.name}}</h1>
-  <v-tabs
-      v-model="tab"
-      bg-color="primary"
-  >
-    <v-tab value="plan">План урока</v-tab>
-    <v-tab value="con">Конспект</v-tab>
-  </v-tabs>
-
-  <v-window v-model="tab">
-    <v-window-item value="plan">
-      <MdPreview :modelValue="lesson?.lesson?.methodical_description" />
-    </v-window-item>
-    <v-window-item value="con">
-      <MdPreview :modelValue="lesson?.lesson?.abstract" />
-    </v-window-item>
-  </v-window>
-
-</div>
+    <!-- Учителю блоки только на ознакомление: ответы учеников в разделе «Проверка» -->
+    <LessonView
+        :lesson="lesson?.lesson ?? null"
+        :tabs="tabs"
+        :tasks="lesson?.tasks ?? {}"
+        mode="view"
+        :back-to="backTo"
+    />
 </template>
-
-<style scoped lang="scss">
-
-</style>

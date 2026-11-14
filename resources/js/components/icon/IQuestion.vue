@@ -20,7 +20,7 @@
                     Telegram-бота
                 </v-card-text>
                 <v-card
-                    color="#e5e7eb"
+                    color="surface-variant"
                     elevation="0"
                     class="mx-auto"
                     max-width="500"

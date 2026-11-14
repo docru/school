@@ -1,0 +1,69 @@
+/*
+ * Дизайн-токены Blueprint (https://claude.ai/artifact/DA8mCu4HUc1dxLLq224kGD).
+ * Светлая тема — в :root, тёмная — под классом темы Vuetify (.v-theme--adfDark) и .dark для Tailwind.
+ * Остальные слои (Vuetify-тема в app.js, tailwind.config.cjs) ссылаются на эти же значения.
+ */
+:root {
+    /* Палитра */
+    --bp-neutral-900: #1f1d1a;
+    --bp-neutral-500: #6b7280;
+    --bp-primary-500: #8b5e3c;
+    --bp-sand-300: #d8bfa3;
+    --bp-cream-100: #efe5db;
+    --bp-white: #ffffff;
+    --bp-success: #22c55e;
+    --bp-error: #ef4444;
+    --bp-warning: #f59e0b;
+    --bp-info: #3b82f6;
+
+    /* Семантические цвета */
+    --bp-surface-page: #fbf6f1;
+    --bp-surface-card: #ffffff;
+    --bp-surface-muted: #f6eee6;
+    --bp-surface-inverse: var(--bp-neutral-900);
+    --bp-on-inverse: var(--bp-white);
+    --bp-text-primary: var(--bp-neutral-900);
+    --bp-text-muted: #6b5e52;
+    --bp-accent: var(--bp-primary-500);
+    --bp-on-accent: var(--bp-white);
+    --bp-border: var(--bp-cream-100);
+    --bp-border-control: #b9a48f;
+    --bp-disabled-fill: #f1ebe5;
+
+    /* Типографика */
+    --bp-font-display: "Playfair Display", Georgia, serif;
+    --bp-font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+    /* Отступы (сетка 4pt) */
+    --bp-space-1: 4px;
+    --bp-space-2: 8px;
+    --bp-space-3: 12px;
+    --bp-space-4: 16px;
+    --bp-space-6: 24px;
+    --bp-space-8: 32px;
+    --bp-space-12: 48px;
+    --bp-space-16: 64px;
+    --bp-space-24: 96px;
+
+    /* Скругления и тень */
+    --bp-radius-sm: 4px;
+    --bp-radius-md: 8px;
+    --bp-radius-full: 9999px;
+    --bp-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.v-theme--adfDark,
+.dark {
+    --bp-surface-page: #171411;
+    --bp-surface-card: #211d19;
+    --bp-surface-muted: #2a2520;
+    --bp-surface-inverse: #f3ece3;
+    --bp-on-inverse: var(--bp-neutral-900);
+    --bp-text-primary: #f3ece3;
+    --bp-text-muted: #b5a99c;
+    --bp-accent: #c4936a;
+    --bp-on-accent: var(--bp-neutral-900);
+    --bp-border: #3a332c;
+    --bp-border-control: #6e6156;
+    --bp-disabled-fill: #2a2520;
+}

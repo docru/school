@@ -94,6 +94,22 @@ class User extends Authenticatable implements LaratrustUser
         return $this->hasMany(GroupUser::class);
     }
 
+    /**
+     * Лидер домашней группы, к которому прикреплён ученик.
+     */
+    public function homeGroupLeader()
+    {
+        return $this->belongsTo(User::class, 'home_group_leader_id');
+    }
+
+    /**
+     * Ученики, прикреплённые к этому лидеру.
+     */
+    public function homeGroupDisciples()
+    {
+        return $this->hasMany(User::class, 'home_group_leader_id');
+    }
+
 
     /**
      * @param string $phone
@@ -115,19 +131,6 @@ class User extends Authenticatable implements LaratrustUser
         }
 
         return $phone;
-    }
-
-    public function PermissionsGroup($groupId)
-    {
-
-        if ($this->hasRole('superadmin')) {
-            return 'superadmin';
-        }
-        $groupUser = $this->groupUsers()->where('group_id', $groupId)->first();
-        if (!empty($groupUser)) {
-            return $groupUser->role;
-        }
-        return false;
     }
 
     /**

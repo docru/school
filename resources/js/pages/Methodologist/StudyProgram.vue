@@ -1,40 +1,36 @@
 <script>
-import {mapActions, mapGetters, mapMutations} from "vuex";
-import ModulList from "./ModuleList.vue";
+import {mapActions, mapGetters} from "vuex";
+import swipeSheet from "../../mixins/swipeSheet.js";
 import ModuleList from "./ModuleList.vue";
+import LessonEditor from "./LessonEditor.vue";
 
 export default {
     name: 'StudyProgram',
-    components: {ModuleList, ModulList},
+    components: {ModuleList, LessonEditor},
+    mixins: [swipeSheet],
     data() {
         return {
-            tab: null,
             dialogCreateModule: false,
             newModuleName: '',
             dialogCreateLesson: false,
-            moduleForMewLesson: false,
+            moduleIdForNewLesson: null,
             newLessonName: '',
             curLessonId: false,
+            lessonDialog: false,
         }
     },
     computed: {
-        ...mapGetters('methodologist', ['getCourse', 'getStudyProgram', 'getLessons']),
+        ...mapGetters('methodologist', ['getStudyProgram', 'getLessons']),
         courseId() {
             return this.$route.params.idCourse;
         },
-        curLesson: {
-            get() {
-                return this.getLessons[this.curLessonId] ?? false;
-            },
-            set(data) {
-                this.setLesson(data);
-            },
+        // Объект урока из стора: правки полей уходят автосохранением курса
+        curLesson() {
+            return this.getLessons[this.curLessonId] ?? false;
         },
     },
     methods: {
-        ...mapMutations('methodologist', ['setStudyProgram', 'setLesson']),
         ...mapActions('methodologist', [
-            'actReqwestCourse',
             'actCreateModule',
             'actDeleteModule',
             'actCreateLesson',
@@ -46,201 +42,198 @@ export default {
             this.dialogCreateModule = false;
         },
         async deleteModule(module) {
-            if (confirm(`Вы уверены, что хотите удалить модуль "${module.name}"?`)) {
+            if (await this.$confirm({title: 'Удалить модуль?', text: `«${module.name}» будет удалён из программы.`, okText: 'Удалить', color: 'error'})) {
                 await this.actDeleteModule(module);
             }
         },
-        openDialogCreateLesson(module) {
-            this.moduleForMewLesson = module;
-            this.dialogCreateLesson = true;
+        openDialogCreateLesson(moduleId) {
+            this.moduleIdForNewLesson = moduleId;
+            this.openDialog('dialogCreateLesson');
         },
         async createLesson() {
             await this.actCreateLesson({
                 courseId: this.courseId,
-                moduleId: this.moduleForMewLesson,
+                moduleId: this.moduleIdForNewLesson,
                 lessonName: this.newLessonName
             });
             this.newLessonName = '';
             this.dialogCreateLesson = false;
         },
         async deleteLesson(lesson) {
-            if (confirm(`Вы уверены, что хотите удалить урок "${lesson.name}"?`)) {
+            if (await this.$confirm({title: 'Удалить урок?', text: `«${lesson.name}» будет удалён из программы.`, okText: 'Удалить', color: 'error'})) {
+                const wasOpen = this.curLessonId === lesson.id;
                 await this.actDeleteLesson(lesson);
-                if (lesson.id === this.curLesson.id) {
-                    delete this.curLesson;
-                    this.curLesson = false;
+                if (wasOpen) {
+                    this.curLessonId = false;
+                    this.lessonDialog = false;
                 }
             }
         },
         chooseLesson(lesson) {
             this.curLessonId = lesson.id;
+            // На телефоне редактор открывается отдельным экраном, на десктопе он уже рядом со списком
+            if (this.isMobile) {
+                this.openDialog('lessonDialog');
+            }
         },
     },
 }
 </script>
 
 <template>
-    <v-card variant="text">
-        <v-card-title>
-            <div class="tw-flex">
-                <div>Программа курса</div>
-                <v-spacer></v-spacer>
-                <div class="tw-flex tw-gap-3">
-                    <v-btn @click="dialogCreateModule=true">Создать модуль</v-btn>
-                    <v-dialog v-model="dialogCreateModule" fullscreen>
-                        <v-card>
-                            <v-card-title>
-                                <div class="tw-flex">
-                                    <div>Создать модуль</div>
-                                    <v-spacer></v-spacer>
-                                    <v-icon @click="dialogCreateModule=false">mdi-close</v-icon>
-                                </div>
-                            </v-card-title>
-                            <v-card-text>
-                                <v-text-field
-                                    label="Название модуля"
-                                    @keyup.enter="createModule()"
-                                    v-model="newModuleName"
-                                    autofocus
-                                />
-                            </v-card-text>
-                            <v-card-actions>
-                                <v-btn @click="createModule()">Создать модуль</v-btn>
-                            </v-card-actions>
-                        </v-card>
-                    </v-dialog>
-                </div>
+    <div class="study-program tw-p-3 md:tw-p-4">
+        <!-- На телефоне заголовок не нужен: он повторяет название вкладки -->
+        <div v-if="!isMobile" class="tw-flex tw-items-center tw-justify-between tw-gap-3 tw-mb-3">
+            <div class="adf-heading tw-text-lg tw-leading-6">Программа курса</div>
+            <v-btn
+                v-if="!isMobile"
+                color="primary"
+                variant="outlined"
+                prepend-icon="mdi-plus"
+                @click="openDialog('dialogCreateModule')"
+            >Создать модуль</v-btn>
+        </div>
+        <v-btn
+            v-if="isMobile"
+            color="primary"
+            variant="outlined"
+            prepend-icon="mdi-plus"
+            block
+            class="tw-mb-3"
+            @click="openDialog('dialogCreateModule')"
+        >Создать модуль</v-btn>
+
+        <!-- Пустое состояние -->
+        <div v-if="!getStudyProgram.length" class="tw-p-8 tw-text-center">
+            <v-icon size="40" color="muted">mdi-file-tree-outline</v-icon>
+            <div class="adf-heading tw-text-lg tw-mt-2 tw-mb-1">Программа пустая</div>
+            <div class="tw-text-sm tw-text-text-muted dark:tw-text-dark-text-muted">
+                Начните с модуля — внутри него появятся уроки
             </div>
-        </v-card-title>
-        <v-card-text>
-            <div class="tw-flex tw-gap-3 ">
-                <div class="tw-w-1/3" style="height: calc(100vh - 300px); overflow: auto">
-                    <module-list
-                        :getStudyProgram="getStudyProgram"
-                        :curLesson="curLesson"
-                        @openDialogCreateLesson=openDialogCreateLesson
-                        @deleteModule=deleteModule
-                        @chooseLesson="chooseLesson"
-                        @deleteLesson="deleteLesson"
-                        @setStudyProgram="setStudyProgram"
-                    />
-                    <v-dialog v-model="dialogCreateLesson" fullscreen>
-                        <v-card>
-                            <v-card-title>
-                                <div class="tw-flex">
-                                    <div>Создать урок</div>
-                                    <v-spacer></v-spacer>
-                                    <v-icon @click="dialogCreateLesson=false">mdi-close</v-icon>
-                                </div>
-                            </v-card-title>
-                            <v-card-text>
-                                <v-text-field
-                                    label="Название урока"
-                                    v-model="newLessonName"
-                                    @keyup.enter="createLesson()"
-                                    autofocus
-                                />
-                            </v-card-text>
-                            <v-card-actions>
-                                <v-btn @click="createLesson()">Создать урок</v-btn>
-                            </v-card-actions>
-                        </v-card>
-                    </v-dialog>
-                </div>
-                <div class="tw-w-2/3">
-                    <v-card v-if="!curLesson">
-                        <v-card-text>
-                            Не выбран урок
-                        </v-card-text>
-                    </v-card>
-                    <v-card v-else hover elevation="2" style="padding: 5px 10px;">
-                        <v-card-title>
-                            <div class="tw-flex">
-                                <div>{{ curLesson.name }}</div>
-                            </div>
-                        </v-card-title>
-                        <v-tabs
-                            v-model="tab"
-                            bg-color="primary"
-                            density="compact"
-                        >
-                            <v-tab value="methodical">План урока</v-tab>
-                            <v-tab value="abstract">Конспект</v-tab>
-                            <v-tab value="two">Задания на уроке</v-tab>
-                            <v-tab value="three">Домашнее задание</v-tab>
-                        </v-tabs>
+        </div>
 
-                        <v-card-text>
-                            <v-window v-model="tab">
-                                <v-window-item value="methodical">
-                                    <v-text-field
-                                        label="Название урока"
-                                        v-model="curLesson.name"
-                                        variant="outlined"
-                                    />
-                                    <v-md-editor
-                                        v-model="curLesson.methodical_description "
-                                        height="400px"
-                                    ></v-md-editor>
-                                    <!--                                    <v-textarea-->
-                                    <!--                                        label="Методическое описание урока"-->
-                                    <!--                                        variant="outlined"-->
-                                    <!--                                        v-model="curLesson.methodical_description"-->
-                                    <!--                                    ></v-textarea>-->
-                                </v-window-item>
-                                <v-window-item value="abstract">
-                                    <v-md-editor
-                                        v-model="curLesson.abstract"
-                                        height="400px"
-                                    ></v-md-editor>
-                                    <!--                  <v-textarea-->
-                                    <!--                      label="Конспект урока"-->
-                                    <!--                      variant="outlined"-->
-                                    <!--                      v-model="curLesson.abstract"-->
-                                    <!--                  ></v-textarea>-->
-                                </v-window-item>
-
-                                <v-window-item value="two">
-                                    <v-card>
-                                        <v-card-title>Задание на уроке</v-card-title>
-                                        <div
-                                            style="margin: 15px; background-color: darkseagreen; border-radius: 4px; padding: 15px">
-                                            <h3>Задание №1</h3>
-                                            <p class="tw-p-3 tw-bg-white  ">
-                                                Разбейтесь по парам и расскажите друг другу ...
-                                            </p>
-                                        </div>
-                                    </v-card>
-                                </v-window-item>
-
-                                <v-window-item value="three">
-                                    Домашнее задание
-                                </v-window-item>
-                            </v-window>
-                        </v-card-text>
-                    </v-card>
-                </div>
+        <div v-else class="tw-flex tw-flex-col md:tw-flex-row tw-gap-3">
+            <div class="md:tw-w-1/3 program-pane">
+                <module-list
+                    :getStudyProgram="getStudyProgram"
+                    :curLessonId="curLessonId"
+                    :isMobile="isMobile"
+                    @openDialogCreateLesson="openDialogCreateLesson"
+                    @deleteModule="deleteModule"
+                    @chooseLesson="chooseLesson"
+                    @deleteLesson="deleteLesson"
+                />
             </div>
 
+            <!-- Редактор урока рядом со списком (десктоп) -->
+            <div v-if="!isMobile" class="md:tw-w-2/3 program-pane">
+                <LessonEditor v-if="curLesson" :lesson="curLesson"/>
+                <div v-else class="tw-p-8 tw-text-center">
+                    <v-icon size="40" color="muted">mdi-gesture-tap</v-icon>
+                    <div class="tw-text-sm tw-text-text-muted dark:tw-text-dark-text-muted tw-mt-2">
+                        Выберите урок в списке слева
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        </v-card-text>
-    </v-card>
+        <!-- Редактор урока отдельным экраном (телефон) -->
+        <v-dialog v-if="isMobile" v-model="lessonDialog" fullscreen transition="dialog-bottom-transition">
+            <v-card v-if="curLesson" class="lesson-dialog" :style="sheetStyle">
+                <!-- Свайп вниз закрывает окно только за шапку: внутри редактора жест нужен для ввода -->
+                <div
+                    class="lesson-dialog__head"
+                    data-swipe-close="lessonDialog"
+                    @touchstart.passive="sheetTouchStart"
+                    @touchmove="sheetTouchMove"
+                    @touchend="sheetTouchEnd"
+                    @touchcancel="sheetTouchEnd"
+                >
+                    <div class="sheet-handle"></div>
+                    <div class="tw-flex tw-items-center tw-justify-between tw-gap-2 tw-px-4 tw-pb-2">
+                        <div class="tw-min-w-0">
+                            <div class="bp-overline">Урок</div>
+                            <div class="adf-heading tw-text-lg tw-leading-6 tw-truncate">{{ curLesson.name }}</div>
+                        </div>
+                        <v-btn icon="mdi-close" size="small" density="comfortable" variant="text" color="muted" class="tw-shrink-0 tw--mr-1" @click="lessonDialog = false"/>
+                    </div>
+                </div>
+                <div class="lesson-dialog__body tw-px-3 tw-pb-3">
+                    <LessonEditor :lesson="curLesson"/>
+                </div>
+            </v-card>
+        </v-dialog>
 
+        <!-- Создание модуля -->
+        <v-dialog v-model="dialogCreateModule" width="420" max-width="calc(100vw - 32px)">
+            <v-card class="edit-dialog">
+                <div class="tw-flex tw-items-center tw-justify-between tw-gap-2 tw-mb-2">
+                    <div class="adf-heading tw-text-xl tw-leading-7">Создать модуль</div>
+                    <v-btn icon="mdi-close" size="small" density="comfortable" variant="text" color="muted" class="tw--mr-1" @click="dialogCreateModule = false"/>
+                </div>
+                <v-text-field
+                    label="Название модуля"
+                    v-model="newModuleName"
+                    autofocus
+                    @keyup.enter="createModule()"
+                />
+                <div class="tw-flex tw-justify-end tw-gap-2 tw-mt-4">
+                    <v-btn variant="text" color="muted" @click="dialogCreateModule = false">Отмена</v-btn>
+                    <v-btn color="primary" :disabled="!newModuleName.trim()" @click="createModule()">Создать</v-btn>
+                </div>
+            </v-card>
+        </v-dialog>
+
+        <!-- Создание урока -->
+        <v-dialog v-model="dialogCreateLesson" width="420" max-width="calc(100vw - 32px)">
+            <v-card class="edit-dialog">
+                <div class="tw-flex tw-items-center tw-justify-between tw-gap-2 tw-mb-2">
+                    <div class="adf-heading tw-text-xl tw-leading-7">Создать урок</div>
+                    <v-btn icon="mdi-close" size="small" density="comfortable" variant="text" color="muted" class="tw--mr-1" @click="dialogCreateLesson = false"/>
+                </div>
+                <v-text-field
+                    label="Название урока"
+                    v-model="newLessonName"
+                    autofocus
+                    @keyup.enter="createLesson()"
+                />
+                <div class="tw-flex tw-justify-end tw-gap-2 tw-mt-4">
+                    <v-btn variant="text" color="muted" @click="dialogCreateLesson = false">Отмена</v-btn>
+                    <v-btn color="primary" :disabled="!newLessonName.trim()" @click="createLesson()">Создать</v-btn>
+                </div>
+            </v-card>
+        </v-dialog>
+    </div>
 </template>
 
 <style scoped lang="scss">
-.less {
-    cursor: pointer;
-    padding: 5px 10px;
-    border: #9197A3 1px solid;
-    border-radius: 4px;
-    @apply tw-my-2;
-    &:hover {
-        background: rgba(239, 238, 238, 0.59);
+/* На десктопе колонки прокручиваются независимо: вычитается шапка приложения,
+   шапка курса и строка вкладок. На телефоне прокручивается страница целиком. */
+@media (min-width: 768px) {
+    .program-pane {
+        max-height: calc(100vh - 280px);
+        overflow-y: auto;
     }
 }
 
-.active-lesson {
-    background-color: #d0d0d0;
+.lesson-dialog.v-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.lesson-dialog__head {
+    flex: 0 0 auto;
+    border-bottom: 1px solid var(--bp-border);
+}
+
+/* Тело не прокручивается само: высоту целиком забирает редактор,
+   у него своя прокрутка — иначе получаются две вложенные полосы и обрезанный текст */
+.lesson-dialog__body {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
 }
 </style>

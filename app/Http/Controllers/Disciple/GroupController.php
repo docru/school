@@ -16,28 +16,22 @@ class GroupController extends Controller
      */
     public function index()
     {
+        // Сводка та же, что у администратора и учителя (Group::summary)
         $groups = GroupUser::whereRole('disciple')
             ->whereUserId(auth()->id())
+            ->with([
+                'group.course:id,name',
+                'group.course.course_school_days:id,course_id',
+                'group.groupUser.user:id,name,surname,patronymic',
+                'group.groupsSchoolDay',
+            ])
             ->orderBy('created_at', 'desc')
             ->get()
-            ->map(function (GroupUser $groupUser) {
-                $group = $groupUser->group;
-                $course = $group->course;
+            ->map(fn(GroupUser $groupUser): ?array => $groupUser->group?->summary())
+            ->filter()
+            ->values()
+            ->all();
 
-                $res =[
-                    'id' => $groupUser->id,
-                    'status' => $groupUser->status,
-                    'group' => [
-                        'id' => $group->id,
-                        'name' => $group->name,
-                    ],
-                    'course' => [
-                        'id' => $course->id,
-                        'name' => $course->name,
-                    ],
-                ];
-                return $res;
-            })->toArray();
         return $this->ResponseOk($groups);
     }
 
@@ -62,7 +56,12 @@ class GroupController extends Controller
 
         // расписание (все дни расписания, уроки в днях, дни группы со статусом)
         $courseSchoolDay = $course->course_school_days()->get(['id', 'order'])->map(function (CourseSchoolDay $item) {
-            $lessons = $item->lessons()->orderBy('school_day_order')->get(['id', 'name', 'school_day_order', 'hours']);
+            // homework_count — чтобы в списке уроков пометить те, где есть домашнее задание
+            $lessons = $item->lessons()
+                ->select(['id', 'name', 'school_day_order', 'hours'])
+                ->withCount(['tasks as homework_count' => fn($q) => $q->where('kind', 'homework')])
+                ->orderBy('school_day_order')
+                ->get();
             return [
                 'id' => $item->id,
                 'order' => $item->order,

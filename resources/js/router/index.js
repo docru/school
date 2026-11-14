@@ -48,7 +48,8 @@ const routes = [
             breadcrumbs:[
                 {title:'Главная',routName:'Home'},
                 {title:'Группы',routName:'AdministratorGroupsList'},
-                {title:'Группа'},
+                // название группы подставляется из стора (см. breadcrumbs в App.vue)
+                {title:'Группа', getter:'administrator/getGroup', field:'name'},
             ]
         }
     },
@@ -61,6 +62,7 @@ const routes = [
         meta:{
             title: 'Курсы',
             breadcrumbs:[
+                {title:'Главная',routName:'Home'},
                 {title:'Курсы'},
             ]
         }
@@ -72,7 +74,10 @@ const routes = [
         meta:{
             title: 'Курсы',
             breadcrumbs:[
+                {title:'Главная',routName:'Home'},
                 {title:'Курсы',routName:'MethodologistCoursesList'},
+                // название курса подставляется из стора (см. breadcrumbs в App.vue)
+                {title:'Курс', getter:'methodologist/getCourse', field:'name'},
             ]
         }
     },
@@ -86,7 +91,7 @@ const routes = [
             title: 'Группы',
             breadcrumbs:[
                 {title:'Главная',routName:'Home'},
-                {title:'Курсы'},
+                {title:'Мои группы'},
             ]
         }
     },
@@ -98,9 +103,21 @@ const routes = [
             title: 'Группы',
             breadcrumbs:[
                 {title:'Главная',routName:'Home'},
-                {title:'Курсы',routName:'TeacherGroupsList'},
-                {title:'Уроки'},
-
+                {title:'Мои группы',routName:'TeacherGroupsList'},
+                // название группы подставляется из стора (см. breadcrumbs в App.vue)
+                {title:'Уроки', getter:'teacher/getGroup', field:'group.name'},
+            ]
+        }
+    },
+    {
+        path: '/teacher/review',
+        name: 'TeacherReview',
+        component: () => import('../pages/Teacher/Review.vue'),
+        meta:{
+            title: 'Проверка',
+            breadcrumbs:[
+                {title:'Главная',routName:'Home'},
+                {title:'Проверка'},
             ]
         }
     },
@@ -112,10 +129,9 @@ const routes = [
             title: 'Урок',
             breadcrumbs:[
                 {title:'Главная',routName:'Home'},
-                {title:'Курсы',routName:'TeacherGroupsList'},
-                {title:'Уроки',href:'/teacher/group',params:'groupId'},
-                {title:'Урок'},
-
+                {title:'Мои группы',routName:'TeacherGroupsList'},
+                {title:'Уроки',href:'/teacher/group',params:'groupId', getter:'teacher/getGroup', field:'group.name'},
+                {title:'Урок', getter:'teacher/getLesson', field:'lesson.name'},
             ]
         }
     },
@@ -129,7 +145,7 @@ const routes = [
             title: 'Группы',
             breadcrumbs:[
                 {title:'Главная',routName:'Home'},
-                {title:'Курсы'},
+                {title:'Мои курсы'},
             ]
         }
     },
@@ -141,9 +157,21 @@ const routes = [
             title: 'Группы',
             breadcrumbs:[
                 {title:'Главная',routName:'Home'},
-                {title:'Курсы',routName:'DiscipleGroupsList'},
-                {title:'Уроки'},
-
+                {title:'Мои курсы',routName:'DiscipleGroupsList'},
+                // название группы подставляется из стора (см. breadcrumbs в App.vue)
+                {title:'Уроки', getter:'disciple/getGroup', field:'group.name'},
+            ]
+        }
+    },
+    {
+        path: '/disciple/homework',
+        name: 'DiscipleHomework',
+        component: () => import('../pages/Disciple/Homework.vue'),
+        meta:{
+            title: 'Домашние задания',
+            breadcrumbs:[
+                {title:'Главная',routName:'Home'},
+                {title:'Домашние задания'},
             ]
         }
     },
@@ -155,10 +183,9 @@ const routes = [
             title: 'Урок',
             breadcrumbs:[
                 {title:'Главная',routName:'Home'},
-                {title:'Курсы',routName:'DiscipleGroupsList'},
-                {title:'Уроки',href:'/disciple/group',params:'groupId'},
-                {title:'Урок'},
-
+                {title:'Мои курсы',routName:'DiscipleGroupsList'},
+                {title:'Уроки',href:'/disciple/group',params:'groupId', getter:'disciple/getGroup', field:'group.name'},
+                {title:'Урок', getter:'disciple/getLesson', field:'lesson.name'},
             ]
         }
     },
@@ -173,6 +200,13 @@ const routes = [
         path: '/superadmin/users',
         name: 'SuperadminUsers',
         component: () => import('../pages/Superadmin/Users.vue'),
+        meta:{
+            title: 'Пользователи',
+            breadcrumbs:[
+                {title:'Главная',routName:'Home'},
+                {title:'Пользователи'},
+            ]
+        }
     },
 
 

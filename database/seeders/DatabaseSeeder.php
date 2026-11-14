@@ -39,7 +39,11 @@ class DatabaseSeeder extends Seeder
             'name' => 'disciple',
             'display_name' => 'Ученик',
         ]);
+        $homeGroupLeader = Role::create([
+            'name' => 'home_group_leader',
+            'display_name' => 'Лидер домашней группы',
+        ]);
 
-        $user->addRoles([$superadmin, $methodologist, $administrator, $teacher, $disciple]);
+        $user->addRoles([$superadmin, $methodologist, $administrator, $teacher, $disciple, $homeGroupLeader]);
     }
 }

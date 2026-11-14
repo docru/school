@@ -1,25 +1,33 @@
-
-
-
-.v-field--focused{
-  color:#60A5FA!important;
+/* Поля ввода по дизайн-системе Blueprint: граница border-control, фокус — акцент */
+.v-field--variant-outlined .v-field__outline {
+  color: var(--bp-border-control);
+  --v-field-border-opacity: 1;
 }
 
-.v-input--density-default .v-field--variant-outlined{
-  --v-field-padding-bottom: 5px!important;
-}
+.v-field--focused {
+  color: var(--bp-accent) !important;
 
-.ad-text-field  {
-  margin: 0 5px;
-  color:#9197A3;
-  --v-input-control-height: 25px!important;
-  --v-input-padding-top: 10px!important;
-  --v-field-padding-bottom: 0px!important;
-  :hover{
-    color:#60A5FA!important;
+  .v-field__outline {
+    color: var(--bp-accent);
   }
-  :focus{
-    color:black!important;
-    @apply dark:tw-text-white #{!important};
+}
+
+.v-input--density-default .v-field--variant-outlined {
+  --v-field-padding-bottom: 5px !important;
+}
+
+.ad-text-field {
+  margin: 0 5px;
+  color: var(--bp-text-muted);
+  --v-input-control-height: 25px !important;
+  --v-input-padding-top: 10px !important;
+  --v-field-padding-bottom: 0px !important;
+
+  :hover {
+    color: var(--bp-accent) !important;
+  }
+
+  :focus {
+    color: var(--bp-text-primary) !important;
   }
 }
