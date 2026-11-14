@@ -35,3 +35,4 @@ yarn-error.log
 /Makefile
 /docker-compose.override.yml
 /docker/Dockerfile.local
+/public/adminer
